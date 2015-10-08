@@ -10,32 +10,32 @@
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active">
+            <li<?= set_active_nav('home') ?>>
               <?php echo anchor('home', 'Home');?>
             </li>
-            <li class="dropdown">
+            <li class="dropdown <?= echo_active_nav_parent('info') ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li>
+                <li<?= set_active_nav('info/floorplan') ?>>
                   <?php echo anchor('info/floorplan', 'Floor plan');?>
                 </li>
-                <li>
+                <li<?= set_active_nav('info/machines') ?>>
                   <?php echo anchor('info/machines', 'Machines');?>
                 </li>
               </ul>
             </li>
-            <li class="dropdown">
+            <li class="dropdown <?= echo_active_nav_parent('reservations') ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reservations<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li>
+                <li<?= set_active_nav('reservations/active') ?>>
                   <?php echo anchor('reservations/active', 'Active reservations');?>
                 </li>
-                <li>
+                <li<?= set_active_nav('reservations/reserve') ?>>
                   <?php echo anchor('reservations/reserve', 'Reserve');?>
                 </li>
               </ul>
             </li>
-            <li>
+            <li<?= set_active_nav('contact') ?>>
               <?php echo anchor('contact', 'Contact us');?>
             </li>
           </ul>
