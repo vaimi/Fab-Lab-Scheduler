@@ -11,16 +11,16 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="active">
-              <a href="#">Home</a>
+              <?php echo anchor('home', 'Home');?>
             </li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li>
-                  <a href="#">Floor plan</a>
+                  <?php echo anchor('info/floorplan', 'Floor plan');?>
                 </li>
                 <li>
-                  <a href="#">Machines</a>
+                  <?php echo anchor('info/machines', 'Machines');?>
                 </li>
               </ul>
             </li>
@@ -28,25 +28,22 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reservations<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li>
-                  <a href="#">Active reservations</a>
+                  <?php echo anchor('reservations/active', 'Active reservations');?>
                 </li>
                 <li>
-                  <a href="#">Reserve</a>
+                  <?php echo anchor('reservations/reserve', 'Reserve');?>
                 </li>
               </ul>
             </li>
             <li>
-              <a href="#about">Info</a>
-            </li>
-            <li>
-              <a href="#contact">Contact us</a>
+              <?php echo anchor('contact', 'Contact us');?>
             </li>
           </ul>
           <form class="navbar-form navbar-right">
             <div class="form-group"></div>
-            <a class="btn btn-primary">Register</a>
+			<?php echo anchor('register', 'Register', 'class="btn btn-primary"');?>
             <div class="form-group"></div>
-            <button type="submit" class="btn btn-success">Sign in</button>
+			<?php echo anchor('login', 'Log in', 'class="btn btn-success"');?>
           </form>
         </div>
         <!--/.navbar-collapse -->

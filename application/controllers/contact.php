@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Home extends CI_Controller
+class Contact extends CI_Controller
 {
 	public function __constructor() {
 		parent::__constructor();
@@ -7,6 +7,6 @@ class Home extends CI_Controller
 	// this is the home page
 	public function index() {
 
-		$this->load->view('home');
+		$this->load->view('contact');
 	}
 }
