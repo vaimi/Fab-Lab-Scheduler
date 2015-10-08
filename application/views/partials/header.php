@@ -20,10 +20,13 @@
 	
 	<style type="text/css">
       body {
-        padding-top: 50px;
+        padding-top: 70px;
         padding-bottom: 20px;
       }
     </style>
+	
+	<link href="<?php echo asset_url();?>css/sortable-theme-bootstrap.css" rel="stylesheet" type="text/css">
+	<script src="<?php echo asset_url();?>js/sortable.min.js"></script>
   </head>
  
   <body>
