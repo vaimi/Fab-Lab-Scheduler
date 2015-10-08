@@ -24,13 +24,28 @@ class Info extends CI_Controller
 		$this->load->view('partials/footer');
 	}
 	
-	public function machines() {
+	public function machines($id = null) {
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Want some info?";
 		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
 		$this->load->view('partials/jumbotron', $jdata);
-		$this->load->view('info/machines');
+		if(isset($id))
+		{
+			echo "tbd";
+		}
+		else 
+		{
+		$mdata = array (
+			# TODO: These need to be of course loaded from the db
+			array("id"=>"1", "image"=>"no_image.png","title"=>"Example printer", "description"=>"Very good and fast!"),
+			array("id"=>"2", "image"=>"no_image.png","title"=>"Example printer", "description"=>"Very good and fast!"),
+			array("id"=>"3", "image"=>"no_image.png","title"=>"Example printer", "description"=>"Very good and fast!"),
+			array("id"=>"4", "image"=>"no_image.png","title"=>"Example printer", "description"=>"Very good and fast!")
+		);
+		$this->load->view('info/machines', array("mdata"=>$mdata));
+		}
 		$this->load->view('partials/footer');
+		
 	}
 }
