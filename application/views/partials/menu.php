@@ -40,11 +40,13 @@
           </ul>
           <form class="navbar-form navbar-right">
             <div class="form-group"></div>
-			<?php echo anchor('register', 'Register', 'class="btn btn-primary"');?>
+			<?php echo anchor('register', 'Register', 'class="btn btn-primary" data-toggle="modal" data-target="#registerModal"');?>
             <div class="form-group"></div>
-			<?php echo anchor('login', 'Log in', 'class="btn btn-success"');?>
+			<?php echo anchor('login', 'Log in', 'class="btn btn-success" data-toggle="modal" data-target="#loginModal"');?>
           </form>
         </div>
         <!--/.navbar-collapse -->
       </div>
     </div>
+	<?php $this->load->view('modals/login'); ?>
+	<?php $this->load->view('modals/register'); ?>
