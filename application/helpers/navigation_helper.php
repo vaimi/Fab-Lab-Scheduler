@@ -20,7 +20,7 @@ if (!function_exists('set_active_nav')) {
 if (!function_exists('echo_active_nav_parent')) {
     function echo_active_nav_parent($uri)
     {
-        return is_parent_uri($uri) ? 'active' : '';
+        return is_parent_uri($uri) ? ' active' : '';
     }
 }
 

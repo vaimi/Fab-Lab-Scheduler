@@ -1,5 +1,4 @@
   
-  <body>
     <div class="navbar navbar-default navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
@@ -13,7 +12,7 @@
             <li<?= set_active_nav('home') ?>>
               <?php echo anchor('home', 'Home');?>
             </li>
-            <li class="dropdown <?= echo_active_nav_parent('info') ?>">
+            <li class="dropdown<?= echo_active_nav_parent('info') ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li<?= set_active_nav('info/floorplan') ?>>
@@ -24,7 +23,7 @@
                 </li>
               </ul>
             </li>
-            <li class="dropdown <?= echo_active_nav_parent('reservations') ?>">
+            <li class="dropdown<?= echo_active_nav_parent('reservations') ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reservations<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li<?= set_active_nav('reservations/active') ?>>
