@@ -28,10 +28,10 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reservations<b class="caret"></b></a>
               <ul class="dropdown-menu">
                 <li>
-                  <a href="#">Floor plan</a>
+                  <a href="#">Active reservations</a>
                 </li>
                 <li>
-                  <a href="#">Machines</a>
+                  <a href="#">Reserve</a>
                 </li>
               </ul>
             </li>
