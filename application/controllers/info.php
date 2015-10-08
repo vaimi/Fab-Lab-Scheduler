@@ -21,6 +21,7 @@ class Info extends CI_Controller
 		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('info/floorplan');
+		$this->load->view('partials/footer');
 	}
 	
 	public function machines() {
@@ -30,5 +31,6 @@ class Info extends CI_Controller
 		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('info/machines');
+		$this->load->view('partials/footer');
 	}
 }
