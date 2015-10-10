@@ -6,3 +6,6 @@
 .idea/misc.xml
 .idea/.name
 Fab-Lab-Scheduler.iml
+.buildpath
+.project
+.settings
