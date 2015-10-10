@@ -13,7 +13,7 @@
 		<hr/>
 		<table>
 			<tr>
-				<td><label for="username">User name *</label></td>
+				<td width="150px"><label for="username">User name *</label></td>
 				<td><input type="text" class="form-control" name="username" id="username"
 					style="width: 200px;" value="" required="" autofocus="" placeholder="User name" /></td>
 			</tr>
