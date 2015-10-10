@@ -9,3 +9,5 @@ Fab-Lab-Scheduler.iml
 .buildpath
 .project
 .settings
+application/config/database.php
+application/config/config.php
