@@ -37,7 +37,7 @@ class Reservations extends CI_Controller
 		$jdata['title'] = "Need for reservation?";
 		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
 		$this->load->view('partials/jumbotron', $jdata);
-		$this->load->view('reservations/active');
+		$this->load->view('reservations/reserve');
 		$this->load->view('partials/footer');
 	}
 }
