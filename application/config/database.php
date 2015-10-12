@@ -76,8 +76,9 @@ $query_builder = TRUE;
 $db['default'] = array(
 	'dsn'	=> '',
 	***REMOVED***
-	'username' => '',
-	'password' => '',
+	'port' => 7557,
+	***REMOVED***
+	***REMOVED***
 	'database' => 'fablab_scheduler',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',

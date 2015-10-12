@@ -37,6 +37,29 @@
             <li<?= set_active_nav('contact') ?>>
               <?php echo anchor('contact', 'Contact us');?>
             </li>
+			<li class="dropdown<?= echo_active_nav_parent('admin') ?>">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color:red">Admin<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+				<li class="dropdown-header">System control</li>
+				<li<?= set_active_nav('admin/general') ?>>
+                  <?php echo anchor('admin/general', 'General settings');?>
+                </li>
+				<li class="divider"></li>
+				<li class="dropdown-header">Machine control</li>
+				<li<?= set_active_nav('admin/machines') ?>>
+                  <?php echo anchor('admin/machines', 'Machines');?>
+                </li>
+				<li<?= set_active_nav('admin/timetables') ?>>
+                  <?php echo anchor('admin/timetables', 'Timetables');?>
+                </li>
+				<li class="divider"></li>
+				<li class="dropdown-header">User control</li>
+                <li<?= set_active_nav('admin/users') ?>>
+                  <?php echo anchor('admin/users', 'Users');?>
+                </li>
+
+              </ul>
+            </li>
           </ul>
           <form class="navbar-form navbar-right">
             <div class="form-group"></div>
