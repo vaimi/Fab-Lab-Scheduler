@@ -1,7 +1,3 @@
-<?php $this->load->view('partials/header'); ?>
- 
-<?php $this->load->view('partials/menu'); ?>
-
 <div class="container">
 	<h4 class="modal-title">Log in to System</h4>
 	<hr/>
@@ -33,5 +29,3 @@
 	</form>
 
 </div>
-
-<?php $this->load->view('partials/footer'); ?>
