@@ -14,9 +14,6 @@ class Contact extends CI_Controller
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('contact');
 		
-		$this->load->model('Test_model');
-		$this->Test_model->test();
-		
 		$this->load->view('partials/footer');
 	}
 }
