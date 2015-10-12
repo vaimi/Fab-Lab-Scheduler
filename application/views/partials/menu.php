@@ -61,12 +61,12 @@
               </ul>
             </li>
           </ul>
-          <form class="navbar-form navbar-right">
+          <div class="navbar-form navbar-right">
             <div class="form-group"></div>
-			<?php echo anchor('register', 'Register', 'class="btn btn-primary" data-toggle="modal" data-target="#registerModal"');?>
+			<?php echo anchor('user/registration', 'Register', 'class="btn btn-primary" data-toggle="modal" data-target="#registerModal"');?>
             <div class="form-group"></div>
-			<?php echo anchor('login', 'Log in', 'class="btn btn-success" data-toggle="modal" data-target="#loginModal"');?>
-          </form>
+			<?php echo anchor('user/login', 'Log in', 'class="btn btn-success" data-toggle="modal" data-target="#loginModal"');?>
+          </div>
         </div>
         <!--/.navbar-collapse -->
       </div>

@@ -699,7 +699,7 @@ class Aauth {
 	 * @param string $social_number User's social number (optional)
 	 * @return int|bool False if create fails or returns user id if successful
 	 */
-	public function create_user($email, $pass, $name, $surname, $company='', $student_number='', $social_number='') {
+	public function create_user($email, $pass, $name, $surname, $address='', $phone_number='', $company='', $student_number='', $social_number='') {
 
 		$valid = TRUE;
 
@@ -745,7 +745,9 @@ class Aauth {
 			'surname' => $surname,
 			'company' => $company,
 			'student_number' => $student_number,
-			'social_number' => $social_number
+			'social_number' => $social_number,
+			'address' => $address,
+			'phone_number' => $phone_number
 		);
 
 		if ( $this->aauth_db->insert($this->config_vars['users'], $data )){
