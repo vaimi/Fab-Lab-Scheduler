@@ -32,7 +32,8 @@ class Info extends CI_Controller
 		$this->load->view('partials/jumbotron', $jdata);
 		if(isset($id))
 		{
-			echo "tbd";
+			$machine_data = $this->get_machine_info($id);
+			$this->load->view('info/machineinfo', $machine_data);
 		}
 		else 
 		{
@@ -47,5 +48,16 @@ class Info extends CI_Controller
 		}
 		$this->load->view('partials/footer');
 		
+	}
+	
+	/**
+	 * Fetches machine data to be shown on page
+	 *
+	 * @access	private
+	 * @param	int
+	 * @return	
+	 */
+	private function get_machine_info($id) {
+		echo "tbd";
 	}
 }
