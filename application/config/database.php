@@ -75,8 +75,8 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',
-	'username' => 'root',
+	***REMOVED***
+	'username' => '',
 	'password' => '',
 	'database' => 'fablab_scheduler',
 	'dbdriver' => 'mysqli',
