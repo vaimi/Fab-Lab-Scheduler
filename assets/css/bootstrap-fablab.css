@@ -13,4 +13,16 @@
 		height: 100%;
 		background-size: cover;
 		overflow: hidden;
+		color: white;
+		text-shadow: 2px 2px 2px black;
+	}
+	
+	.jumbotron-full-home {
+		position: relative;
+		background: #000 url("../images/jt_full_home.png") center center;
+		height: 100%;
+		background-size: cover;
+		overflow: hidden;
+		color: white;
+		text-shadow: 2px 2px 2px black;
 	}
