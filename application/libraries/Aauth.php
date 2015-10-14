@@ -699,7 +699,7 @@ class Aauth {
 	 * @param string $social_number User's social number (optional)
 	 * @return int|bool False if create fails or returns user id if successful
 	 */
-	public function create_user($email, $pass, $name, $surname, $address='', $phone_number='', $company='', $student_number='', $social_number='') {
+	public function create_user($email, $pass, $name, $surname, $address_street='', $address_postal_number='', $phone_number='', $company='', $student_number='') {
 
 		$valid = TRUE;
 
@@ -745,8 +745,8 @@ class Aauth {
 			'surname' => $surname,
 			'company' => $company,
 			'student_number' => $student_number,
-			'social_number' => $social_number,
-			'address' => $address,
+			'address_street' => $address_street,
+			'address_postal_code' => $address_postal_number,
 			'phone_number' => $phone_number
 		);
 
@@ -970,7 +970,7 @@ class Aauth {
 		if ($query->num_rows() > 0){
 			$row = $query->row();
 
-			$ver_code = random_string('alnum', 16);
+			$ver_code = random_string('alnum', 20);
 
 			$data['verification_code'] = $ver_code;
 

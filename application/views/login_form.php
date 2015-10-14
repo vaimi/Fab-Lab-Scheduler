@@ -1,3 +1,6 @@
+<?php $this->load->view('partials/header'); ?>
+ 
+<?php $this->load->view('partials/menu'); ?>
 <div class="container">
 	<h4 class="modal-title">Log in to System</h4>
 	<hr/>
@@ -9,7 +12,7 @@
 		<p>Email:</p>
 		<p>
 			<input type="email" class="form-control" name="email" id="email"
-				style="width: 200px;" value="" required="" autofocus=""
+				style="width: 200px;" value="<?php echo $email;?>" required="" autofocus=""
 				placeholder="Email address" />
 		</p>
 		<p>Password:</p>
@@ -29,3 +32,5 @@
 	</form>
 
 </div>
+
+<?php $this->load->view('partials/footer'); ?>

@@ -62,10 +62,14 @@
             </li>
           </ul>
           <div class="navbar-form navbar-right">
+          <?php if (!$this->aauth->is_loggedin()) { ?>
             <div class="form-group"></div>
-			<?php echo anchor('user/registration', 'Register', 'class="btn btn-primary" data-toggle="modal" data-target="#registerModal"');?>
+			<?php echo anchor('user/registration', 'Register', array('class' => 'btn btn-primary', 'onclick' => "$('#registerModal').modal('show');return false;"));?>
             <div class="form-group"></div>
-			<?php echo anchor('user/login', 'Log in', 'class="btn btn-success" data-toggle="modal" data-target="#loginModal"');?>
+			<?php echo anchor('user/login', 'Log in', array('class' => 'btn btn-success', 'onclick' => "$('#loginModal').modal('show');return false;"));?>
+		  <?php } else { ?>
+		  	<p>Hello <?php echo $this->aauth->get_user()->surname; ?>
+		  <?php } ?>
           </div>
         </div>
         <!--/.navbar-collapse -->
