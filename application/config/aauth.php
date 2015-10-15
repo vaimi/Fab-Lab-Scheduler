@@ -67,14 +67,14 @@ $config['aauth']['totp_reset_over_reset_password'] = false;
 $config['aauth']['max_login_attempt'] = 10;
 
 // to register email verifitaion need? true / false
-$config['aauth']['verification'] = false;
+$config['aauth']['verification'] = true;
 
 $config['aauth']['login_with_name'] = false;
 $config['aauth']['use_cookies'] = true; // FALSE only on CI3
 
 // system email.
-$config['aauth']['email'] = 'admin@admin.com';
-$config['aauth']['name'] = 'Emre Akay';
+$config['aauth']['email'] = 'oulu.fab.lab@gmail.com';
+$config['aauth']['name'] = 'Oulu Fab Lab';
 
 // Link for verification without site_url or base_url
 $config['aauth']['verification_link'] = '/user/verification/';
