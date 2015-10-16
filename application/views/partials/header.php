@@ -10,6 +10,7 @@
 	<!-- Bootstrap -->
     <link href="<?php echo asset_url();?>css/bootstrap.min.css" rel="stylesheet" type="text/css"> 
 	<link href="<?php echo asset_url();?>css/bootstrap-fablab.css" rel="stylesheet" type="text/css"> 
+	<link href="<?php echo asset_url();?>css/jQueryGantt.css" rel="stylesheet" type="text/css"> 
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -24,6 +25,7 @@
         padding-bottom: 20px;
       }
     </style>
+	
 	
 	<link href="<?php echo asset_url();?>css/sortable-theme-bootstrap.css" rel="stylesheet" type="text/css">
 	<script src="<?php echo asset_url();?>js/sortable.min.js"></script>

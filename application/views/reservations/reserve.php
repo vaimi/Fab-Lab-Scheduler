@@ -1,3 +1,7 @@
+<script src="<?php echo asset_url();?>js/jquery-1.11.3.min.js"></script>
+<script src="<?php echo asset_url();?>js/jquery.fn.gantt.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+
 <div class="container">
 	<article>
 		<legend>Search by form</legend>
@@ -55,6 +59,53 @@
 	</article>
 	<article>
 		<legend>Search by calendar</legend>
-		<p>Lorem ipsum</p>
+		<div class="gantt"></div>
 	</article>
 </div>
+    <script>
+
+        (function($) {
+
+            "use strict";
+
+            var today = moment();
+			var andOneHours = moment().add(1, "hours");
+            var andTwoHours = moment().add(2, "hours");
+
+            var today_friendly = "/Date(" + today.valueOf() + ")/";
+            var next_friendly = "/Date(" + andTwoHours.valueOf() + ")/";
+			var next2_friendly = "/Date(" + andOneHours.valueOf() + ")/";
+
+            $(".gantt").gantt({
+                source: [{
+                    name: "Testing",
+                    desc: " ",
+                    values: [{
+                        from: today_friendly,
+                        to: next_friendly,
+                        label: "Test",
+                        customClass: "ganttRed"
+                    },{
+                        from: today_friendly,
+                        to: next2_friendly,
+                        label: "Test2",
+                        customClass: "ganttBlue"
+                    }]
+                },{
+                    name: "Testing 2",
+                    desc: " ",
+                    values: [{
+                        from: today_friendly,
+                        to: next2_friendly,
+                        label: "Test",
+                        customClass: "ganttBlue"
+                    }]
+                }],
+                scale: "hours",
+                minScale: "hours",
+                navigate: "scroll"
+            });
+
+        }) ( jQuery );
+
+    </script>

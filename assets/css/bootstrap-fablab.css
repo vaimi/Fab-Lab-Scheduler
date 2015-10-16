@@ -26,3 +26,12 @@
 		color: white;
 		text-shadow: 2px 2px 2px black;
 	}
+	
+	/* Bootstrap 3.x re-reset */
+	.fn-gantt *,
+	.fn-gantt *:after,
+	.fn-gantt *:before {
+	-webkit-box-sizing: content-box;
+	   -moz-box-sizing: content-box;
+			box-sizing: content-box;
+	}
