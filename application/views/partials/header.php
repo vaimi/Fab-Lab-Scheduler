@@ -11,6 +11,10 @@
     <link href="<?php echo asset_url();?>css/bootstrap.min.css" rel="stylesheet" type="text/css"> 
 	<link href="<?php echo asset_url();?>css/bootstrap-fablab.css" rel="stylesheet" type="text/css"> 
 	<link href="<?php echo asset_url();?>css/jQueryGantt.css" rel="stylesheet" type="text/css"> 
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="<?php echo asset_url();?>js/jquery-1.11.3.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="<?php echo asset_url();?>js/bootstrap.min.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -29,6 +33,10 @@
 	
 	<link href="<?php echo asset_url();?>css/sortable-theme-bootstrap.css" rel="stylesheet" type="text/css">
 	<script src="<?php echo asset_url();?>js/sortable.min.js"></script>
+	
+	<!-- summernote editor -->
+	<link href="<?php echo asset_url();?>css/summernote.css" rel="stylesheet">
+	<script src="<?php echo asset_url();?>js/summernote.min.js"></script>
   </head>
  
   <body>
