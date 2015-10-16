@@ -77,9 +77,9 @@ $config['aauth']['email'] = 'oulu.fab.lab@gmail.com';
 $config['aauth']['name'] = 'Oulu Fab Lab';
 
 // Link for verification without site_url or base_url
-$config['aauth']['verification_link'] = '/user/verification/';
+$config['aauth']['verification_link'] = 'user/verification/';
 // Link for reset_password without site_url or base_url
-$config['aauth']['reset_password_link'] = '/user/reset_password/';
+$config['aauth']['reset_password_link'] = 'user/reset_password/';
 
 /* End of file aauth.php */
 /* Location: ./application/config/aauth.php */

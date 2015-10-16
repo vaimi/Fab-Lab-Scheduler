@@ -164,26 +164,28 @@ class User extends CI_Controller
 	
 	public function logout()
 	{
-		$this->load->library("Aauth");
-		if ($this->input->method() == 'post')
+		if (!$this->aauth->is_loggedin())
 		{
-			$password = $this->input->post('password');
-			$email = $this->input->post('email');
-			$remember = $this->input->post('remember')?true:false;
-			$current_url = $this->input->post('current');
-			$login_result = $this->aauth->login($email, $password, $remember);
-			if ($login_result) //login success, refresh current page
-			{
-				redirect($current_url, 'refresh');
-			}
-			else //login fail, go to login page with fail information
-			{
-				$this->load->view('login_form', array('email' => $email, 'data'=>$this->aauth->errors));
-			}
+			$this->load->view('page_not_found_404');
 		}
 		else
 		{
-			$this->load->view('login_form', array('email' => $email, 'data'=>array()));
+			$this->aauth->logout();
+			$this->load->view('user/logout');
+		}
+			
+	}
+	
+	public function verification($user_id, $verification)
+	{
+		$verify_result = $this->aauth->verify_user($user_id, $verification);
+		if (!$verify_result)
+		{
+			$this->load->view('page_not_found_404');
+		}
+		else 
+		{
+			$this->load->view('user/verification_success');
 		}
 	}
 }

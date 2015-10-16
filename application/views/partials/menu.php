@@ -68,7 +68,7 @@
             <div class="form-group"></div>
 			<?php echo anchor('user/login', 'Log in', array('class' => 'btn btn-success', 'onclick' => "$('#loginModal').modal('show');return false;"));?>
 		  <?php } else { ?>
-		  	<p>Hello <?php echo $this->aauth->get_user()->surname; ?>
+		  	<p>Hello <?php echo get_user_info()->surname; ?> <?php echo anchor('user/logout', 'Log out', array('class' => 'btn btn-default'));?>
 		  <?php } ?>
           </div>
         </div>
