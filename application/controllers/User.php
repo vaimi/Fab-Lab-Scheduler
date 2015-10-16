@@ -149,7 +149,20 @@ class User extends CI_Controller
 			$login_result = $this->aauth->login($email, $password, $remember);
 			if ($login_result) //login success, refresh current page
 			{
+				// set extended user information into session 
+				$sql = "select * from extended_users_information where id=?";
+				$query = $this->db->query($sql, array($this->session->userdata('id')));
+				$row = $query->row();
+				$this->session->set_userdata('surname', $row->surname);
+				$this->session->set_userdata('company', $row->company);
+				$this->session->set_userdata('address_street', $row->address_street);
+				$this->session->set_userdata('address_postal_code', $row->address_postal_code);
+				$this->session->set_userdata('phone_number', $row->phone_number);
+				$this->session->set_userdata('student_number', $row->student_number);
+				$this->session->set_userdata('quota', $row->quota);
+				
 				redirect($current_url, 'refresh');
+				
 			}
 			else //login fail, go to login page with fail information
 			{

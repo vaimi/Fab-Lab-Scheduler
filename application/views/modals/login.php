@@ -23,7 +23,7 @@
 					</p>
 					<p>
 						<input type="checkbox" value="remember" name="remember"
-							id="remember" />
+							id="remember" /> Remember
 					</p>
 					<p>
 						<input type="hidden" id='current' name='current' value='<?php echo current_url();?>' />

@@ -13,7 +13,7 @@
 // redirected the page spesificed below
 $config['aauth']['no_permission'] = FALSE;
 //name of admin group
-$config['aauth']['admin_group'] = 'admin';
+$config['aauth']['admin_group'] = 1;
 //name of default group, the new user is added in it
 $config['aauth']['default_group'] = 2;
 // public group , people who not logged in

@@ -37,7 +37,7 @@
             <li<?= set_active_nav('contact') ?>>
               <?php echo anchor('contact', 'Contact us');?>
             </li>
-			<li class="dropdown<?= echo_active_nav_parent('admin') ?>">
+			<?php if ($this->aauth->is_admin()) { ?><li class="dropdown<?= echo_active_nav_parent('admin') ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color:red">Admin<b class="caret"></b></a>
               <ul class="dropdown-menu">
 				<li class="dropdown-header">System control</li>
@@ -59,6 +59,7 @@
                 </li>
 
               </ul>
+              <?php } ?>
             </li>
           </ul>
           <div class="navbar-form navbar-right">
@@ -68,7 +69,7 @@
             <div class="form-group"></div>
 			<?php echo anchor('user/login', 'Log in', array('class' => 'btn btn-success', 'onclick' => "$('#loginModal').modal('show');return false;"));?>
 		  <?php } else { ?>
-		  	<p>Hello <?php echo get_user_info()->surname; ?> <?php echo anchor('user/logout', 'Log out', array('class' => 'btn btn-default'));?>
+		  	<p>Hello <?php echo $this->session->userdata('surname'); ?> <?php echo anchor('user/logout', 'Log out', array('class' => 'btn btn-default'));?>
 		  <?php } ?>
           </div>
         </div>

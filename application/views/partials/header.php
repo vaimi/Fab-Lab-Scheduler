@@ -36,6 +36,7 @@
 	
 	<!-- summernote editor -->
 	<link href="<?php echo asset_url();?>css/summernote.css" rel="stylesheet">
+	<link href="<?php echo asset_url();?>css/font-awesome.min.css" rel="stylesheet">
 	<script src="<?php echo asset_url();?>js/summernote.min.js"></script>
   </head>
  
