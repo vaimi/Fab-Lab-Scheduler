@@ -13,7 +13,7 @@
  *
  * @copyright 2014-2015 Emre Akay
  *
- * @version 2.4.0
+ * @version 2.4.1
  *
  * @license LGPL
  * @license http://opensource.org/licenses/LGPL-3.0 Lesser GNU Public License
@@ -693,13 +693,9 @@ class Aauth {
 	 * @param string $email User's email address
 	 * @param string $pass User's password
 	 * @param string $name User's name
-	 * @param string $surname User's full name
-	 * @param string $company User's company (optional)
-	 * @param string $student_number User's student number (optional)
-	 * @param string $social_number User's social number (optional)
 	 * @return int|bool False if create fails or returns user id if successful
 	 */
-	public function create_user($email, $pass, $name, $surname, $address_street='', $address_postal_number='', $phone_number='', $company='', $student_number='') {
+	public function create_user($email, $pass, $name='') {
 
 		$valid = TRUE;
 
@@ -717,7 +713,8 @@ class Aauth {
 			$this->error($this->CI->lang->line('aauth_error_email_exists'));
 			$valid = FALSE;
 		}
-		if (!valid_email($email)){
+		$valid_email = (bool) filter_var($email, FILTER_VALIDATE_EMAIL);
+		if (!$valid_email){
 			$this->error($this->CI->lang->line('aauth_error_email_invalid'));
 			$valid = FALSE;
 		}
@@ -729,53 +726,22 @@ class Aauth {
 			$this->error($this->CI->lang->line('aauth_error_username_invalid'));
 			$valid = FALSE;
 		}
-		if ($surname == ''){
-			$this->error($this->CI->lang->line('aauth_error_surname_invalid'));
-			$valid = FALSE;
-		}
-		
 		if (!$valid) {
 			return FALSE; 
 		}
-		
+
 		$data = array(
 			'email' => $email,
 			'pass' => $this->hash_password($pass, 0), // Password cannot be blank but user_id required for salt, setting bad password for now
 			'name' => $name,
-			'surname' => $surname,
-			'company' => $company,
-			'student_number' => $student_number,
-			'address_street' => $address_street,
-			'address_postal_code' => $address_postal_number,
-			'phone_number' => $phone_number
 		);
 
 		if ( $this->aauth_db->insert($this->config_vars['users'], $data )){
 
 			$user_id = $this->aauth_db->insert_id();
 
-			// set group
-			$user_group = 2; //public group
-			$email_prefix = explode( '@', $email )[1];
-			// get prefixes of all groups
-			$sql = "SELECT * FROM aauth_groups";
-			$query = $this->aauth_db->query($sql);
-			// compare user's email with each prefixes
-			foreach ($query->result() as $group)
-			{
-				if ($group->email_prefixes == '')
-					continue;
-				$prefixes_in_group = explode( '|', $group->email_prefixes );
-				foreach ($prefixes_in_group as $prefix)
-				{
-					if (fnmatch($prefix,$email_prefix))
-					{
-						$user_group = $group->id;
-					}
-				}
-			}
-			// save user to group
-			$this->add_member($user_id, $user_group);
+			// set default group
+			$this->add_member($user_id, $this->config_vars['default_group']);
 
 			// if verification activated
 			if($this->config_vars['verification']){
@@ -824,7 +790,8 @@ class Aauth {
 				$this->error($this->CI->lang->line('aauth_error_update_email_exists'));
 				$valid = FALSE;
 			}
-			if (!valid_email($email)){
+			$valid_email = (bool) filter_var($email, FILTER_VALIDATE_EMAIL);
+			if (!$valid_email){
 				$this->error($this->CI->lang->line('aauth_error_email_invalid'));
 				$valid = FALSE;
 			}
@@ -970,7 +937,7 @@ class Aauth {
 		if ($query->num_rows() > 0){
 			$row = $query->row();
 
-			$ver_code = random_string('alnum', 20);
+			$ver_code = random_string('alnum', 16);
 
 			$data['verification_code'] = $ver_code;
 
@@ -1192,9 +1159,10 @@ class Aauth {
 	 * Create group
 	 * Creates a new group
 	 * @param string $group_name New group name
+	 * @param string $definition Description of the group
 	 * @return int|bool Group id or FALSE on fail
 	 */
-	public function create_group($group_name, $definition) {
+	public function create_group($group_name, $definition = '') {
 
 		$query = $this->aauth_db->get_where($this->config_vars['groups'], array('name' => $group_name));
 

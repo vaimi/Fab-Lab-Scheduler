@@ -27,6 +27,8 @@
 		<p>Student number: <?php echo $student_number;?></p>
 	<?php } ?>
 	<br/>
+	<p>Your account has not been activated yet. Please follow the instruction in your email <?php echo $email; ?> to activate your account.</p>
+	<br/>
 	<p>You can visit the Support Desk at any time by going to http://xxx.yyy.com/</p>
 	<br/>
 	<p>Please do let us know if you have any questions.</p>

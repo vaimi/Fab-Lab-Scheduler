@@ -20,33 +20,37 @@ class User extends CI_Controller
 			$phone_number = $this->input->post('phone_number');
 			$company = $this->input->post('company');
 			$student_number = $this->input->post('student_number');
-			$result = $this->aauth->create_user($email, $password, $username, $surname, $address_street, $address_postal_number, $phone_number, $company, $student_number);
-			if ($result == False)
+			
+			
+			$error = array();
+			// , $surname, $address_street, $address_postal_number, $phone_number, $company, $student_number
+			// validate inputed data
+			if (empty($username))
 			{
-				$error = array();
-				if (empty($username))
-				{
-					$error[] = $this->aauth->CI->lang->line('aauth_error_username_required');
-				}
-				if ($this->aauth->user_exist_by_name($username)) {
-					$error[] = $this->aauth->CI->lang->line('aauth_error_username_exists');
-				}
-				if ($this->aauth->user_exist_by_email($email)) {
-					$error[] = $this->aauth->CI->lang->line('aauth_error_email_exists');
-				}
-				$this->load->helper('email');
-				if (!valid_email($email)){
-					$error[] = $this->aauth->CI->lang->line('aauth_error_email_invalid');
-				}
-				if ( strlen($password) < $this->aauth->config_vars['min'] OR strlen($password) > $this->aauth->config_vars['max'] ){
-					$error[] = $this->aauth->CI->lang->line('aauth_error_password_invalid');
-				}
-				if ($username !='' && !ctype_alnum(str_replace($this->aauth->config_vars['valid_chars'], '', $username))){
-					$error[] = $this->aauth->CI->lang->line('aauth_error_username_invalid');
-				}
-				if ($surname == ''){
-					$error[] = $this->aauth->CI->lang->line('aauth_error_surname_invalid');
-				}
+				$error[] = $this->aauth->CI->lang->line('aauth_error_username_required');
+			}
+			if ($this->aauth->user_exist_by_name($username)) {
+				$error[] = $this->aauth->CI->lang->line('aauth_error_username_exists');
+			}
+			if ($this->aauth->user_exist_by_email($email)) {
+				$error[] = $this->aauth->CI->lang->line('aauth_error_email_exists');
+			}
+			$this->load->helper('email');
+			if (!valid_email($email)){
+				$error[] = $this->aauth->CI->lang->line('aauth_error_email_invalid');
+			}
+			if ( strlen($password) < $this->aauth->config_vars['min'] OR strlen($password) > $this->aauth->config_vars['max'] ){
+				$error[] = $this->aauth->CI->lang->line('aauth_error_password_invalid');
+			}
+			if ($username !='' && !ctype_alnum(str_replace($this->aauth->config_vars['valid_chars'], '', $username))){
+				$error[] = $this->aauth->CI->lang->line('aauth_error_username_invalid');
+			}
+			if ($surname == ''){
+				$error[] = $this->aauth->CI->lang->line('aauth_error_surname_invalid');
+			}
+			
+			if (count($error) > 0)
+			{
 				$data = array(
 						'success' => false,
 						'username' => $username,
@@ -64,6 +68,41 @@ class User extends CI_Controller
 			}
 			else 
 			{
+				$user_id = $this->aauth->create_user($email, $password, $username);
+				$db = $this->aauth->aauth_db;
+				
+				// insert extended user information
+				$sql = "insert into extended_users_information 
+						(`id`, `surname`, `company`, `address_street`, `address_postal_code`, `phone_number`, `student_number`, `quota`)
+						values (?, ?, ?, ?, ?, ?, ?, ?)";
+				$query = $db->query($sql, array($user_id, $surname, $company, $address_street, $address_postal_number, $phone_number, $student_number, 0));
+				// delete user from default group
+				$sql = "delete from aauth_user_to_group where user_id=?";
+				$db->query($sql, array($user_id));
+				// set default group
+				$user_group = 2; //public group
+				// get prefix of the user's email
+				$email_prefix = explode( '@', $email )[1];
+				// get prefixes of all groups
+				$sql = "SELECT * FROM aauth_groups";
+				$query = $db->query($sql);
+				// compare user's email with each prefixes
+				foreach ($query->result() as $group)
+				{
+					if ($group->email_prefixes == '')
+						continue;
+					$prefixes_in_group = explode( '|', $group->email_prefixes );
+					foreach ($prefixes_in_group as $prefix)
+					{
+						if (fnmatch($prefix,$email_prefix))
+						{
+							$user_group = $group->id;
+						}
+					}
+				}
+				// save user to group
+				$this->aauth->add_member($user_id, $user_group);
+				
 				$data = array(
 						'success' => True,
 						'username' => $username,
@@ -99,6 +138,31 @@ class User extends CI_Controller
 	}
 	
 	public function login()
+	{
+		$this->load->library("Aauth");
+		if ($this->input->method() == 'post')
+		{
+			$password = $this->input->post('password');
+			$email = $this->input->post('email');
+			$remember = $this->input->post('remember')?true:false;
+			$current_url = $this->input->post('current');
+			$login_result = $this->aauth->login($email, $password, $remember);
+			if ($login_result) //login success, refresh current page
+			{
+				redirect($current_url, 'refresh');
+			}
+			else //login fail, go to login page with fail information
+			{
+				$this->load->view('login_form', array('email' => $email, 'data'=>$this->aauth->errors));
+			}
+		}
+		else
+		{
+			$this->load->view('login_form', array('email' => $email, 'data'=>array()));
+		}
+	}
+	
+	public function logout()
 	{
 		$this->load->library("Aauth");
 		if ($this->input->method() == 'post')
