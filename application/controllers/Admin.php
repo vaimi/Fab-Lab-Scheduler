@@ -37,6 +37,9 @@ class Admin extends CI_Controller
 			}
 			else 
 			{
+				$need_supervision = $need_supervision==''?0:1;
+				$sql = "insert into MachineGroup(Name, Description, NeedSupervision) values (?, ?, ?)";
+				$this->db->query($sql, array($name, $description, $need_supervision));
 				redirect('admin/machines', 'refresh');
 			}
 		}
