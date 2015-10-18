@@ -149,6 +149,11 @@ class User extends CI_Controller
 			$login_result = $this->aauth->login($email, $password, $remember);
 			if ($login_result) //login success, refresh current page
 			{
+				
+				//Db should do like this. Load model first.
+				$this->load->model('User_model');
+				//Call db query from model
+// 				$row = $this->User_model->get_user_data($this->session->userdata('id')); 
 				// set extended user information into session 
 				$sql = "select * from extended_users_information where id=?";
 				$query = $this->db->query($sql, array($this->session->userdata('id')));
@@ -169,9 +174,9 @@ class User extends CI_Controller
 				$this->load->view('login_form', array('email' => $email, 'data'=>$this->aauth->errors));
 			}
 		}
-		else
+		else //If get request.
 		{
-			$this->load->view('login_form', array('email' => $email, 'data'=>array()));
+			$this->load->view('login_form', array('email' => '', 'data'=>array()));
 		}
 	}
 	
