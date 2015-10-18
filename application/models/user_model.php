@@ -7,13 +7,10 @@ class User_model extends CI_Model {
         parent::__construct();
     }
     
-    function get_user_data($id) 
+    function get_extended_user_data($id) 
     {
     	$sql = "select * from extended_users_information where id=?";
     	$query = $this->db->query($sql, array($id));
-    	var_dump($id);
-    	var_dump($query);
-    	die();
     	return $query->row();
     }
 

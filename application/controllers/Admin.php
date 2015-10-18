@@ -11,6 +11,7 @@ class Admin extends CI_Controller
 	public function index() {
 
 		$this->load->view('home');
+		
 	}
 	
 	public function create_machine_group()

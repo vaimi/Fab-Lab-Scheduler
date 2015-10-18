@@ -153,11 +153,8 @@ class User extends CI_Controller
 				//Db should do like this. Load model first.
 				$this->load->model('User_model');
 				//Call db query from model
-// 				$row = $this->User_model->get_user_data($this->session->userdata('id')); 
+ 				$row = $this->User_model->get_extended_user_data($this->session->userdata('id')); 
 				// set extended user information into session 
-				$sql = "select * from extended_users_information where id=?";
-				$query = $this->db->query($sql, array($this->session->userdata('id')));
-				$row = $query->row();
 				$this->session->set_userdata('surname', $row->surname);
 				$this->session->set_userdata('company', $row->company);
 				$this->session->set_userdata('address_street', $row->address_street);
