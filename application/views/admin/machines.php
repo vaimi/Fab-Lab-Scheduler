@@ -28,7 +28,7 @@
 								<th>MID</th><th>Manufacturer</th><th>Model</th><th>Tools</th>
 							</thead>
 							<tbody>
-								<tr data-toggle="collapse" data-target="#accordion" class="clickable">
+								<tr>
 									<td>1</td>
 									<td>Lorem ipsum</td>
 									<td>Lorem ipsum</td>
