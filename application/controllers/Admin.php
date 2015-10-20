@@ -1,17 +1,56 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 class Admin extends CI_Controller
 {
-	public function __constructor() {
-		parent::__constructor();
-		if ($this->aauth->is_admin())
+	public function __construct() {
+		parent::__construct();
+		if (!$this->aauth->is_admin()) 
+		{
 			redirect(base_url(), 'refresh');
-
+		}
 	}
-	// this is the home page
-	public function index() {
 
-		$this->load->view('home');
-		
+	public function moderate_general() 
+	{
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = "Admin";
+		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('admin/general');
+		$this->load->view('partials/footer');
+	}
+	
+	public function moderate_machines() 
+	{
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = "Admin";
+		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('admin/machines');
+		$this->load->view('partials/footer');
+	}
+	
+	public function moderate_timetables() 
+	{
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = "Admin";
+		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('admin/timetable');
+		$this->load->view('partials/footer');
+	}
+	
+	public function moderate_users() 
+	{
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = "Admin";
+		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('admin/users');
+		$this->load->view('partials/footer');
 	}
 	
 	public function create_machine_group()

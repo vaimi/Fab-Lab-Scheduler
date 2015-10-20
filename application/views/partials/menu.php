@@ -41,21 +41,21 @@
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color:red">Admin<b class="caret"></b></a>
               <ul class="dropdown-menu">
 				<li class="dropdown-header">System control</li>
-				<li<?= set_active_nav('admin/general') ?>>
-                  <?php echo anchor('admin/general', 'General settings');?>
+				<li<?= set_active_nav('admin/moderate_general') ?>>
+                  <?php echo anchor('admin/moderate_general', 'General settings');?>
                 </li>
 				<li class="divider"></li>
 				<li class="dropdown-header">Machine control</li>
-				<li<?= set_active_nav('admin/machines') ?>>
-                  <?php echo anchor('admin/machines', 'Machines');?>
+				<li<?= set_active_nav('admin/moderate_machines') ?>>
+                  <?php echo anchor('admin/moderate_general', 'Machines');?>
                 </li>
-				<li<?= set_active_nav('admin/timetables') ?>>
-                  <?php echo anchor('admin/timetables', 'Timetables');?>
+				<li<?= set_active_nav('admin/moderate_timetables') ?>>
+                  <?php echo anchor('admin/moderate_general', 'Timetables');?>
                 </li>
 				<li class="divider"></li>
 				<li class="dropdown-header">User control</li>
-                <li<?= set_active_nav('admin/users') ?>>
-                  <?php echo anchor('admin/users', 'Users');?>
+                <li<?= set_active_nav('admin/moderate_users') ?>>
+                  <?php echo anchor('admin/moderate_general', 'Users');?>
                 </li>
 
               </ul>
