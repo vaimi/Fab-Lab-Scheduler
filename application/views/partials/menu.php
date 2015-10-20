@@ -47,15 +47,15 @@
 				<li class="divider"></li>
 				<li class="dropdown-header">Machine control</li>
 				<li<?= set_active_nav('admin/moderate_machines') ?>>
-                  <?php echo anchor('admin/moderate_general', 'Machines');?>
+                  <?php echo anchor('admin/moderate_machines', 'Machines');?>
                 </li>
 				<li<?= set_active_nav('admin/moderate_timetables') ?>>
-                  <?php echo anchor('admin/moderate_general', 'Timetables');?>
+                  <?php echo anchor('admin/moderate_timetables', 'Timetables');?>
                 </li>
 				<li class="divider"></li>
 				<li class="dropdown-header">User control</li>
                 <li<?= set_active_nav('admin/moderate_users') ?>>
-                  <?php echo anchor('admin/moderate_general', 'Users');?>
+                  <?php echo anchor('admin/moderate_users', 'Users');?>
                 </li>
 
               </ul>
