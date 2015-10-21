@@ -11,12 +11,15 @@
 			<tr data-toggle="collapse" data-target="#accordion" class="clickable">
 				<td>1</td>
 				<td>Lorem ipsum</td>
-				<td>	
-					<button type="button" class="btn btn-success">
+				<td>
+					<button type="button" class="btn btn-info">
+						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New machine
+					</button>
+					<button type="button" class="btn btn-info">
 						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
 					</button>
 					<button type="button" class="btn btn-danger">
-						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete
+						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
 					</button>
 				</td>
 			</tr>
@@ -32,12 +35,12 @@
 									<td>1</td>
 									<td>Lorem ipsum</td>
 									<td>Lorem ipsum</td>
-									<td>	
-										<button type="button" class="btn btn-success">
+									<td>
+										<button type="button" class="btn btn-info">
 											<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
 										</button>
 										<button type="button" class="btn btn-danger">
-											<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete
+											<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
 										</button>
 									</td>
 								</tr>
