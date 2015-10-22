@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Fab Lab Scheduler</title>
- 
+	
 	<!-- Bootstrap -->
     <link href="<?php echo asset_url();?>css/bootstrap.min.css" rel="stylesheet" type="text/css"> 
 	<link href="<?php echo asset_url();?>css/bootstrap-fablab.css" rel="stylesheet" type="text/css"> 
@@ -38,6 +38,13 @@
 	<link href="<?php echo asset_url();?>css/summernote.css" rel="stylesheet">
 	<link href="<?php echo asset_url();?>css/font-awesome.min.css" rel="stylesheet">
 	<script src="<?php echo asset_url();?>js/summernote.min.js"></script>
+	
+	<!-- fullcalendar -->
+	<link rel='stylesheet' href='<?php echo asset_url();?>css/fullcalendar.css' />
+	<link rel='stylesheet' href='<?php echo asset_url();?>css/jquery-ui.min.css' />
+	<script src='<?php echo asset_url();?>js/moment.min.js'></script>
+	<script src='<?php echo asset_url();?>js/fullcalendar.js'></script>
+	<script src='<?php echo asset_url();?>js/jquery-ui.custom.min.js'></script>
   </head>
  
   <body>
