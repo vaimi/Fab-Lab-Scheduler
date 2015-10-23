@@ -20,4 +20,4 @@ php:
 #before_script:
 
 # omitting "script:" will default to phpunit
-script: phpunit --configuration phpunit.xml
+script: phpunit --configuration application/tests/phpunit.xml
