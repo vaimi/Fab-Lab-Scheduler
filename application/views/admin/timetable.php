@@ -54,15 +54,10 @@
 				center: 'title',
 				right: 'month,agendaWeek,agendaDay'
 			},
+			allDayDefault: false,
+			defaultTimedEventDuration: '08:00:00',
 			editable: true,
-			droppable: true, // this allows things to be dropped onto the calendar
-			drop: function() {
-				// is the "remove after drop" checkbox checked?
-				if ($('#drop-remove').is(':checked')) {
-					// if so, remove the element from the "Draggable Events" list
-					$(this).remove();
-				}
-			}
+			droppable: true // this allows things to be dropped onto the calendar
 		});
 
 
