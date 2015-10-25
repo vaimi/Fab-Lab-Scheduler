@@ -1,7 +1,7 @@
 <div class="container">
-	<button type="button" class="btn btn-primary" <?php echo "onclick=\"location.href =", "'" , site_url("admin/create_machine_group") , "'" , "\""; ?> >
-	  <span class="glyphicon glyphicon-plus" aria-hidden="true"  ></span> New category
-	</button>
+	<?php echo '<a type="button" class="btn btn-primary" href=' . base_url('admin/create_machine_group') . '>'?>
+	  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New category
+	</a>
 	<table class="table table-hover machine_table">
 		<thead>
 			<th>CID</th><th>Catecory name</th><th>Tools</th>
