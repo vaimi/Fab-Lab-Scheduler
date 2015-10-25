@@ -95,11 +95,23 @@ class Admin extends CI_Controller
 		}
 	}
 	
-	public function machines($machine_group='') 
+	public function create_machine($machine_group='') 
 	{
 		if ($this->input->method() == 'post')
 		{
+			//Get post data
+			if($this->input->post('needSupervision')) {
+				$needSupervision = true;
+			}
+			else {
+				$needSupervision = false;
+			}
+			$machinename = $this->input->post('machinename');
+			$manufacturer = $this->input->post('manufacturer');
+			$model = $this->input->post('model');
+			$desc = $this->input->post('desc');
 			
+			$this->moderate_machines();
 		}
 		else
 		{

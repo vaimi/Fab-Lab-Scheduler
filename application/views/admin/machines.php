@@ -12,7 +12,7 @@
 				<td>1</td>
 				<td>Lorem ipsum</td>
 				<td>
-					<button type="button" class="btn btn-info">
+					<button type="button" class="btn btn-info" <?php echo "onclick=\"location.href =", "'" , site_url("admin/create_machine") , "'" , "\""; ?> >
 						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New machine
 					</button>
 					<button type="button" class="btn btn-info">
