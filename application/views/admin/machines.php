@@ -1,6 +1,6 @@
 <div class="container">
-	<button type="button" class="btn btn-primary">
-	  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New category
+	<button type="button" class="btn btn-primary" <?php echo "onclick=\"location.href =", "'" , site_url("admin/create_machine_group") , "'" , "\""; ?> >
+	  <span class="glyphicon glyphicon-plus" aria-hidden="true"  ></span> New category
 	</button>
 	<table class="table table-hover machine_table">
 		<thead>
