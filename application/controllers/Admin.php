@@ -7,6 +7,7 @@ class Admin extends CI_Controller
 		{
 			redirect(base_url('user/login'), 'refresh');
 		}
+		$this->load->model('Admin_model');
 	}
 
 	public function moderate_general() 
@@ -125,7 +126,7 @@ class Admin extends CI_Controller
 	 * @param int $user_id to be deleted
 	 * @return bool Delete fails/succeeds
 	 */
-	public function admin_delete_user() {
+	public function delete_user() {
 		$user_id = $this->input->post('user_id');
 		return $this->aauth->delete_user($user_id);
 	}
@@ -152,5 +153,18 @@ class Admin extends CI_Controller
 		return $this->aauth->unban_user($user_id);
 	}
 	
-	
+	/**
+	 * User search
+	 * Search user by name, phone, email
+	 * @param AJAX string search_data search term
+	 * @return array(userid, firstname, lastname)
+	 */
+	 public function user_search() {
+        $search_data = $this->input->post('search_data');
+		$offset = $this->input->post('offset') ?: "0";
+        $query = $this->Admin_model->get_autocomplete($search_data);
+        foreach ($query->result() as $row):
+            echo "<a class=\"list-group-item\" href='" . base_url('admin/user_data') . "/" . $row->id . "'>" . $row->name . " " . $row->surname . "</a>";
+        endforeach;
+	}
 }
