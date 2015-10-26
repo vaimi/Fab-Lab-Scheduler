@@ -1,5 +1,3 @@
-<script src="<?php echo asset_url();?>js/jquery-1.11.3.min.js"></script>
-<script src="<?php echo asset_url();?>js/jquery.fn.gantt.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
 
 <div class="container">
@@ -59,53 +57,42 @@
 	</article>
 	<article>
 		<legend>Search by calendar</legend>
-		<div class="gantt"></div>
+		<div id="calendar"></div>
 	</article>
 </div>
-    <script>
+<script>
 
-        (function($) {
+	$(function() { // document ready
 
-            "use strict";
+		$('#calendar').fullCalendar({
+			now: '2015-10-26',
+			editable: false, // enable draggable events
+			allDaySlot: false,
+			firstDay: 1,
+			aspectRatio: 1.8,
+			scrollTime: '08:00', // undo default 6am scrollTime
+			header: {
+				left: 'today prev,next',
+				center: 'title',
+				right: 'timelineDay, agendaWeek, month'
+			},
+			resourceLabelText: 'Machines',
+			defaultView: 'timelineDay',
+			resources: { // you can also specify a plain string like 'json/resources.json'
+				url: '<?php echo base_url('reservations/json_get_machines')?>',
+				error: function() {
+					$('#script-warning').show();
+				}
+			},
 
-            var today = moment();
-			var andOneHours = moment().add(1, "hours");
-            var andTwoHours = moment().add(2, "hours");
+			events: { // you can also specify a plain string like 'json/events.json'
+				url: '<?php echo base_url('reservations/json_get_reservations')?>',
+				error: function() {
+					$('#script-warning').show();
+				}
+			}
+		});
+	
+	});
 
-            var today_friendly = "/Date(" + today.valueOf() + ")/";
-            var next_friendly = "/Date(" + andTwoHours.valueOf() + ")/";
-			var next2_friendly = "/Date(" + andOneHours.valueOf() + ")/";
-
-            $(".gantt").gantt({
-                source: [{
-                    name: "Testing",
-                    desc: " ",
-                    values: [{
-                        from: today_friendly,
-                        to: next_friendly,
-                        label: "Test",
-                        customClass: "ganttRed"
-                    },{
-                        from: today_friendly,
-                        to: next2_friendly,
-                        label: "Test2",
-                        customClass: "ganttBlue"
-                    }]
-                },{
-                    name: "Testing 2",
-                    desc: " ",
-                    values: [{
-                        from: today_friendly,
-                        to: next2_friendly,
-                        label: "Test",
-                        customClass: "ganttBlue"
-                    }]
-                }],
-                scale: "hours",
-                minScale: "hours",
-                navigate: "scroll"
-            });
-
-        }) ( jQuery );
-
-    </script>
+</script>

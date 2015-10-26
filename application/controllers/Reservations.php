@@ -40,4 +40,65 @@ class Reservations extends CI_Controller
 		$this->load->view('reservations/reserve');
 		$this->load->view('partials/footer');
 	}
+	
+	public function json_get_reservations() {
+		//TODO: Load these from db
+		$response = array 
+		(
+			array 
+			(
+				"id" => "cat_1_1",
+				"resourceId" => "mac_1",
+				"start" => "2015-10-26T09:00:00",
+				"end" => "2015-10-26T10:00:00",
+				"url" => "confirm/1/1",
+				"title" => "FREE"
+			),
+			array 
+			(
+				"id" => "cat_1_2",
+				"resourceId" => "mac_1",
+				"start" => "2015-10-26T10:00:00",
+				"end" => "2015-10-26T12:00:00",
+				"color" => "#f00",
+				"title" => "RESERVED"
+			),
+			array 
+			(
+				"id" => "cat_1_3",
+				"resourceId" => "mac_1",
+				"start" => "2015-10-26T12:00:00",
+				"end" => "2015-10-26T13:15:00",
+				"url" => "confirm/1/3",
+				"title" => "FREE"
+			)
+		);
+		$this->output->set_output(json_encode($response));
+	}
+	
+	public function json_get_machines() {
+		//TODO: Load these from db
+		$response = array 
+		(
+			array 
+			(
+				"id" => "cat_1",
+				"title" => "3d printers",
+				"children" => array
+				(	
+					array
+					(
+						"id" => "mac_1",
+						"title" => "example printer"
+					),
+					array
+					(
+						"id" => "mac_2",
+						"title" => "example printer2"
+					)
+				)
+			)
+		);
+		$this->output->set_output(json_encode($response));
+	}
 }
