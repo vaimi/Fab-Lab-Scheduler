@@ -14,4 +14,16 @@ class User_model extends CI_Model {
     	return $query->row();
     }
 
+    function insert_extended_user_data($extended_data)
+    {
+        $this->db->insert('extended_users_information', $extended_data);
+        return ($this->db->affected_rows() != 1) ? false : true;
+    }
+
+    function get_email_prefixes()
+    {
+        $sql = "SELECT id, email_prefixes FROM aauth_groups";
+        return $query = $this->db->query($sql);
+    }
+
 }

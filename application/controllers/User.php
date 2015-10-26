@@ -3,119 +3,30 @@ class User extends CI_Controller
 {
 	public function __construct() {
 		parent::__construct();
+		$this->load->model('User_model');
 	}
-	// this is the home page
+
 	public function registration() 
 	{
 
 		$this->load->library("Aauth");
 		if ($this->input->method() == 'post')
 		{
-			$username = $this->input->post('username');
-			$password = $this->input->post('password');
-			$surname = $this->input->post('surname');
-			$email = $this->input->post('email');
-			$address_street = $this->input->post('address_street');
-			$address_postal_number = $this->input->post('address_postal_code');
-			$phone_number = $this->input->post('phone_number');
-			$company = $this->input->post('company');
-			$student_number = $this->input->post('student_number');
-			
-			
-			$error = array();
-			// , $surname, $address_street, $address_postal_number, $phone_number, $company, $student_number
-			// validate inputed data
-			if (empty($username))
+			$post_data = array
+			(
+				'username' => $this->input->post('username'),
+				'password' => $this->input->post('password'),
+				'surname' => $this->input->post('surname'),
+				'email' => $this->input->post('email'),
+				'address_street' => $this->input->post('address_street'),
+				'address_postal_code' => $this->input->post('address_postal_code'),
+				'phone_number' => $this->input->post('phone_number'),
+				'company' => $this->input->post('company'),
+				'student_number' => $this->input->post('student_number')
+			);
+			if ($this->verify_registration_data($post_data))
 			{
-				$error[] = $this->aauth->CI->lang->line('aauth_error_username_required');
-			}
-			if ($this->aauth->user_exist_by_name($username)) {
-				$error[] = $this->aauth->CI->lang->line('aauth_error_username_exists');
-			}
-			if ($this->aauth->user_exist_by_email($email)) {
-				$error[] = $this->aauth->CI->lang->line('aauth_error_email_exists');
-			}
-			$this->load->helper('email');
-			if (!valid_email($email)){
-				$error[] = $this->aauth->CI->lang->line('aauth_error_email_invalid');
-			}
-			if ( strlen($password) < $this->aauth->config_vars['min'] OR strlen($password) > $this->aauth->config_vars['max'] ){
-				$error[] = $this->aauth->CI->lang->line('aauth_error_password_invalid');
-			}
-			if ($username !='' && !ctype_alnum(str_replace($this->aauth->config_vars['valid_chars'], '', $username))){
-				$error[] = $this->aauth->CI->lang->line('aauth_error_username_invalid');
-			}
-			if ($surname == ''){
-				$error[] = $this->aauth->CI->lang->line('aauth_error_surname_invalid');
-			}
-			
-			if (count($error) > 0)
-			{
-				$data = array(
-						'success' => false,
-						'username' => $username,
-						'password' => $password,
-						'surname' => $surname,
-						'email' => $email,
-						'phone_number' => $phone_number,
-						'company' => $company,
-						'student_number' => $student_number,
-						'address_street' => $address_street,
-						'address_postal_code' => $address_postal_number,
-						'errors' => $error
-				);
-				$this->load->view('registration_form', $data);
-			}
-			else 
-			{
-				$user_id = $this->aauth->create_user($email, $password, $username);
-				$db = $this->aauth->aauth_db;
-				
-				// insert extended user information
-				$sql = "insert into extended_users_information 
-						(`id`, `surname`, `company`, `address_street`, `address_postal_code`, `phone_number`, `student_number`, `quota`)
-						values (?, ?, ?, ?, ?, ?, ?, ?)";
-				$query = $db->query($sql, array($user_id, $surname, $company, $address_street, $address_postal_number, $phone_number, $student_number, 0));
-				// delete user from default group
-				$sql = "delete from aauth_user_to_group where user_id=?";
-				$db->query($sql, array($user_id));
-				// set default group
-				$user_group = 2; //public group
-				// get prefix of the user's email
-				$email_prefix = explode( '@', $email )[1];
-				// get prefixes of all groups
-				$sql = "SELECT * FROM aauth_groups";
-				$query = $db->query($sql);
-				// compare user's email with each prefixes
-				foreach ($query->result() as $group)
-				{
-					if ($group->email_prefixes == '')
-						continue;
-					$prefixes_in_group = explode( '|', $group->email_prefixes );
-					foreach ($prefixes_in_group as $prefix)
-					{
-						if (fnmatch($prefix,$email_prefix))
-						{
-							$user_group = $group->id;
-						}
-					}
-				}
-				// save user to group
-				$this->aauth->add_member($user_id, $user_group);
-				
-				$data = array(
-						'success' => True,
-						'username' => $username,
-						'password' => $password,
-						'surname' => $surname,
-						'email' => $email,
-						'phone_number' => $phone_number,
-						'company' => $company,
-						'student_number' => $student_number,
-						'address_street' => $address_street,
-						'address_postal_code' => $address_postal_number
-				);
-				$this->load->view('registration_success', $data);
+				$this->create_user($post_data);
 			}
 		}
 		else // get action, when user use the link
@@ -149,9 +60,6 @@ class User extends CI_Controller
 			$login_result = $this->aauth->login($email, $password, $remember);
 			if ($login_result) //login success, refresh current page
 			{
-				
-				//Db should do like this. Load model first.
-				$this->load->model('User_model');
 				//Call db query from model
  				$row = $this->User_model->get_extended_user_data($this->session->userdata('id')); 
 				// set extended user information into session 
@@ -202,5 +110,99 @@ class User extends CI_Controller
 		{
 			$this->load->view('user/verification_success');
 		}
+	}
+
+	private function verify_registration_data($post_data)
+	{
+		$error = array();
+		// , $surname, $address_street, $address_postal_number, $phone_number, $company, $student_number
+		// validate inputed data
+		if (empty($post_data['username']))
+		{
+			$error[] = $this->aauth->CI->lang->line('aauth_error_username_required');
+		}
+		if ($this->aauth->user_exist_by_name($post_data['username'])) {
+			$error[] = $this->aauth->CI->lang->line('aauth_error_username_exists');
+		}
+		if ($this->aauth->user_exist_by_email($post_data['email'])) {
+			$error[] = $this->aauth->CI->lang->line('aauth_error_email_exists');
+		}
+		$this->load->helper('email');
+		if (!valid_email($post_data['email'])){
+			$error[] = $this->aauth->CI->lang->line('aauth_error_email_invalid');
+		}
+		if ( strlen($post_data['password']) < $this->aauth->config_vars['min'] OR strlen($post_data['password']) > $this->aauth->config_vars['max'] ){
+			$error[] = $this->aauth->CI->lang->line('aauth_error_password_invalid');
+		}
+		if ($post_data['username'] !='' && !ctype_alnum(str_replace($this->aauth->config_vars['valid_chars'], '', $post_data['username']))){
+			$error[] = $this->aauth->CI->lang->line('aauth_error_username_invalid');
+		}
+		if ($post_data['surname'] == ''){
+			$error[] = $this->aauth->CI->lang->line('aauth_error_surname_invalid');
+		}
+		
+		if (count($error) > 0)
+		{
+			$post_data['success'] = false;
+			$post_data['errors'] = $error;
+			$this->load->view('registration_form', $post_data);
+			return false;
+		}
+		return true;
+	}
+
+	private function authorize_priviledged_email($user_id, $email)
+	{
+		// delete user from default group
+		//$this->aauth->remove_member($user_id, )
+		//$sql = "delete from aauth_user_to_group where user_id=?";
+		//$db->query($sql, array($user_id));
+		// set default group
+		$user_group = 2; //public group
+		// get prefix of the user's email
+		$email_prefix = explode( '@', $email )[1];
+		// get prefixes of all groups
+		$query = $this->User_model->get_email_prefixes();
+		// compare user's email with each prefixes
+		foreach ($query->result() as $group)
+		{
+			if ($group->email_prefixes == '')
+				continue;
+			$prefixes_in_group = explode( '|', $group->email_prefixes );
+			foreach ($prefixes_in_group as $prefix)
+			{
+				if (fnmatch($prefix,$email_prefix))
+				{
+					$user_group = $group->id;
+				}
+			}
+		}
+		// save user to group
+		$this->aauth->add_member($user_id, $user_group);
+		return true;
+	}
+
+	private function create_user($post_data) {
+		$user_id = $this->aauth->create_user($post_data['email'], $post_data['password'], $post_data['username']);
+		$db = $this->aauth->aauth_db;
+		
+		$extended_data = array
+		(
+			'id' => $user_id,
+			'surname' => $post_data['surname'],
+			'company' => $post_data['company'],
+			'address_street' => $post_data['surname'],
+			'address_postal_code' => $post_data['address_postal_code'],
+			'phone_number' => $post_data['phone_number'],
+			'student_number' => $post_data['student_number'],
+			'quota' => 0 //TODO this should be gotten from general settings.
+		);
+		// insert extended user information
+		$this->User_model->insert_extended_user_data($extended_data);
+		// authorize priviledged email addresses
+		$this->authorize_priviledged_email($user_id, $post_data['email']);
+		$post_data['success'] = true;
+		$this->load->view('registration_success', $post_data);
+		return $user_id;
 	}
 }
