@@ -123,7 +123,8 @@ class Admin extends CI_Controller
 	/**
 	 * Delete user
 	 * Delete a user from db
-	 * @param int $user_id to be deleted
+	 * @access admin
+	 * @uses input::post $user_id to be deleted
 	 * @return bool Delete fails/succeeds
 	 */
 	public function delete_user() {
@@ -134,7 +135,8 @@ class Admin extends CI_Controller
 	/**
 	 * Ban user
 	 * Bans/deactivates user account
-	 * @param AJAX int user_id to be banned
+	 * @access admin
+	 * @uses input::post int user_id to be banned
 	 * @return bool Ban fails/succeeds
 	 */
 	public function ban_user() {
@@ -145,7 +147,8 @@ class Admin extends CI_Controller
 	/**
 	 * Unban user
 	 * Unbans/activates user account
-	 * @param AJAX int user_id to be unlocked
+	 * @access admin
+	 * @uses input::post int user_id to be unlocked
 	 * @return bool Unban fails/succeeds
 	 */
 	public function unban_user() {
@@ -156,15 +159,30 @@ class Admin extends CI_Controller
 	/**
 	 * User search
 	 * Search user by name, phone, email
-	 * @param AJAX string search_data search term
-	 * @return array(userid, firstname, lastname)
+	 * @access admin
+	 * @uses input::post string search_data search term
+	 * @return list of results as html
 	 */
 	 public function user_search() {
         $search_data = $this->input->post('search_data');
 		$offset = $this->input->post('offset') ?: "0";
         $query = $this->Admin_model->get_autocomplete($search_data);
         foreach ($query->result() as $row):
-            echo "<a class=\"list-group-item\" href='" . base_url('admin/user_data') . "/" . $row->id . "'>" . $row->name . " " . $row->surname . "</a>";
+            echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->name . " " . $row->surname . "</a>";
         endforeach;
+	}
+	
+	/**
+	 * Fetch user data
+	 * Fetch user data by ajax call
+	 * @access admin
+	 * @uses input::post user_id user identification number
+	 * @return result form as html
+	 */
+	 public function fetch_user_data() {
+        $user_id = $this->input->post('user_id');
+        $query = $this->Admin_model->get_user_data($user_id);
+		$data = $query->result()[0];
+		$this->load->view('admin/users_form', array('data' => $data));
 	}
 }
