@@ -5,7 +5,7 @@ class Admin extends CI_Controller
 		parent::__construct();
 		if (!$this->aauth->is_admin()) 
 		{
-			redirect(base_url(), 'refresh');
+			redirect(base_url('user/login'), 'refresh');
 		}
 	}
 
@@ -117,6 +117,39 @@ class Admin extends CI_Controller
 		{
 			$this->load->view('admin/create_machine');
 		}
+	}
+
+	/**
+	 * Delete user
+	 * Delete a user from db
+	 * @param int $user_id to be deleted
+	 * @return bool Delete fails/succeeds
+	 */
+	public function admin_delete_user() {
+		$user_id = $this->input->post('user_id');
+		return $this->aauth->delete_user($user_id);
+	}
+
+	/**
+	 * Ban user
+	 * Bans/deactivates user account
+	 * @param AJAX int user_id to be banned
+	 * @return bool Ban fails/succeeds
+	 */
+	public function ban_user() {
+		$user_id = $this->input->post('user_id');
+		return $this->aauth->ban_user($user_id);
+	}
+
+	/**
+	 * Unban user
+	 * Unbans/activates user account
+	 * @param AJAX int user_id to be unlocked
+	 * @return bool Unban fails/succeeds
+	 */
+	public function unban_user() {
+		$user_id = $this->input->post('user_id');
+		return $this->aauth->unban_user($user_id);
 	}
 	
 	
