@@ -185,4 +185,85 @@ class Admin extends CI_Controller
 		$data = $query->result()[0];
 		$this->load->view('admin/users_form', array('data' => $data));
 	}
+	
+	/**
+	 * Save user data
+	 * Accepts form as post, validates field and if no errors, saves data to database
+	 * @access admin
+	 * @uses input::post array containing form fields + user id
+	 * @return {"success":"true"} or {"success":"false", "errors":array of strings}
+	 */
+	public function save_user_data() {
+		$form_data = array (
+			'user_id' => $this->input->post('user_id'),
+			'username' => $this->input->post('username'),
+			'password' => $this->input->post('password'),
+			'surname' => $this->input->post('surname'),
+			'email' => $this->input->post('email'),
+			'address_street' => $this->input->post('address_street'),
+			'address_postal_code' => $this->input->post('address_postal_code'),
+			'phone_number' => $this->input->post('phone_number'),
+			'company' => $this->input->post('company'),
+			'student_number' => $this->input->post('student_number')
+		);
+		$errors = $this->verify_data($form_data);
+		if (count($errors) != 0) {
+			$message = array(
+				'success' => 0,
+				'errors' => $errors
+			);
+			echo json_encode($message);
+		} else {
+			// Save data to database
+			$this->aauth->update_user($form_data['user_id'], $form_data['email'], null, $form_data['username']);
+			if ($this->Admin_model->update_user_data($form_data)) {
+				$message = array(
+					'success' => 1
+				);
+			} else {
+				$message = array(
+					'success' => 0,
+					'errors' => array("Error while saving data to database")
+				);
+			}
+			echo json_encode($message);
+		}
+	}
+	
+	/**
+	 * Check whether post data is valid 
+	 * Check whether send data is valid, if not, gathers errors to array.
+	 * @access admin
+	 * @input array post_data array containing all the data_fields
+	 * @return array containing error messages
+	 */
+	//TODO this needs to be enchanced
+	private function verify_data($post_data)
+	{
+		$error = array();
+		// , $surname, $address_street, $address_postal_number, $phone_number, $company, $student_number
+		// validate inputed data
+		if (empty($post_data['username']))
+		{
+			array_push($error, $this->aauth->CI->lang->line('aauth_error_username_required'));
+		}
+		// TODO DISCUSS
+		//if ($this->aauth->user_exist_by_name($post_data['username'])) {
+		//	$error[] = $this->aauth->CI->lang->line('aauth_error_username_exists');
+		//}
+		//if ($this->aauth->user_exist_by_email($post_data['email'])) {
+		//	array_push($error, $this->aauth->CI->lang->line('aauth_error_email_exists'));
+		//}
+		$this->load->helper('email');
+		if (!valid_email($post_data['email'])){
+			array_push($error, $this->aauth->CI->lang->line('aauth_error_email_invalid'));
+		}
+		if ($post_data['username'] !='' && !ctype_alnum(str_replace($this->aauth->config_vars['valid_chars'], '', $post_data['username']))){
+			array_push($error, $this->aauth->CI->lang->line('aauth_error_username_invalid'));
+		}
+		if ($post_data['surname'] == ''){
+			array_push($error, $this->aauth->CI->lang->line('aauth_error_surname_invalid'));
+		}
+		return $error;
+	}
 }

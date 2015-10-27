@@ -32,4 +32,26 @@ class Admin_model extends CI_Model {
 		$this->db->where('main.id', $user_id);
 		return $this->db->get();
 	}
+	
+	public function update_user_data($user_data) {
+		$data = array(
+			'surname' => $user_data['surname'],
+			'address_street' => $user_data['surname'],
+			'address_postal_code' => $user_data['address_postal_code'],
+			'phone_number' => $user_data['phone_number'],
+			'student_number' => $user_data['student_number']
+		);
+		$this->db->trans_start();
+		$this->db->where('id', $user_data['user_id']);
+		$this->db->update('extended_users_information', $data);
+		$this->db->trans_complete();
+		if ($this->db->affected_rows() == '1') {
+			return true;
+		} else {
+			if ($this->db->trans_status() === FALSE) {
+				return false;
+			}
+			return true;
+		}
+	}
 }
