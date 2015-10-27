@@ -33,7 +33,7 @@
 			'user_id': <?php echo $data->id;?>,
 			'email': $('#email_input').val(),
 			'username': $('#name_input').val(),
-			'surname': $('#surname_input').attr('value'),
+			'surname': $('#surname_input').val(),
 			'phone_number': $('#phone_number_input').val(),
 			'address_street': $('#address_street_input').val(),
 			'address_postal_code': $('#address_postal_code_input').val(),
@@ -49,7 +49,8 @@
 				if (data.length > 0) {
 					var message = $.parseJSON(data);
 					if (message['success'] == 1) {
-						alerter("success", "User " + post_data['username'] + " " + post_data['surname'] + " data <strong>saved</strong>!"); 
+						alerter("success", "User " + post_data['username'] + " " + post_data['surname'] + " data <strong>saved</strong>!");
+						$(".active").text(post_data['username'] + " " + post_data['surname'])
 					} else {
 						$.each(message.errors, function(index, value) {
 						   alerter("warning", value);

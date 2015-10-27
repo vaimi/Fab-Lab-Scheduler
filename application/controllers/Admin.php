@@ -215,13 +215,30 @@ class Admin extends CI_Controller
 			echo json_encode($message);
 		} else {
 			// Save data to database
-			$this->aauth->update_user($form_data['user_id'], $form_data['email'], null, $form_data['username']);
+			// aauth requires that non-changed parameters are null
+			$old_data = $this->aauth->get_user($form_data['user_id']);
+			if ($form_data['email'] === $old_data->email) $form_data['email'] = null;
+			if ($form_data['username'] === $old_data->name) $form_data['username'] = null;
+			if (isset($form_data['email']) or isset($form_data['username'])) { 
+				if (!$this->aauth->update_user($form_data['user_id'], $form_data['email'], null , $form_data['username'])) 
+				{
+					$message = array
+					(
+						'success' => 0,
+						'errors' => array("Aauth raised an error on update!")
+					);
+					echo json_encode($message);
+					exit();
+				}
+			}
 			if ($this->Admin_model->update_user_data($form_data)) {
-				$message = array(
+				$message = array
+				(
 					'success' => 1
 				);
 			} else {
-				$message = array(
+				$message = array
+				(
 					'success' => 0,
 					'errors' => array("Error while saving data to database")
 				);

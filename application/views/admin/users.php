@@ -61,9 +61,6 @@
 				<div class="col-lg-12">
 					<h4>Results</h4>
 					<div class="list-group" id="search_results">
-					    <!--a href="#" class="list-group-item active">Mikko Väisänen</a>
-						<a href="#" class="list-group-item">Markus Särkiniemi</a>
-						<a href="#" class="list-group-item">Thang Luu</a>-->
 					</div>
 				</div>
 			</div>
