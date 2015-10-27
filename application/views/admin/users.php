@@ -39,6 +39,11 @@
 				}
 			});
 		}
+		
+		$(document).on('click', '#search_results a', function() {
+		   $("#search_results a").removeClass("active");
+		   $(this).addClass("active");
+		});
 </script>
 <div class="container">
 	<div class="row">

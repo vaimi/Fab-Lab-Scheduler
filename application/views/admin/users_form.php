@@ -1,3 +1,96 @@
+<script type="text/javascript">
+	onload: banState();
+	
+	function banState() {
+		var banned = <?php echo $data->banned;?>;
+		
+		if (banned) {
+			$("#ban_button").attr("href","javascript:unbanUser();");
+			$("#ban_button span").attr("class","glyphicon glyphicon-ok-circle");
+			var $contents = $('#ban_button').contents();
+			$contents[$contents.length - 1].nodeValue = ' Unban';
+		} else {
+			$("#ban_button").attr("href","javascript:banUser();");
+			$("#ban_button span").attr("class","glyphicon glyphicon-ban-circle");
+			var $contents = $('#ban_button').contents();
+			$contents[$contents.length - 1].nodeValue = ' Ban';
+		}
+	}
+	
+	function banUser() {
+		var post_data = {
+			'user_id': <?php echo $data->id;?>
+		};
+
+		$.ajax({
+			type: "POST",
+			url: "<?php echo base_url('admin/ban_user'); ?>",
+			data: post_data,
+			success: function(data) {
+				// return success
+				if (data.length > 0) {
+					$("#ban_button").attr("href","javascript:unbanUser();");
+					$("#ban_button span").attr("class","glyphicon glyphicon-ok-circle");
+					var $contents = $('#ban_button').contents();
+					$contents[$contents.length - 1].nodeValue = ' Unban';
+				}
+			}
+		}); 
+	}
+	
+	function unbanUser() {
+		var post_data = {
+			'user_id': <?php echo $data->id;?>
+		};
+
+		$.ajax({
+			type: "POST",
+			url: "<?php echo base_url('admin/unban_user'); ?>",
+			data: post_data,
+			success: function(data) {
+				// return success
+				if (data.length > 0) {
+					$("#ban_button").attr("href","javascript:banUser();");
+					$("#ban_button span").attr("class","glyphicon glyphicon-ban-circle");
+					var $contents = $('#ban_button').contents();
+					$contents[$contents.length - 1].nodeValue = ' Ban';
+				}
+			}
+		}); 
+	}
+	
+	function deleteUser() {
+		var post_data = {
+			'user_id': <?php echo $data->id;?>
+		};
+
+		$.ajax({
+			type: "POST",
+			url: "<?php echo base_url('admin/delete_user'); ?>",
+			data: post_data,
+			success: function(data) {
+				// return success
+				if (data.length > 0) {
+					ajaxSearch(); //TODO some cleaner way might be better
+					$( "#form" ).empty();
+				}
+			}
+		}); 
+	}
+	
+	$(document).ready(function() {
+		$("#remove_button").popover({
+			placement: 'top',
+			html: 'true',
+			title : 'Are you sure?',
+			content : '<p>Effect is permanent!</p>'+
+			'<a href="javascript:deleteUser();" role="button" class="btn btn-danger" style="margin: 10px 10px;">' +
+			'<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Do it!' +
+			'</a>'
+			});
+		});  
+</script>
+
 <form class="form-horizontal" id=form>
 	<div class="form-group">
 		<label class="control-label col-xs-3" for="input_email">Email:</label>
@@ -52,12 +145,12 @@
 				</button>
 			</div>
 			<div class="btn-group">
-				<button type="button" class="btn btn-warning">
+				<a href="javascript:banUser();" type="button" id="ban_button" class="btn btn-warning">
 					<span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span> Ban
-				</button>
-				<button type="button" class="btn btn-danger">
+				</a>
+				<a tabindex="0" data-trigger="focus" role="button" id="remove_button" class="btn btn-danger">
 					<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
-				</button>
+				</a>
 			</div>
 		</div>
 	</div>

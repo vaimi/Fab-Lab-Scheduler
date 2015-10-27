@@ -11,16 +11,21 @@
 			<tr data-toggle="collapse" data-target="#accordion" class="clickable">
 				<td>1</td>
 				<td>Lorem ipsum</td>
-				<td>
-					<button type="button" class="btn btn-info" <?php echo "onclick=\"location.href =", "'" , site_url("admin/create_machine") , "'" , "\""; ?> >
+				<td id="m_buttons">
+					<a type="button" class="btn btn-info" <?php echo "onclick=\"location.href =", "'" , site_url("admin/create_machine") , "'" , "\""; ?> >
 						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New machine
-					</button>
+					</a>
 					<button type="button" class="btn btn-info">
 						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
 					</button>
 					<button type="button" class="btn btn-danger">
 						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
 					</button>
+					<script>
+						$("#m_buttons").click(function(event){
+							event.stopPropagation();
+						});
+					</script
 				</td>
 			</tr>
 			<tr>
