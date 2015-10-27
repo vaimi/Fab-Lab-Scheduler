@@ -21,6 +21,8 @@
 		var post_data = {
 			'user_id': <?php echo $data->id;?>
 		};
+		
+		var name = <?php echo '"' . $data->name . " " . $data->surname . '"';?>;
 
 		$.ajax({
 			type: "POST",
@@ -29,10 +31,15 @@
 			success: function(data) {
 				// return success
 				if (data.length > 0) {
+					$("#ban_button").addClass("animated pulse").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', 
+					function() {
+						$(this).removeClass("animated pulse");
+					});;
 					$("#ban_button").attr("href","javascript:unbanUser();");
 					$("#ban_button span").attr("class","glyphicon glyphicon-ok-circle");
 					var $contents = $('#ban_button').contents();
 					$contents[$contents.length - 1].nodeValue = ' Unban';
+					alerter("info", "User " + name + " <strong>banned</strong>!"); 
 				}
 			}
 		}); 
@@ -42,6 +49,8 @@
 		var post_data = {
 			'user_id': <?php echo $data->id;?>
 		};
+		
+		var name = <?php echo '"' . $data->name . " " . $data->surname . '"';?>;
 
 		$.ajax({
 			type: "POST",
@@ -50,10 +59,15 @@
 			success: function(data) {
 				// return success
 				if (data.length > 0) {
+					$("#ban_button").addClass("animated pulse").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', 
+					function() {
+						$(this).removeClass("animated pulse");
+					});;
 					$("#ban_button").attr("href","javascript:banUser();");
 					$("#ban_button span").attr("class","glyphicon glyphicon-ban-circle");
 					var $contents = $('#ban_button').contents();
 					$contents[$contents.length - 1].nodeValue = ' Ban';
+					alerter("info", "User " + name + " <strong>unbanned</strong>!"); 
 				}
 			}
 		}); 
@@ -63,6 +77,8 @@
 		var post_data = {
 			'user_id': <?php echo $data->id;?>
 		};
+		
+		var name = <?php echo '"' . $data->name . " " . $data->surname . '"';?>;
 
 		$.ajax({
 			type: "POST",
@@ -72,10 +88,29 @@
 				// return success
 				if (data.length > 0) {
 					ajaxSearch(); //TODO some cleaner way might be better
-					$( "#form" ).empty();
+					$("#form").addClass("animated fadeOut").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', 
+					function() {
+						$( "#form" ).empty();
+					});;
+					alerter("info", "User " + name + " <strong>deleted</strong>!"); 
 				}
 			}
 		}); 
+	}
+	
+	function alerter(alert_type, alert_message) {
+		
+		$.notify({
+		// options
+			message: alert_message 
+		},{
+			// settings
+			type: alert_type,
+			animate: {
+				enter: 'animated fadeInDown',
+				exit: 'animated fadeOutUp'
+			}
+		});
 	}
 	
 	$(document).ready(function() {

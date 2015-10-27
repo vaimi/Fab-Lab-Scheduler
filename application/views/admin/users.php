@@ -1,3 +1,5 @@
+<script src='<?php echo asset_url();?>js/bootstrap-notify.min.js'></script>
+<link rel='stylesheet' href='<?php echo asset_url();?>css/animate.css' />
 <script type="text/javascript">
 		onload: ajaxSearch();
         function ajaxSearch() {
@@ -22,11 +24,11 @@
 
         }
 		
-		function fetchUserData(user_id) {
+		function fetchUserData(user_id) {			
 			var post_data = {
 				'user_id': user_id
 			};
-		
+			$('#user_data_form').addClass("animated fadeOut")
 			$.ajax({
 				type: "POST",
 				url: "<?php echo base_url('admin/fetch_user_data'); ?>",
@@ -34,6 +36,7 @@
 				success: function(data) {
 					// return success
 					if (data.length > 0) {
+						$('#user_data_form').removeClass("animated fadeOut");
 						$('#user_data_form').html(data);
 					}
 				}
