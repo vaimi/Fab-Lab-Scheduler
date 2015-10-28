@@ -167,9 +167,9 @@ class Admin extends CI_Controller
         $search_data = $this->input->post('search_data');
 		$offset = $this->input->post('offset') ?: "0";
         $query = $this->Admin_model->get_autocomplete($search_data);
-        foreach ($query->result() as $row):
+        foreach ($query->result() as $row) {
             echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->name . " " . $row->surname . "</a>";
-        endforeach;
+        }
 	}
 	
 	/**
@@ -180,10 +180,21 @@ class Admin extends CI_Controller
 	 * @return result form as html
 	 */
 	 public function fetch_user_data() {
+		// Fetch basic data
         $user_id = $this->input->post('user_id');
         $query = $this->Admin_model->get_user_data($user_id);
-		$data = $query->result()[0];
-		$this->load->view('admin/users_form', array('data' => $data));
+		$basic = $query->result()[0];
+		// Fetch group data
+		$groups = $this->get_groups($user_id);
+		// Fetch user levels
+		
+		// Make html
+		$response = array
+		(
+			'basic' => $basic,
+			'groups' => $groups
+		);
+		$this->load->view('admin/users_form', $response);
 	}
 	
 	/**
@@ -206,6 +217,26 @@ class Admin extends CI_Controller
 			'company' => $this->input->post('company'),
 			'student_number' => $this->input->post('student_number')
 		);
+		
+		$groups = $this->aauth->list_groups();
+		parse_str($this->input->post('groups'), $group_data);
+		$user_groups = $user_groups = $this->aauth->get_user_groups($form_data['user_id']);
+		$group_array = array_keys($group_data);
+		foreach ($groups as $group) {
+			if (in_array($group->id, $group_array)) {
+				if (!in_array($group->id, array_map(function($o) { return $o->id; }, $user_groups))) 
+				{
+					$this->aauth->add_member($form_data['user_id'], $group->id);
+				}
+			} elseif (in_array($group->id, array_map(function($o) { return $o->id; }, $user_groups))) {
+				if (!in_array($group->id, $group_array)) 
+				{
+					$this->aauth->remove_member($form_data['user_id'], $group->id);
+				}
+			
+			}
+		}
+
 		$errors = $this->verify_data($form_data);
 		if (count($errors) != 0) {
 			$message = array(
@@ -283,4 +314,27 @@ class Admin extends CI_Controller
 		}
 		return $error;
 	}
+	
+	/**
+	 * Get groups
+	 * Gets all system groups and checks whether user is a member of those
+	 * @access admin
+	 * @input int user_id identification number for user
+	 * @return array of group objects enchanced with in property
+	 * 
+	 */
+	 private function get_groups($user_id) {
+		$groups = $this->aauth->list_groups();
+		$user_groups = $this->aauth->get_user_groups($user_id);
+		$response = array();
+		foreach($groups as $group) {
+			if (in_array($group->id, array_map(function($o) { return $o->id; }, $user_groups))) {
+				$group->in = 1;
+			} else {
+				$group->in = 0;
+			}
+		}
+		return $groups;
+	}
+	
 }

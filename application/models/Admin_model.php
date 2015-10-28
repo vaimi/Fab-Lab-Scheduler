@@ -36,7 +36,7 @@ class Admin_model extends CI_Model {
 	public function update_user_data($user_data) {
 		$data = array(
 			'surname' => $user_data['surname'],
-			'address_street' => $user_data['surname'],
+			'address_street' => $user_data['address_street'],
 			'address_postal_code' => $user_data['address_postal_code'],
 			'phone_number' => $user_data['phone_number'],
 			'student_number' => $user_data['student_number']

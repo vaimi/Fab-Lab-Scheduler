@@ -1,18 +1,19 @@
 <script type="text/javascript">
 	onload: banState();
-	
 	function disableForm (yes) {
 		if (yes) {
-			$("#form :input").attr('disabled', true);
-			$("#toolbar a").addClass('disabled');
+			$("#user_content :input").attr('disabled', true);
+			$("#tabs > li").addClass('disabled');;
+			$("#user_content a").addClass('disabled');
 		} else {
-			$('#form :input').removeAttr('disabled');
-			$('#toolbar a').removeClass('disabled');
+			$('#user_content :input').removeAttr('disabled');
+			$('#tabs > li').removeClass('disabled');
+			$('#user_content a').removeClass('disabled');
 		}
 	}
 	
 	function banState() {
-		var banned = <?php echo $data->banned;?>;
+		var banned = <?php echo $basic->banned;?>;
 		
 		if (banned) {
 			$("#ban_button").attr("href","javascript:unbanUser();");
@@ -28,17 +29,19 @@
 	}
 	
 	function saveData() {
-		disableForm(true);
 		var post_data = {
-			'user_id': <?php echo $data->id;?>,
+			'user_id': <?php echo $basic->id;?>,
 			'email': $('#email_input').val(),
 			'username': $('#name_input').val(),
 			'surname': $('#surname_input').val(),
 			'phone_number': $('#phone_number_input').val(),
 			'address_street': $('#address_street_input').val(),
 			'address_postal_code': $('#address_postal_code_input').val(),
-			'student_number': $('#student_number_input').val()
+			'student_number': $('#student_number_input').val(),
+			'groups' : $(group_form).serialize(),
+			'levels' : $(level_form).serialize()
 		}
+		disableForm(true);
 		
 		$.ajax({
 			type: "POST",
@@ -50,7 +53,7 @@
 					var message = $.parseJSON(data);
 					if (message['success'] == 1) {
 						alerter("success", "User " + post_data['username'] + " " + post_data['surname'] + " data <strong>saved</strong>!");
-						$(".active").text(post_data['username'] + " " + post_data['surname'])
+						$("#search_results > .active").text(post_data['username'] + " " + post_data['surname'])
 					} else {
 						$.each(message.errors, function(index, value) {
 						   alerter("warning", value);
@@ -64,10 +67,10 @@
 	function banUser() {
 		disableForm(true);
 		var post_data = {
-			'user_id': <?php echo $data->id;?>
+			'user_id': <?php echo $basic->id;?>
 		};
 		
-		var name = <?php echo '"' . $data->name . " " . $data->surname . '"';?>;
+		var name = <?php echo '"' . $basic->name . " " . $basic->surname . '"';?>;
 
 		$.ajax({
 			type: "POST",
@@ -93,10 +96,10 @@
 	function unbanUser() {
 		disableForm(true);
 		var post_data = {
-			'user_id': <?php echo $data->id;?>
+			'user_id': <?php echo $basic->id;?>
 		};
 		
-		var name = <?php echo '"' . $data->name . " " . $data->surname . '"';?>;
+		var name = <?php echo '"' . $basic->name . " " . $basic->surname . '"';?>;
 
 		$.ajax({
 			type: "POST",
@@ -122,10 +125,10 @@
 	function deleteUser() {
 		disableForm(true);
 		var post_data = {
-			'user_id': <?php echo $data->id;?>
+			'user_id': <?php echo $basic->id;?>
 		};
 		
-		var name = <?php echo '"' . $data->name . " " . $data->surname . '"';?>;
+		var name = <?php echo '"' . $basic->name . " " . $basic->surname . '"';?>;
 
 		$.ajax({
 			type: "POST",
@@ -135,9 +138,9 @@
 				disableForm(false);
 				if (data.length > 0) {
 					ajaxSearch(); //TODO some cleaner way might be better
-					$("#form").addClass("animated fadeOut").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', 
+					$("#user_content").addClass("animated fadeOut").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', 
 					function() {
-						$( "#form" ).empty();
+						$( "#user_content" ).empty();
 					});;
 					alerter("info", "User " + name + " <strong>deleted</strong>!"); 
 				}
@@ -170,64 +173,19 @@
 			'<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Do it!' +
 			'</a>'
 			});
+		$('#tab-content .tab-pane').css('height', $('#tab-content .tab-pane').css('height') );
 		});
+
 	
 </script>
-
-<form class="form-horizontal" id="form">
-	<div class="form-group">
-		<label class="control-label col-xs-3" for="email_input">Email:</label>
-		<div class="col-xs-9">
-			<input type="email" class="form-control" id="email_input" placeholder="Email" value=<?php echo $data->email;?>>
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="control-label col-xs-3">Name:</label>
-		<div class="col-xs-4">
-			<input type="text" class="form-control" id="name_input" placeholder="First Name" value=<?php echo $data->name;?>>
-		</div>
-		<div class="col-xs-5">
-			<input type="text" class="form-control" id="surname_input" placeholder="Last Name" value=<?php echo $data->surname;?>>
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="control-label col-xs-3" for="phone_number_input">Phone:</label>
-		<div class="col-xs-9">
-			<input type="tel" class="form-control" id="phone_number_input" placeholder="Phone Number" value=<?php echo $data->phone_number;?>>
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="control-label col-xs-3" for="address_street_input">Address:</label>
-		<div class="col-xs-9">
-			<textarea rows="3" class="form-control" id="address_street_input" placeholder="Postal Address"><?php echo $data->address_street;?></textarea>
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="control-label col-xs-3" for="address_postal_code_input">Zip Code:</label>
-		<div class="col-xs-9">
-			<input type="text" class="form-control" id="address_postal_code_input" placeholder="Zip Code" value=<?php echo $data->address_postal_code;?>>
-		</div>
-	</div>
-	<div class="form-group">
-		<label class="control-label col-xs-3" for="student_number_input">Student ID:</label>
-		<div class="col-xs-9">
-			<input type="text" class="form-control" id="student_number_input" placeholder="Student ID" value=<?php echo $data->student_number;?>>
-		</div>
-	</div>
-</form>
-<div class="well" id="toolbar">
-	<div class="btn-toolbar">
-		<a href="javascript:saveData();" type="button" class="btn btn-success">
+<div id="user_content">
+	<div class="btn-toolbar" id="toolbar">
+		<a href="javascript:saveData();" type="button submit" class="btn btn-success">
 			<span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save
 		</a>
-		<div class="btn-group">
-			<a type="button" class="btn btn-info">
-				<span class="glyphicon glyphicon-education" aria-hidden="true"></span> Levels
-			</a>
-			<a type="button" class="btn btn-info">
-				<span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Groups
-			</a>
-		</div>
+		<a href="javascript:saveData();" type="button" class="btn btn-info">
+			<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Reset quota
+		</a>
 		<div class="btn-group">
 			<a href="javascript:banUser();" type="button" id="ban_button" class="btn btn-warning">
 				<span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span> Ban
@@ -237,4 +195,78 @@
 			</a>
 		</div>
 	</div>
-</div>
+	<br>
+	<ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+        <li class="active"><a href="#basic" data-toggle="tab">Basic</a></li>
+        <li><a href="#groups" data-toggle="tab">Groups</a></li>
+        <li><a href="#levels" data-toggle="tab">Levels</a></li>
+    </ul>
+	<div id="tab-content" class="tab-content">
+        <div class="tab-pane active" id="basic">
+			<h4>User basic data</h4>
+			<form class="form-horizontal" id="basic_form">
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="email_input">Email:</label>
+					<div class="col-xs-9">
+						<input type="email" class="form-control" id="email_input" placeholder="Email" value=<?php echo $basic->email;?>>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-3">Name:</label>
+					<div class="col-xs-4">
+						<input type="text" class="form-control" id="name_input" placeholder="First Name" value=<?php echo $basic->name;?>>
+					</div>
+					<div class="col-xs-5">
+						<input type="text" class="form-control" id="surname_input" placeholder="Last Name" value=<?php echo $basic->surname;?>>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="phone_number_input">Phone:</label>
+					<div class="col-xs-9">
+						<input type="tel" class="form-control" id="phone_number_input" placeholder="Phone Number" value=<?php echo $basic->phone_number;?>>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="address_street_input">Address:</label>
+					<div class="col-xs-9">
+						<textarea rows="3" class="form-control" id="address_street_input" placeholder="Postal Address"><?php echo $basic->address_street;?></textarea>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="address_postal_code_input">Zip Code:</label>
+					<div class="col-xs-9">
+						<input type="text" class="form-control" id="address_postal_code_input" placeholder="Zip Code" value=<?php echo $basic->address_postal_code;?>>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="student_number_input">Student ID:</label>
+					<div class="col-xs-9">
+						<input type="text" class="form-control" id="student_number_input" placeholder="Student ID" value=<?php echo $basic->student_number;?>>
+					</div>
+				</div>
+			</form>
+		</div>
+		<div class="tab-pane" id="groups">
+            <h4>User groups</h4>
+			<form id="group_form" method="post">
+				<?php foreach($groups as $group) {
+				echo '<div class="checkbox" >';
+				echo '	<label>';
+				if ($group->in === 0) {
+					echo '		<input type="checkbox" name="' . $group->id . '">' . " " . $group->name;
+				} else {
+					echo '		<input type="checkbox" checked name="' . $group->id . '">' . " " . $group->name;
+				}
+				echo '	</label>';
+				echo '</div>';
+				}?>
+			</form>
+        </div>
+		<div class="tab-pane" id="levels">
+            <h4>User machine levels</4>
+            <form id="level_form" method="post">
+			<p></p>
+			</form>
+        </div>
+	</div>
+</div

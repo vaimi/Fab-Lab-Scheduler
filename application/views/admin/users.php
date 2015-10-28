@@ -50,8 +50,8 @@
 </script>
 <div class="container">
 	<div class="row">
-		<div class="col-md-6">
-			<h2>Search for user</h2>
+		<div class="col-md-4">
+			<h3>Search for user</h3>
 			<div class="row">
 				<div class="col-md-12">
 					<input type="text" class="form-control input-lg" id="search_people" placeholder="Search by email, name, phone..." onkeyup="ajaxSearch();">
@@ -59,14 +59,16 @@
 			</div>
 			<div class="row">
 				<div class="col-lg-12">
-					<h4>Results</h4>
-					<div class="list-group" id="search_results">
+					<div class="well">
+						<h4>Results</h4>
+						<div class="list-group" id="search_results">
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6">
-			<h2>User data</h2>
+		<div class="col-md-8">
+			<h3>User data</h3>
 			<form class="form-horizontal" id="user_data_form">
 			</form>
 		</div>
