@@ -54,4 +54,34 @@ class Admin_model extends CI_Model {
 			return true;
 		}
 	}
+	
+	public function get_machines($group_id = false) {
+		$this->db->select('*');
+		$this->db->from('Machine');
+		if ($group_id != false)
+		{
+			$this->db->where('MachineGroupID', $group_id);
+		}
+		return $this->db->get();
+	}
+	
+	public function get_machine_groups() {
+		$this->db->select('*');
+		$this->db->from('MachineGroup');
+		return $this->db->get();
+	}
+	
+	public function get_levels($user_id = false, $machine_id = false) {
+		$this->db->select('*');
+		$this->db->from('UserLevel');
+		if ($user_id != false)
+		{
+			$this->db->where('aauth_usersID', $user_id);
+		}
+		if ($machine_id != false)
+		{
+			$this->db->where('MachineID', $machine_id);
+		}
+		return $this->db->get();
+	}
 }

@@ -187,14 +187,39 @@ class Admin extends CI_Controller
 		// Fetch group data
 		$groups = $this->get_groups($user_id);
 		// Fetch user levels
-		
+		$levels = array();
+		$machine_groups = $this->Admin_model->get_machine_groups();
+		foreach($machine_groups->result() as $machine_group)
+		{
+			$levels[$machine_group->MachineGroupID] = array
+			(
+				'category' => $machine_group->Name,
+				'machines' => $this->get_machine_group_levels($user_id, $machine_group->MachineGroupID)
+			);
+		}
 		// Make html
 		$response = array
 		(
 			'basic' => $basic,
-			'groups' => $groups
+			'groups' => $groups,
+			'levels' => $levels
 		);
 		$this->load->view('admin/users_form', $response);
+	}
+	
+	private function get_machine_group_levels($user_id, $machine_group_id) 
+	{
+		$machines = $this->Admin_model->get_machines($machine_group_id);
+		$response = array();
+		foreach($machines->result() as $machine)
+		{
+			$response[$machine->MachineID] = array (
+				'manufacturer' => $machine->Manufacturer,
+				'model' => $machine->Model,
+				'level' => $this->Admin_model->get_levels($user_id, $machine->MachineID)->result()
+			);
+		}
+		return $response;
 	}
 	
 	/**

@@ -49,6 +49,9 @@
 	<!-- fullcalendar scheduler -->
 	<link rel='stylesheet' href='<?php echo asset_url();?>css/scheduler.css' />
 	<script src='<?php echo asset_url();?>js/scheduler.js'></script>
+	
+	<link rel="stylesheet" href="<?php echo asset_url();?>css/bootstrap-table.min.css">
+	
   </head>
  
   <body>

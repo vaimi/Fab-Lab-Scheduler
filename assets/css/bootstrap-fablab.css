@@ -46,3 +46,18 @@
 		height: 34px;
 		width: 1px;
 	}
+	
+	.machine_level_rating > a:hover {
+		text-decoration: none;
+	}
+	
+	.rating-star {
+		font-size: 1.5em;
+	}
+	.rating-star-empty {
+		color: #ccc;
+	}
+	.rating-star-filled {
+		color: #337ab7;
+	}
+	
