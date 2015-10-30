@@ -26,7 +26,7 @@ class Admin_model extends CI_Model {
 		$this->db->select('main.id, main.email, main.name, 
 			main.banned, extra.phone_number, extra.surname, 
 			extra.student_number, extra.address_street, extra.address_postal_code, 
-			extra.company');
+			extra.company, extra.quota');
 		$this->db->from('aauth_users as main');
 		$this->db->join('extended_users_information as extra', 'main.id = extra.id');
 		$this->db->where('main.id', $user_id);
@@ -53,6 +53,16 @@ class Admin_model extends CI_Model {
 			}
 			return true;
 		}
+	}
+	
+	public function update_level_data($user_id, $machine_id, $level) {
+		$data = array(
+			'MachineID' => $machine_id,
+			'Aauth_usersID'  => $user_id,
+			'Level'  => $level
+		);
+
+		$this->db->replace('UserLevel', $data);
 	}
 	
 	public function get_machines($group_id = false) {
@@ -83,5 +93,10 @@ class Admin_model extends CI_Model {
 			$this->db->where('MachineID', $machine_id);
 		}
 		return $this->db->get();
+	}
+	
+	public function set_user_quota($user_id, $amount) {
+		$this->db->update('extended_users_information', array('Quota' => $amount), array('id' => $user_id));
+		return True;
 	}
 }

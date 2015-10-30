@@ -213,10 +213,12 @@ class Admin extends CI_Controller
 		$response = array();
 		foreach($machines->result() as $machine)
 		{
+			$level = $this->Admin_model->get_levels($user_id, $machine->MachineID)->result();
+			$level = (!empty($level)) ? intval($level[0]->Level) : 0;
 			$response[$machine->MachineID] = array (
 				'manufacturer' => $machine->Manufacturer,
 				'model' => $machine->Model,
-				'level' => $this->Admin_model->get_levels($user_id, $machine->MachineID)->result()
+				'level' => $level
 			);
 		}
 		return $response;
@@ -261,6 +263,12 @@ class Admin extends CI_Controller
 			
 			}
 		}
+		
+		parse_str($this->input->post('levels'), $level_data);
+		foreach ($level_data as $machine => $level) {
+			$level = ($level == "") ? 0 : $level; 
+			$this->Admin_model->update_level_data(intval($form_data['user_id']), $machine, $level);
+		}
 
 		$errors = $this->verify_data($form_data);
 		if (count($errors) != 0) {
@@ -303,6 +311,17 @@ class Admin extends CI_Controller
 		}
 	}
 	
+	public function set_quota() 
+	{
+		$user_id = intval($this->input->post('user_id'));
+		$amount = $this->input->post('amount');
+		$amount = ($amount == -1) ? 10 : $amount; //TODO fetch from database the default
+		if ($this->Admin_model->set_user_quota($user_id, $amount)) {
+			echo json_encode(array('success' => 1, 'amount' => round($amount, 1)));
+		} else {
+			echo json_encode(array('success' => 0));
+		}
+	}
 	/**
 	 * Check whether post data is valid 
 	 * Check whether send data is valid, if not, gathers errors to array.
@@ -361,5 +380,4 @@ class Admin extends CI_Controller
 		}
 		return $groups;
 	}
-	
 }

@@ -65,6 +65,38 @@
 		}); 
 	}
 	
+	function resetQuota(amount) {
+		amount = typeof amount !== 'undefined' ? amount : -1;
+		disableForm(true);
+		var post_data = {
+			'user_id': <?php echo $basic->id;?>,
+			'amount': amount
+		};
+		
+		$.ajax({
+			type: "POST",
+			url: "<?php echo base_url('admin/set_quota'); ?>",
+			data: post_data,
+			success: function(data) {
+				disableForm(false);
+				if (data.length > 0) {
+					var message = $.parseJSON(data);
+					if (message['success'] == 1) {
+						$("#quota_badge").text(message['amount']);
+						$("#quota_badge").addClass("animated pulse").one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', 
+						function() {
+							$(this).removeClass("animated pulse");
+						});
+						alerter("info", "User " + <?php echo '"' . $basic->name . " " . $basic->surname . '"';?> + " <strong>quota</strong> updated!"); 
+					} else {
+						alerter("warning", "<strong>Error</strong> while updating user " + <?php echo '"' . $basic->name . " " . $basic->surname . '"';?> + " <strong>quota</strong>!"); 
+					}
+
+				}
+			}
+		}); 
+	}
+	
 	function banUser() {
 		disableForm(true);
 		var post_data = {
@@ -191,8 +223,8 @@
 		<a href="javascript:saveData();" type="button submit" class="btn btn-success">
 			<span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save
 		</a>
-		<a href="javascript:saveData();" type="button" class="btn btn-info">
-			<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Reset quota
+		<a href="javascript:resetQuota();" type="button" class="btn btn-info">
+			<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Reset quota <span id="quota_badge" class="badge"><?php echo round($basic->quota, 1);?></span>
 		</a>
 		<div class="btn-group">
 			<a href="javascript:banUser();" type="button" id="ban_button" class="btn btn-warning">
@@ -269,8 +301,18 @@
         </div>
 		<div class="tab-pane" id="levels">
             <h4>User machine levels</h4>
-			<hr>
-			<a href="javascript:void(0);" class="btn btn-default" id="levelsall">open all</a> <a href="javascript:void(0);" class="btn btn-default" id="levelsnone">close all</a>
+			<div class="btn-toolbar" id="toolbar">
+				<div class="btn-group">
+					<a href="javascript:void(0);" class="btn btn-info" id="levelsall">
+						<span class="glyphicon glyphicon-collapse-down" aria-hidden="true"></span> Expand all
+					</a>
+					<a href="javascript:void(0);" class="btn btn-info" id="levelsnone">
+						<span class="glyphicon glyphicon-collapse-up" aria-hidden="true"></span> Collapse all
+					</a>
+				</div>
+			</div>
+			<br>
+			 
             <form id="level_form" method="post">
 				<div class="panel-group" id="accordion" role="tablist">
 					<?php foreach($levels as $g_key => $g_value): ?>
@@ -319,8 +361,9 @@
 											</a>
 											<input type="hidden" id="<?=$g_key?>_rating" class="rating g_<?=$g_key?>_rating m_rating" name="<?=$g_key?>" data-filled="glyphicon glyphicon-star rating-star rating-star-filled" data-empty="glyphicon glyphicon-star-empty rating-star rating-star-empty"/>
 											<script>
+												$('#<?=$m_key?>_rating').rating('rate', <?=$m_value['level']?>);
 												$('#m_<?=$m_key?>_rating_reset').click(function(){
-													$('#<?=$g_key?>_rating').rating('rate', 0);
+													$('#<?=$m_key?>_rating').rating('rate', 0);
 												});
 											</script>
 										</td>
