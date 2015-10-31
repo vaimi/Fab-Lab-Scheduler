@@ -25,7 +25,7 @@
 						$("#m_buttons").click(function(event){
 							event.stopPropagation();
 						});
-					</script
+					</script>
 				</td>
 			</tr>
 			<tr>

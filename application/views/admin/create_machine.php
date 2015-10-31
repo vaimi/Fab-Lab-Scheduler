@@ -5,7 +5,7 @@
 <div class="container">
 	<h4 class="modal-title">Create New Machine</h4>
 	<hr/>
-	<form name="create_machine" method="post" action="<?php echo base_url();?>admin/create_machine"
+	<form name="create_machine" method="post" action="<?php echo base_url();?>admin/create_machine">
 		<div class="input-group">
 	  		<input type="text" class="form-control focusedInput" id="username" name="username" placeholder="Username" aria-describedby="basic-addon1">
 	  		<input type="text" class="form-control focusedInput" id="manufacturer" name="manufacturer" placeholder="Manufacturer" aria-describedby="basic-addon1">
