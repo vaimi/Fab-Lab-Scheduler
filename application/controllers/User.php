@@ -193,7 +193,7 @@ class User extends CI_Controller
 			'id' => $user_id,
 			'surname' => $post_data['surname'],
 			'company' => $post_data['company'],
-			'address_street' => $post_data['surname'],
+			'address_street' => $post_data['address_street'],
 			'address_postal_code' => $post_data['address_postal_code'],
 			'phone_number' => $post_data['phone_number'],
 			'student_number' => $post_data['student_number'],

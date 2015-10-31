@@ -1,7 +1,7 @@
 <script src='<?php echo asset_url();?>js/bootstrap-notify.min.js'></script>
 <link rel='stylesheet' href='<?php echo asset_url();?>css/animate.css' />
 <script type="text/javascript">
-		onload: ajaxSearch();
+		ajaxSearch();
         function ajaxSearch() {
             var input_data = $('#search_people').val();
 
@@ -28,7 +28,7 @@
 			var post_data = {
 				'user_id': user_id
 			};
-			$('#user_data_form').addClass("animated fadeOut")
+			$('#user_data_form').addClass("animated fadeOut");
 			$.ajax({
 				type: "POST",
 				url: "<?php echo base_url('admin/fetch_user_data'); ?>",
