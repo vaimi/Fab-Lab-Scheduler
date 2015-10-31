@@ -112,6 +112,62 @@ class User extends CI_Controller
 		}
 	}
 
+	public function profile()
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+		
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = $this->session->userdata('surname') . "'s Profile";
+		$jdata['message'] = "";
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('user/profile');
+		$this->load->view('partials/footer');
+	}
+	
+	public function update_profile()
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+		
+		$new_user_info = array(
+			'name'	=> $this->input->post('name'),
+			'surname'	=> $this->input->post('surname'),
+			'phone_number'	=> $this->input->post('phone_number'),
+			'address_street'	=> $this->input->post('address_street'),
+			'address_postal_code'	=> $this->input->post('address_postal_code'),
+			'student_number'	=> $this->input->post('student_number')
+		);
+		
+		$this->User_model->update_user($new_user_info);
+		
+		$this->session->set_userdata('name', $new_user_info['name']);
+		$this->session->set_userdata('surname', $new_user_info['surname']);
+		$this->session->set_userdata('phone_number', $new_user_info['phone_number']);
+		$this->session->set_userdata('address_street', $new_user_info['address_street']);
+		$this->session->set_userdata('address_postal_code', $new_user_info['address_postal_code']);
+		$this->session->set_userdata('student_number', $new_user_info['student_number']);
+		
+		$this->load->view('user/profile_form');
+	}
+	
+	public function get_user_profile()
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+		$this->load->view('user/profile_form');
+	}
+	
 	// Helpers 
 
 	private function verify_registration_data($post_data)
