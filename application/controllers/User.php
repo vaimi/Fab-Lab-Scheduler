@@ -146,7 +146,7 @@ class User extends CI_Controller
 			'student_number'	=> $this->input->post('student_number')
 		);
 		
-		$this->User_model->update_user($new_user_info);
+		$this->User_model->update_user($new_user_info, $this->session->userdata['id']);
 		
 		$this->session->set_userdata('name', $new_user_info['name']);
 		$this->session->set_userdata('surname', $new_user_info['surname']);
@@ -155,7 +155,7 @@ class User extends CI_Controller
 		$this->session->set_userdata('address_postal_code', $new_user_info['address_postal_code']);
 		$this->session->set_userdata('student_number', $new_user_info['student_number']);
 		
-		$this->load->view('user/profile_form');
+		$this->load->view('user/profile_form', $this->User_model->get_user_data($this->session->userdata('id')));
 	}
 	
 	public function get_user_profile()
@@ -165,7 +165,7 @@ class User extends CI_Controller
 			$this->load->view('page_not_found_404');
 			return;
 		}
-		$this->load->view('user/profile_form');
+		$this->load->view('user/profile_form', $this->User_model->get_user_data($this->session->userdata('id')));
 	}
 	
 	// Helpers 

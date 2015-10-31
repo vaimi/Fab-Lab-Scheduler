@@ -1,4 +1,5 @@
 <script>
+	onload: get_user_profile();
 	$(document).on('click', '#profile_menu li', function() {
 	   $("#profile_menu li").removeClass("active");
 	   $(this).addClass("active");
@@ -33,7 +34,7 @@
 			</div>
 		</div>
 		<div class="col-md-8" id="user_data_form">
-			<?php $this->load->view('user/profile_form');?>
+			
 		</div>
 	</div>
 </div>

@@ -8,7 +8,7 @@
 					<div class="col-xs-8">
 						<input type="email" class="form-control" id="email_input"
 							placeholder="Email" readonly
-							value=<?php echo $this->session->userdata('email');?>>
+							value=<?php echo $email;?>>
 					</div>
 				</div>
 				<div class="form-group">
@@ -16,12 +16,12 @@
 					<div class="col-xs-4">
 						<input type="text" class="form-control" id="name_input"
 							placeholder="First Name"
-							value=<?php echo $this->session->userdata('name'); ?>>
+							value=<?php echo $name; ?>>
 					</div>
 					<div class="col-xs-4">
 						<input type="text" class="form-control" id="surname_input"
 							placeholder="Last Name"
-							value=<?php echo $this->session->userdata('surname'); ?>>
+							value=<?php echo $surname; ?>>
 					</div>
 				</div>
 				<div class="form-group">
@@ -29,7 +29,7 @@
 					<div class="col-xs-8">
 						<input type="tel" class="form-control" id="phone_number_input"
 							placeholder="Phone Number"
-							value=<?php echo $this->session->userdata('phone_number');?>>
+							value=<?php echo $phone_number;?>>
 					</div>
 				</div>
 				<div class="form-group">
@@ -37,12 +37,12 @@
 					<div class="col-xs-4">
 						<input type="text" class="form-control" id="address_street_input"
 							placeholder="Postal Address"
-							value=<?php echo $this->session->userdata('address_street');?> />
+							value=<?php echo $address_street;?> />
 					</div>
 					<div class="col-xs-4">
 						<input type="text" class="form-control"
 							id="address_postal_code_input" placeholder="Zip Code"
-							value=<?php echo $this->session->userdata('address_postal_code');?>>
+							value=<?php echo $address_postal_code;?>>
 					</div>
 				</div>
 				<div class="form-group">
@@ -51,7 +51,7 @@
 					<div class="col-xs-4">
 						<input type="text" class="form-control" id="student_number_input"
 							placeholder="Student ID"
-							value=<?php $this->session->userdata('student_number');?>>
+							value="<?php echo $student_number; ?>" >
 					</div>
 				</div>
 				<a href="javascript:update_user();" type="submit"

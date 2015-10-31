@@ -7,6 +7,31 @@ class User_model extends CI_Model {
         parent::__construct();
     }
     
+    function get_user_data($id)
+    {
+    	$sql = "select * from aauth_users where id=?";
+    	$query = $this->db->query($sql, array($id));
+    	$basic_info = $query->row();
+    	
+    	$sql = "select * from extended_users_information where id=?";
+    	$query = $this->db->query($sql, array($id));
+    	$extended_info = $query->row();
+    	
+    	$user_info = array(
+    		'id' => $basic_info->id,
+    			'email' => $basic_info->email,
+    			'name' => $basic_info->name,
+    			'surname' => $extended_info->surname,
+    			'company' => $extended_info->company,
+    			'address_street' => $extended_info->address_street,
+    			'address_postal_code' => $extended_info->address_postal_code,
+    			'phone_number' => $extended_info->phone_number,
+    			'student_number' => $extended_info->student_number,
+    			'quota' => $extended_info->quota
+    	);
+    	return $user_info;
+    }
+    
     function get_extended_user_data($id) 
     {
     	$sql = "select * from extended_users_information where id=?";
@@ -26,7 +51,7 @@ class User_model extends CI_Model {
         return $query = $this->db->query($sql);
     }
     
-    function update_user($user_information)
+    function update_user($user_information, $user_id)
     {
     	$basic_user_info = [];
     	$extended_user_info = [];
@@ -46,10 +71,12 @@ class User_model extends CI_Model {
     	
     	if (count($basic_user_info) > 0)
     	{
+    		$this->db->where('id', $user_id);
     		$this->db->update('aauth_users', $basic_user_info);
     	}
     	if (count($extended_user_info) > 0)
     	{
+    		$this->db->where('id', $user_id);
     		$this->db->update('extended_users_information', $extended_user_info);
     	}
     }
