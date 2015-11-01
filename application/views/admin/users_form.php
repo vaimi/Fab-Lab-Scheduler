@@ -1,5 +1,3 @@
-<script src='<?php echo asset_url();?>js/bootstrap-rating.min.js'></script>
-<script src='<?php echo asset_url();?>js/fablab_users_managment.js'></script>
 <script type="text/javascript">
 	var user = {
 		"id": <?=$basic->id?>,
@@ -63,7 +61,7 @@
 			<span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save
 		</a>
 		<a id="quota_button" type="button" class="btn btn-info">
-			<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Reset quota <span id="quota_badge" class="badge"><?php echo round($basic->quota, 1);?></span>
+			<span class="glyphicon glyphicon-shopping-cart" aria-hidden="true"></span> Reset quota <span id="quota_badge" class="badge"><?=round($basic->quota, 1);?></span>
 		</a>
 		<div class="btn-group">
 			<a type="button" id="ban_button" class="btn btn-warning">
@@ -90,22 +88,22 @@
 				<div class="form-group">
 					<label class="control-label col-md-2" for="email_input">Email:</label>
 					<div class="col-md-8">
-						<input type="email" class="form-control" id="email_input" placeholder="Email" value=<?php echo $basic->email;?>>
+						<input type="email" class="form-control" id="email_input" placeholder="Email" value=<?=$basic->email;?>>
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="control-label col-md-2">Name:</label>
 					<div class="col-md-4">
-						<input type="text" class="form-control" id="name_input" placeholder="First Name" value=<?php echo $basic->name;?>>
+						<input type="text" class="form-control" id="name_input" placeholder="First Name" value=<?=$basic->name;?>>
 					</div>
 					<div class="col-md-4">
-						<input type="text" class="form-control" id="surname_input" placeholder="Last Name" value=<?php echo $basic->surname;?>>
+						<input type="text" class="form-control" id="surname_input" placeholder="Last Name" value=<?=$basic->surname;?>>
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="control-label col-md-2">Address:</label>
 					<div class="col-md-4">
-						<input type="text" class="form-control" id="address_street_input" placeholder="Postal Address" value=<?php echo $basic->address_street;?>></textarea>
+						<input type="text" class="form-control" id="address_street_input" placeholder="Postal Address" value=<?=$basic->address_street;?>></textarea>
 					</div>
 					<div class="col-md-4">
 						<input type="text" class="form-control" id="address_postal_code_input" placeholder="Zip Code" value=<?php echo $basic->address_postal_code;?>>
@@ -114,13 +112,13 @@
 				<div class="form-group">
 					<label class="control-label col-md-2" for="phone_number_input">Phone:</label>
 					<div class="col-md-4">
-						<input type="tel" class="form-control" id="phone_number_input" placeholder="Phone Number" value=<?php echo $basic->phone_number;?>>
+						<input type="tel" class="form-control" id="phone_number_input" placeholder="Phone Number" value=<?=$basic->phone_number;?>>
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="control-label col-md-2" for="student_number_input">Student ID:</label>
 					<div class="col-md-4">
-						<input type="text" class="form-control" id="student_number_input" placeholder="Student ID" value=<?php echo $basic->student_number;?>>
+						<input type="text" class="form-control" id="student_number_input" placeholder="Student ID" value=<?=$basic->student_number;?>>
 					</div>
 				</div>
 			</form>

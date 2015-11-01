@@ -10,6 +10,10 @@ class Admin extends CI_Controller
 		$this->load->model('Admin_model');
 	}
 
+	//
+	// Sites
+	//
+
 	public function moderate_general() 
 	{
 		$this->load->view('partials/header');
@@ -120,6 +124,12 @@ class Admin extends CI_Controller
 		}
 	}
 
+	//
+	// AJAX functions
+	//
+
+	// Users management
+
 	/**
 	 * Delete user
 	 * Delete a user from db
@@ -161,7 +171,7 @@ class Admin extends CI_Controller
 	 * Search user by name, phone, email
 	 * @access admin
 	 * @uses input::post string search_data search term
-	 * @return list of results as html
+	 * @return echo list of results as html
 	 */
 	 public function user_search() {
         $search_data = $this->input->post('search_data');
@@ -177,7 +187,7 @@ class Admin extends CI_Controller
 	 * Fetch user data by ajax call
 	 * @access admin
 	 * @uses input::post user_id user identification number
-	 * @return result form as html
+	 * @return echo result form as html
 	 */
 	 public function fetch_user_data() {
 		// Fetch basic data
@@ -197,7 +207,7 @@ class Admin extends CI_Controller
 				'machines' => $this->get_machine_group_levels($user_id, $machine_group->MachineGroupID)
 			);
 		}
-		// Make html
+		// Prepare array for view
 		$response = array
 		(
 			'basic' => $basic,
@@ -229,7 +239,7 @@ class Admin extends CI_Controller
 	 * Accepts form as post, validates field and if no errors, saves data to database
 	 * @access admin
 	 * @uses input::post array containing form fields + user id
-	 * @return {"success":"true"} or {"success":"false", "errors":array of strings}
+	 * @return echo {"success":"true"} or {"success":"false", "errors":array of strings}
 	 */
 	public function save_user_data() {
 		$form_data = array (
@@ -311,17 +321,27 @@ class Admin extends CI_Controller
 		}
 	}
 	
+	/**
+	 * Set user quota
+	 * Sets user quota. Can be set manually, or use database default
+	 * @access admin
+	 * @uses input::post {'user_id: user id, amount: amount of hours'}. Amount is optional.
+	 * @return echo json array containing error messages
+	 */
 	public function set_quota() 
 	{
 		$user_id = intval($this->input->post('user_id'));
 		$amount = $this->input->post('amount');
-		$amount = ($amount == -1) ? 10 : $amount; //TODO fetch from database the default
+		$amount = ($amount == -1) ? 10 : $amount; //TODO fetch from database the default. Check if amount is not set at all
 		if ($this->Admin_model->set_user_quota($user_id, $amount)) {
 			echo json_encode(array('success' => 1, 'amount' => round($amount, 1)));
 		} else {
 			echo json_encode(array('success' => 0));
 		}
 	}
+
+	// Helper functions
+
 	/**
 	 * Check whether post data is valid 
 	 * Check whether send data is valid, if not, gathers errors to array.
