@@ -9,12 +9,14 @@ class Message_model extends CI_Model {
     
     function get_conversations($user_id, $other_user_name = '')
     {
-    	$sql = "select distinct (case when pms.sender_id=? then pms.receiver_id when pms.receiver_id=? then pms.sender_id) other_user_id, user.email, user.name, user_extended.surname
-    			from aauth_pms pms
-    			inner join aauth_users user on (case when pms.sender_id=? then pms.receiver_id when pms.receiver_id=? then pms.sender_id) = user.id
-    			inner join extended_users_information user_extended on user.id = user_extended.id
-    			where user.name like '%.$other_user_name.'%' or user_extended.surname like '%.$other_user_name.'%'";
-    	$result =  $this->db->query($sql, array($user_id, $user_id, $user_id, $user_id))->result_array();
+		$sql = "select (case pms.sender_id when ? then pms.receiver_id else pms.sender_id end) other_user_id, user.email, user.name, user_extended.surname, max(pms.date_sent) max_date_sent
+		    	from aauth_pms pms
+		    	inner join aauth_users user on (case pms.sender_id when ? then pms.receiver_id else pms.sender_id end) = user.id
+		    	inner join extended_users_information user_extended on user.id = user_extended.id
+				where user.name like '%".$other_user_name."%' or user_extended.surname like '%".$other_user_name."%'
+		    	group by (case pms.sender_id when ? then pms.receiver_id else pms.sender_id end), user.email, user.name, user_extended.surname
+		    	order by max_date_sent desc";
+    	$result =  $this->db->query($sql, array($user_id, $user_id, $user_id))->result_array();
     	return $result;
     }
     
@@ -45,7 +47,7 @@ class Message_model extends CI_Model {
     			LIMIT 30";
     	
     	$result =  $this->db->query($sql, array($user_id, $other_user_id, $other_user_id, $user_id))->result_array();
-    	return result;
+    	return $result;
     }
     
 }

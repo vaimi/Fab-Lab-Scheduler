@@ -175,9 +175,30 @@ class User extends CI_Controller
 			$this->load->view('page_not_found_404');
 			return;
 		}
+
 		//Contains info about machines and levels.
 		$data['results'] = $this->User_model->get_machine_levels_and_info($this->session->userdata('id'));
 		$this->load->view('user/machine_levels_list', $data);
+	}
+	
+	public function get_conversations()
+	{
+		$this->load->model('Message_model');
+		$conversations = $this->Message_model->get_conversations($this->session->userdata('id'));
+		$this->load->view('user/message_panel', array('conversations' => $conversations));
+	}
+	
+	public function get_conversation($other_user_id)
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+	
+		$this->load->model('Message_model');
+		$texts = $this->Message_model->get_conversation($this->session->userdata('id'), $other_user_id);
+		$this->load->view('user/message_content', array('texts' => $texts));
 	}
 	// Helpers 
 
