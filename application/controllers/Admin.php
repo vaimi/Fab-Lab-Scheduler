@@ -3,11 +3,11 @@ class Admin extends CI_Controller
 {
 	public function __construct() {
 		parent::__construct();
-		if (!$this->aauth->is_admin()) 
-		{
-			redirect(base_url('user/login'), 'refresh');
-		}
 		$this->load->model('Admin_model');
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
 	}
 
 	//

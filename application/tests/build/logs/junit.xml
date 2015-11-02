@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="CodeIgniter Application Test Suite" tests="5" assertions="5" failures="0" errors="0" time="0.817691">
+    <testsuite name="Admin_test" file="D:\FLS\Fab-Lab-Scheduler\application\tests\controllers\Admin_test.php" tests="3" assertions="3" failures="0" errors="0" time="0.809338">
+      <testcase name="test_access_as_public" class="Admin_test" file="D:\FLS\Fab-Lab-Scheduler\application\tests\controllers\Admin_test.php" line="9" assertions="1" time="0.249502"/>
+      <testcase name="test_access_as_user" class="Admin_test" file="D:\FLS\Fab-Lab-Scheduler\application\tests\controllers\Admin_test.php" line="15" assertions="1" time="0.343437"/>
+      <testcase name="test_access_as_admin" class="Admin_test" file="D:\FLS\Fab-Lab-Scheduler\application\tests\controllers\Admin_test.php" line="31" assertions="1" time="0.216399"/>
+    </testsuite>
+    <testsuite name="Welcome_test" file="D:\FLS\Fab-Lab-Scheduler\application\tests\controllers\Welcome_test.php" tests="2" assertions="2" failures="0" errors="0" time="0.008353">
+      <testcase name="test_method_404" class="Welcome_test" file="D:\FLS\Fab-Lab-Scheduler\application\tests\controllers\Welcome_test.php" line="13" assertions="1" time="0.007656"/>
+      <testcase name="test_APPPATH" class="Welcome_test" file="D:\FLS\Fab-Lab-Scheduler\application\tests\controllers\Welcome_test.php" line="19" assertions="1" time="0.000697"/>
+    </testsuite>
+  </testsuite>
+</testsuites>

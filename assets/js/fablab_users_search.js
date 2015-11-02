@@ -10,6 +10,9 @@ function ajaxSearch() {
 	var post_data = {
 		'search_data': input_data
 	};
+	$('#search_results > a').remove();
+	$('#search_results > .loader').remove();
+	$('#search_results').append('<div class="loader">Loading...</div>');
 
 	$.ajax({
 		type: "POST",
@@ -18,6 +21,7 @@ function ajaxSearch() {
 		success: function(data) {
 			// return success
 			if (data.length > 0) {
+				$('#search_results > .loader').remove();
 				$('#search_results').addClass('auto_list');
 				$('#search_results').html(data);
 			}
@@ -31,6 +35,7 @@ function fetchUserData(user_id) {
 		'user_id': user_id
 	};
 	$('#user_data_form').addClass("animated fadeOut");
+
 	$.ajax({
 		type: "POST",
 		url: search_urls.fetch,
