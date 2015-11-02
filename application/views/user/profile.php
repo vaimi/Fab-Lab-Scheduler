@@ -20,6 +20,21 @@
 			}
 		});
 	}
+	function get_machine_levels()
+	{
+		$('#user_data_form').fadeOut('fast');
+		$.ajax({
+			type: "POST",
+			url: "<?php echo base_url('user/get_machine_levels'); ?>",
+			success: function(data) {
+				// return success
+				if (data.length > 0) {
+					$('#user_data_form').html(data);
+					$('#user_data_form').fadeIn('fast');
+				}
+			}
+		});
+	}
 </script>
 
 <div class="container">
@@ -28,6 +43,7 @@
 			<div class="col-md-7">
 				<ul class="nav nav-pills nav-stacked" id="profile_menu">
 					<li class="active"><a href="#" onclick="get_user_profile();">Profile</a></li>
+					<li><a href="#" onclick="get_machine_levels();">Machine skill levels</a></li>
 					<li><a href="#">Messages</a></li>
 					<li><a href="#">Reservations</a></li>
 				</ul>

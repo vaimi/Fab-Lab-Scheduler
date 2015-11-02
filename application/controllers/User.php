@@ -168,6 +168,17 @@ class User extends CI_Controller
 		$this->load->view('user/profile_form', $this->User_model->get_user_data($this->session->userdata('id')));
 	}
 	
+	public function get_machine_levels()
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+		//Contains info about machines and levels.
+		$data['results'] = $this->User_model->get_machine_levels_and_info($this->session->userdata('id'));
+		$this->load->view('user/machine_levels_list', $data);
+	}
 	// Helpers 
 
 	private function verify_registration_data($post_data)
