@@ -168,6 +168,32 @@ class User extends CI_Controller
 		$this->load->view('user/profile_form', $this->User_model->get_user_data($this->session->userdata('id')));
 	}
 	
+	public function get_conversations()
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+		
+		$this->load->model('Message_model');
+		$conversations = $this->Message_model->get_conversations($this->session->userdata('id'));
+		$this->load->view('user/message_panel', array('conversations' => $conversations));
+	}
+	
+	public function get_conversation($other_user_id)
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+	
+		$this->load->model('Message_model');
+		$texts = $this->Message_model->get_conversation($this->session->userdata('id'), $other_user_id);
+		$this->load->view('user/message_content', array('texts' => $texts));
+	}
+	
 	// Helpers 
 
 	private function verify_registration_data($post_data)
