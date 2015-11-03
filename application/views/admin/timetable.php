@@ -67,9 +67,9 @@
 	<div class="col-md-2">
 		<h4>Supervisors</h4>
 		<ul class="list-group" id='external-events'>
-			<li class='fc-event list-group-item'>Mikko Väisänen</li>
-			<li class='fc-event list-group-item'>Thang Luu</li>
-			<li class='fc-event list-group-item'>Markus Särkiniemi</li>
+		<?php foreach ($admins as $row ) {?>
+			<li class='fc-event list-group-item' id="<?php echo $row->id ?>" ><?php echo $row->name; ?>(<?php echo$row->email ?>)</li>
+		<?php }?>
 		</ul>
 	</div>
 	<div class="col-md-10" id='calendar'></div>

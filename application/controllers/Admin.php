@@ -39,7 +39,9 @@ class Admin extends CI_Controller
 		$jdata['title'] = "Admin";
 		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
 		$this->load->view('partials/jumbotron', $jdata);
-		$this->load->view('admin/timetable');
+		//Get admins from db
+		$data['admins'] = $this->Admin_model->get_admins()->result();
+		$this->load->view('admin/timetable', $data);
 		$this->load->view('partials/footer');
 	}
 	
@@ -247,6 +249,7 @@ class Admin extends CI_Controller
 		
 		$groups = $this->aauth->list_groups();
 		parse_str($this->input->post('groups'), $group_data);
+		// TODO: Is this necessary? two assigns
 		$user_groups = $user_groups = $this->aauth->get_user_groups($form_data['user_id']);
 		$group_array = array_keys($group_data);
 		foreach ($groups as $group) {

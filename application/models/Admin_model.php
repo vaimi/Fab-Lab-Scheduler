@@ -94,7 +94,16 @@ class Admin_model extends CI_Model {
 		}
 		return $this->db->get();
 	}
-	
+	// TODO: This query needs checking.
+	public function get_admins() {
+		$this->db->select('u.id, u.name, u.email');
+		$this->db->distinct();
+		$this->db->from('aauth_users as u');
+		$this->db->join('aauth_user_to_group', 'u.id = aauth_user_to_group.user_id');	
+		$this->db->join('aauth_groups as g', 'aauth_user_to_group.group_id = g.id');
+		$this->db->like('g.name', 'Admin');
+		return $this->db->get();
+	}
 	public function set_user_quota($user_id, $amount) {
 		$this->db->update('extended_users_information', array('Quota' => $amount), array('id' => $user_id));
 		return True;
