@@ -3,12 +3,16 @@ class Admin extends CI_Controller
 {
 	public function __construct() {
 		parent::__construct();
-		if (!$this->aauth->is_admin()) 
-		{
-			redirect(base_url('user/login'), 'refresh');
-		}
 		$this->load->model('Admin_model');
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
 	}
+
+	//
+	// Sites
+	//
 
 	public function moderate_general() 
 	{
@@ -45,6 +49,18 @@ class Admin extends CI_Controller
 		$this->load->view('partials/footer');
 	}
 	
+	/**
+	 * Manage users
+	 * Manage users, modify their levels and groups 
+	 *
+	 * In users-view, also sub-view users_data is used to load the input forms
+	 *
+	 * Unit tested
+	 *
+	 * @access admin
+	 * @see users_form.php
+	 * @return echo html
+	 */
 	public function moderate_users() 
 	{
 		$this->load->view('partials/header');
@@ -122,52 +138,93 @@ class Admin extends CI_Controller
 		}
 	}
 
+	//
+	// AJAX functions
+	//
+
+	// Users management
+
 	/**
 	 * Delete user
-	 * Delete a user from db
+	 *
+	 * Delete a user from db.
+	 *
+	 * Unit tested
+	 *
 	 * @access admin
+	 * @uses Codeigniter-aauth to delete user from database and validate user_id
 	 * @uses input::post $user_id to be deleted
 	 * @return bool Delete fails/succeeds
 	 */
 	public function delete_user() {
 		$user_id = $this->input->post('user_id');
-		return $this->aauth->delete_user($user_id);
+		
+		$response = "false";
+		if ($this->aauth->get_user($user_id) != false)
+		{
+			$response = $this->aauth->delete_user($user_id);
+		}
+		echo json_encode($response);
 	}
 
 	/**
 	 * Ban user
+	 *
 	 * Bans/deactivates user account
+	 *
+	 * Unit tested
+	 *
 	 * @access admin
+	 * @uses Codeigniter-aauth to ban user and validate user_id
 	 * @uses input::post int user_id to be banned
 	 * @return bool Ban fails/succeeds
 	 */
 	public function ban_user() {
 		$user_id = $this->input->post('user_id');
-		return $this->aauth->ban_user($user_id);
+		
+		$response = "false";
+		if ($this->aauth->get_user($user_id) != false)
+		{
+			$response = $this->aauth->ban_user($user_id);
+		}
+		echo json_encode($response);
 	}
 
 	/**
 	 * Unban user
+	 *
 	 * Unbans/activates user account
+	 *
+	 * Unit tested
+	 *
 	 * @access admin
+	 * @uses Codeigniter-aauth to unban user and validate user_id
 	 * @uses input::post int user_id to be unlocked
 	 * @return bool Unban fails/succeeds
 	 */
 	public function unban_user() {
 		$user_id = $this->input->post('user_id');
-		return $this->aauth->unban_user($user_id);
+		
+		$response = "false";
+		if ($this->aauth->get_user($user_id) != false)
+		{
+			$response = $this->aauth->unban_user($user_id);
+		}
+		echo json_encode($response);
 	}
 	
 	/**
 	 * User search
-	 * Search user by name, phone, email
+	 *
+	 * Search user by name, phone, email. You can set offset to paginate results. Max results amount is set to 10 in model.
+	 *
 	 * @access admin
 	 * @uses input::post string search_data search term
-	 * @return list of results as html
+	 * @return echo list of results as html
 	 */
 	 public function user_search() {
         $search_data = $this->input->post('search_data');
-		$offset = $this->input->post('offset') ?: "0";
+		$offset = $this->input->post('offset') ? $this->input->post('offset') : "0";
         $query = $this->Admin_model->get_autocomplete($search_data);
         foreach ($query->result() as $row) {
             echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->name . " " . $row->surname . "</a>";
@@ -179,7 +236,7 @@ class Admin extends CI_Controller
 	 * Fetch user data by ajax call
 	 * @access admin
 	 * @uses input::post user_id user identification number
-	 * @return result form as html
+	 * @return echo result form as html
 	 */
 	 public function fetch_user_data() {
 		// Fetch basic data
@@ -199,7 +256,7 @@ class Admin extends CI_Controller
 				'machines' => $this->get_machine_group_levels($user_id, $machine_group->MachineGroupID)
 			);
 		}
-		// Make html
+		// Prepare array for view
 		$response = array
 		(
 			'basic' => $basic,
@@ -231,7 +288,7 @@ class Admin extends CI_Controller
 	 * Accepts form as post, validates field and if no errors, saves data to database
 	 * @access admin
 	 * @uses input::post array containing form fields + user id
-	 * @return {"success":"true"} or {"success":"false", "errors":array of strings}
+	 * @return echo {"success":"true"} or {"success":"false", "errors":array of strings}
 	 */
 	public function save_user_data() {
 		$form_data = array (
@@ -314,17 +371,27 @@ class Admin extends CI_Controller
 		}
 	}
 	
+	/**
+	 * Set user quota
+	 * Sets user quota. Can be set manually, or use database default
+	 * @access admin
+	 * @uses input::post {'user_id: user id, amount: amount of hours'}. Amount is optional.
+	 * @return echo json array containing error messages
+	 */
 	public function set_quota() 
 	{
 		$user_id = intval($this->input->post('user_id'));
 		$amount = $this->input->post('amount');
-		$amount = ($amount == -1) ? 10 : $amount; //TODO fetch from database the default
+		$amount = ($amount == -1) ? 10 : $amount; //TODO fetch from database the default. Check if amount is not set at all
 		if ($this->Admin_model->set_user_quota($user_id, $amount)) {
 			echo json_encode(array('success' => 1, 'amount' => round($amount, 1)));
 		} else {
 			echo json_encode(array('success' => 0));
 		}
 	}
+
+	// Helper functions
+
 	/**
 	 * Check whether post data is valid 
 	 * Check whether send data is valid, if not, gathers errors to array.
