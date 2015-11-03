@@ -10,3 +10,4 @@ Fab-Lab-Scheduler.iml
 .project
 .settings
 .idea/php.xml
+application/tests/build/logs/junit.xml

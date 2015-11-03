@@ -47,6 +47,18 @@ class Admin extends CI_Controller
 		$this->load->view('partials/footer');
 	}
 	
+	/**
+	 * Manage users
+	 * Manage users, modify their levels and groups 
+	 *
+	 * In users-view, also sub-view users_data is used to load the input forms
+	 *
+	 * Unit tested
+	 *
+	 * @access admin
+	 * @see users_form.php
+	 * @return echo html
+	 */
 	public function moderate_users() 
 	{
 		$this->load->view('partials/header');
@@ -132,50 +144,85 @@ class Admin extends CI_Controller
 
 	/**
 	 * Delete user
-	 * Delete a user from db
+	 *
+	 * Delete a user from db.
+	 *
+	 * Unit tested
+	 *
 	 * @access admin
+	 * @uses Codeigniter-aauth to delete user from database and validate user_id
 	 * @uses input::post $user_id to be deleted
 	 * @return bool Delete fails/succeeds
 	 */
 	public function delete_user() {
 		$user_id = $this->input->post('user_id');
-		return $this->aauth->delete_user($user_id);
+		
+		$response = "false";
+		if ($this->aauth->get_user($user_id) != false)
+		{
+			$response = $this->aauth->delete_user($user_id);
+		}
+		echo json_encode($response);
 	}
 
 	/**
 	 * Ban user
+	 *
 	 * Bans/deactivates user account
+	 *
+	 * Unit tested
+	 *
 	 * @access admin
+	 * @uses Codeigniter-aauth to ban user and validate user_id
 	 * @uses input::post int user_id to be banned
 	 * @return bool Ban fails/succeeds
 	 */
 	public function ban_user() {
 		$user_id = $this->input->post('user_id');
-		return $this->aauth->ban_user($user_id);
+		
+		$response = "false";
+		if ($this->aauth->get_user($user_id) != false)
+		{
+			$response = $this->aauth->ban_user($user_id);
+		}
+		echo json_encode($response);
 	}
 
 	/**
 	 * Unban user
+	 *
 	 * Unbans/activates user account
+	 *
+	 * Unit tested
+	 *
 	 * @access admin
+	 * @uses Codeigniter-aauth to unban user and validate user_id
 	 * @uses input::post int user_id to be unlocked
 	 * @return bool Unban fails/succeeds
 	 */
 	public function unban_user() {
 		$user_id = $this->input->post('user_id');
-		return $this->aauth->unban_user($user_id);
+		
+		$response = "false";
+		if ($this->aauth->get_user($user_id) != false)
+		{
+			$response = $this->aauth->unban_user($user_id);
+		}
+		echo json_encode($response);
 	}
 	
 	/**
 	 * User search
-	 * Search user by name, phone, email
+	 *
+	 * Search user by name, phone, email. You can set offset to paginate results. Max results amount is set to 10 in model.
+	 *
 	 * @access admin
 	 * @uses input::post string search_data search term
 	 * @return echo list of results as html
 	 */
 	 public function user_search() {
         $search_data = $this->input->post('search_data');
-		$offset = $this->input->post('offset') ?: "0";
+		$offset = $this->input->post('offset') ? $this->input->post('offset') : "0";
         $query = $this->Admin_model->get_autocomplete($search_data);
         foreach ($query->result() as $row) {
             echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->name . " " . $row->surname . "</a>";
