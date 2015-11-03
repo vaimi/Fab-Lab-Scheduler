@@ -226,9 +226,16 @@ class Admin extends CI_Controller
         $search_data = $this->input->post('search_data');
 		$offset = $this->input->post('offset') ? $this->input->post('offset') : "0";
         $query = $this->Admin_model->get_autocomplete($search_data);
-        foreach ($query->result() as $row) {
-            echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->name . " " . $row->surname . "</a>";
-        }
+		if (count($query->result()) > 0) {
+			foreach ($query->result() as $row) 
+			{
+				echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->name . " " . $row->surname . "</a>";
+			}
+		} 
+		else 
+		{
+			echo "No results";
+		}
 	}
 	
 	/**
@@ -306,8 +313,7 @@ class Admin extends CI_Controller
 		
 		$groups = $this->aauth->list_groups();
 		parse_str($this->input->post('groups'), $group_data);
-		// TODO: Is this necessary? two assigns
-		$user_groups = $user_groups = $this->aauth->get_user_groups($form_data['user_id']);
+		$user_groups = $this->aauth->get_user_groups($form_data['user_id']);
 		$group_array = array_keys($group_data);
 		foreach ($groups as $group) {
 			if (in_array($group->id, $group_array)) {
