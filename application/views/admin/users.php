@@ -1,6 +1,5 @@
 <script type="text/javascript" src="<?=asset_url()?>js/bootstrap-notify.min.js"></script>
 <link rel="stylesheet" href="<?=asset_url()?>css/animate.css"/>
-<script type="text/javascript" src="<?=asset_url()?>js/bootstrap-rating.min.js"></script>
 <script type="text/javascript" src="<?=asset_url()?>js/fablab_users_managment.js"></script>
 <script type="text/javascript" src="<?=asset_url()?>js/fablab_users_search.js"></script>
 

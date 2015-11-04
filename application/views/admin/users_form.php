@@ -1,3 +1,4 @@
+<script type="text/javascript" src="<?=asset_url()?>js/bootstrap-rating.min.js"></script>
 <script type="text/javascript">
 	var user = {
 		"id": <?=$basic->id?>,
