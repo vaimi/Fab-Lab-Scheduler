@@ -57,8 +57,38 @@
 			allDayDefault: false,
 			defaultTimedEventDuration: '08:00:00',
 			editable: true,
-			droppable: true // this allows things to be dropped onto the calendar
+			droppable: true, // this allows things to be dropped onto the calendar
+			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+			eventClick: function(event, element) {
+				event.title = "CLICKED!";
+				//open modal/tooltip for deletion and manual data entry
+				$('#calendar').fullCalendar('updateEvent', event);
+			},
+			editable: true,
+			eventResize: function(event, delta, revertFunc) {
+				//event resize callback
+				alert(event.title + " end is now " + event.end.format());
+
+				if (!confirm("is this okay?")) {
+					revertFunc();
+				}
+
+			},
+			 eventDrop: function(event, delta, revertFunc) {
+				//event move callback
+				alert(event.title + " was dropped on " + event.start.format());
+
+				if (!confirm("Are you sure about this change?")) {
+					revertFunc();
+				}
+
+			},
+			drop: function(date, jsEvent, ui) {
+				//external event drop callback
+				alert("Hello!");
+			}
 		});
+		
 
 
 	});
