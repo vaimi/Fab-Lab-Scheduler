@@ -122,4 +122,26 @@ class Admin_model extends CI_Model {
                       EndTime < STR_TO_DATE(?,'%Y-%m-%d')";
         return $this->db->query($sql, array($start_time, $end_time));
     }
+    
+    public function timetable_save_modified($slot)
+    {
+            $data = array(
+            "SupervisionID" => (int)$slot->id,
+            "StartTime" => date("Y-m-d H:i:s", strtotime($slot->start)),
+            "EndTime" => date("Y-m-d H:i:s", strtotime($slot->end)),
+            "Aauth_usersID" => (int)$slot->assigned
+        );
+        $this->db->replace('Supervision', $data);
+    }
+    
+    public function timetable_save_new($slot)
+    {
+        $data = array(
+            "StartTime" => date("Y-m-d H:i:s", strtotime($slot->start)),
+            "EndTime" => date("Y-m-d H:i:s", strtotime($slot->end)),
+            "Aauth_usersID" => (int)$slot->assigned
+        );
+        $this->db->insert('Supervision', $data);
+    }
+    
 }

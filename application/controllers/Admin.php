@@ -39,6 +39,8 @@ class Admin extends CI_Controller
 	public function moderate_timetables() 
 	{
         $this->session->set_userdata('sv_fetch_time', time());
+        $this->session->set_userdata('sv_unsaved_modified_items', array());
+        $this->session->set_userdata('sv_unsaved_new_items', array());
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Admin";
@@ -171,19 +173,55 @@ class Admin extends CI_Controller
 	 * @access admin
 	 */
 	public function timetable_save() {
+        $new_slots = $this->session->userdata('sv_unsaved_new_items');
+        $modified_slots = $this->session->userdata('sv_unsaved_modified_items');
         
+        $errors = array();
+        
+        foreach($new_slots as $slot)
+        {
+            $this->Admin_model->timetable_save_new($slot);
+        }
+        foreach($modified_slots as $slot)
+        {
+            $this->Admin_model->timetable_save_modified($slot);
+        }
+        $this->session->set_userdata('sv_unsaved_new_items', array());
+        $this->session->set_userdata('sv_unsaved_modified_items', array());
+        echo json_encode(array("success" => 1, "errors" => $errors));
     }
     
     public function timetable_new_slot() {
+        $assigned = $this->input->post("assigned");
+        $start = $this->input->post("start");
+        $end = $this->input->post("end");    
         
+        $slot = new stdClass();
+        $slot->assigned = $assigned;
+        $slot->start = $start;
+        $slot->end = $end;
+        $slot->id = -1 - count($this->session->userdata('sv_unsaved_new_items'));
+        $unsaved = $this->session->userdata('sv_unsaved_new_items');
+        $unsaved[] = $slot;
+        $this->session->set_userdata('sv_unsaved_new_items', $unsaved);
+        echo json_encode(array("id" => $slot->id));
     }
     
     public function timetable_modify_slot() {
+        $id = $this->input->post("id"); 
+        $assigned = $this->input->post("assigned");
+        $start = $this->input->post("start");
+        $end = $this->input->post("end");    
         
-    }
-    
-    private function timetable_add_to_session($event) {
-        
+        $slot = new stdClass();
+        $slot->assigned = $assigned;
+        $slot->start = $start;
+        $slot->end = $end;
+        $slot->id = $id;
+        $unsaved = $this->session->userdata('sv_unsaved_modified_items');
+        $unsaved[] = $slot;
+        $this->session->set_userdata('sv_unsaved_modified_items', $unsaved);
+        echo json_encode(array("success" => 1));
     }
 
 	// Users management

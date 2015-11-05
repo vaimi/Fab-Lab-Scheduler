@@ -1,9 +1,8 @@
 <div class="container">
 	<div class="btn-toolbar">
-		<button type="button" class="btn btn-success">
+		<a id="save_button" type="button" class="btn btn-success">
 			<span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save
-			<!-- Modal with two calendars -->
-		</button>
+		</a>
 		<span class="btn-separator"></span>
 		<button type="button" class="btn btn-primary">
 			<span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy schedule...
@@ -20,7 +19,26 @@
 	</div>
 	<hr>
 <script>
+    function saveData() {
 
+        $.ajax({
+            type: "POST",
+            url: "timetable_save",
+            success: function(data) {
+                // return success
+                if (data.length > 0) {
+                    $('#calendar').fullCalendar('refetchEvents');
+                    alert("hello!");
+                }
+            }
+        });
+    }
+    
+    
+    $('#save_button').click(function(){
+		saveData();
+	});
+    
 	$(document).ready(function() {
 
 
@@ -33,7 +51,7 @@
 			$(this).data('event', {
 				title: $.trim($(this).text()), // use the element's text as the event title
                 assigned: $.trim($(this).data( "assigned" )),
-				stick: true // maintain when user navigates (see docs on the renderEvent method)
+				stick: false // maintain when user navigates (see docs on the renderEvent method)
 			});
 
 			// make the event draggable using jQuery UI
@@ -96,7 +114,8 @@
                     success: function(data) {
                         // return success
                         if (data.length > 0) {
-                            //
+                            event.color = "#000066";
+                            $('#calendar').fullCalendar('renderEvent', event);
                         }
                     }
                 });
@@ -116,7 +135,8 @@
                     success: function(data) {
                         // return success
                         if (data.length > 0) {
-                            //
+                            event.color = "#000066";
+                            $('#calendar').fullCalendar('renderEvent', event);
                         }
                     }
                 });
@@ -136,7 +156,8 @@
                     success: function(data) {
                         // return success
                         if (data.length > 0) {
-                            //
+                            response = $.parseJSON(data);
+                            event.id = response.id;
                         }
                     }
                 });
