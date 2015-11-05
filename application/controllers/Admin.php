@@ -207,6 +207,23 @@ class Admin extends CI_Controller
         echo json_encode(array("id" => $slot->id));
     }
     
+    public function timetable_remove_slot() {
+        $id = $this->input->post("id"); 
+        $assigned = $this->input->post("assigned");
+        $start = $this->input->post("start");
+        $end = $this->input->post("end");  
+        
+        if ($id < 0)
+        {
+            //fetch from $this->session->userdata('sv_unsaved_new_items');
+        } else {
+            //try to fetch from $this->session->userdata('sv_unsaved_modified_items');
+            //if not found, use database
+        }
+        //put to sv_unsaved_deleted_items
+        echo json_encode(array("success" => 1));
+    }
+    
     public function timetable_modify_slot() {
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");

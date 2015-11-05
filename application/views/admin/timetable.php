@@ -20,7 +20,6 @@
 	<hr>
 <script>
     function saveData() {
-
         $.ajax({
             type: "POST",
             url: "timetable_save",
@@ -29,6 +28,46 @@
                 if (data.length > 0) {
                     $('#calendar').fullCalendar('refetchEvents');
                     alert("hello!");
+                }
+            }
+        });
+    }
+    function removeEvent(id) {
+        var post_data = {
+            "id": event.id,
+            "assigned": event.assigned,
+            "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
+            "end": moment(event.end).format("DD-MM-YYYY HH:mm")
+        }
+        $.ajax({
+            type: "POST",
+            url: "timetable_remove_slot",
+            data: post_data,
+            success: function(data) {
+                // return success
+                if (data.length > 0) {
+                    event.color = "#660000";
+                    $('#calendar').fullCalendar('updateEvent', event);
+                }
+            }
+        });
+    }
+    function restoreEvent(id) {
+        var post_data = {
+            "id": event.id,
+            "assigned": event.assigned,
+            "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
+            "end": moment(event.end).format("DD-MM-YYYY HH:mm")
+        }
+        $.ajax({
+            type: "POST",
+            url: "timetable_restore_slot",
+            data: post_data,
+            success: function(data) {
+                // return success
+                if (data.length > 0) {
+                    event.color = "#000066";
+                    $('#calendar').fullCalendar('updateEvent', event);
                 }
             }
         });
@@ -91,12 +130,15 @@
 			droppable: true, // this allows things to be dropped onto the calendar
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			eventClick: function(event, element) {
-				event.title = "CLICKED!";
+                $('#modalTitle').html(event.title);
+                $('#modalBody').html(event.description);
+                $('#eventUrl').attr('href',event.url);
+                $('#eventModal').modal();
 				//open modal/tooltip for deletion and manual data entry
 				$('#calendar').fullCalendar('updateEvent', event);
 			},
 			editable: true,
-            eventRender: function(event){
+            eventRender: function(event, element){
                 var assigned = event.assigned;
             },
 			eventResize: function(event, delta, revertFunc) {
@@ -115,7 +157,7 @@
                         // return success
                         if (data.length > 0) {
                             event.color = "#000066";
-                            $('#calendar').fullCalendar('renderEvent', event);
+                            $('#calendar').fullCalendar('updateEvent', event);
                         }
                     }
                 });
@@ -169,6 +211,30 @@
 	});
 
 </script>
+    <!-- Modal -->
+    <div id="eventModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="event_header">Modal Header</h4>
+          </div>
+          <div class="modal-body">
+            <p>Some text in the modal.</p>
+          </div>
+          <div class="modal-footer">
+                <a id="event_remove_button" type="button" class="btn btn-danger" data-dismiss="modal">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
+                    <!-- Modal with selectable days -->
+                </a>
+                <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
 	<div class="col-md-2">
 		<h4>Supervisors</h4>
 		<ul class="list-group" id='external-events'>
