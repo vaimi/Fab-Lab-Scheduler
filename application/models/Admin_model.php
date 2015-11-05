@@ -22,7 +22,8 @@ class Admin_model extends CI_Model {
 		return $this->db->get();
     }
 	
-	public function get_user_data($user_id) {
+	public function get_user_data($user_id) 
+    {
 		$this->db->select('main.id, main.email, main.name, 
 			main.banned, extra.phone_number, extra.surname, 
 			extra.student_number, extra.address_street, extra.address_postal_code, 
@@ -33,7 +34,8 @@ class Admin_model extends CI_Model {
 		return $this->db->get();
 	}
 	
-	public function update_user_data($user_data) {
+	public function update_user_data($user_data) 
+    {
 		$data = array(
 			'surname' => $user_data['surname'],
 			'address_street' => $user_data['address_street'],
@@ -55,7 +57,8 @@ class Admin_model extends CI_Model {
 		}
 	}
 	
-	public function update_level_data($user_id, $machine_id, $level) {
+	public function update_level_data($user_id, $machine_id, $level) 
+    {
 		$data = array(
 			'MachineID' => $machine_id,
 			'Aauth_usersID'  => $user_id,
@@ -75,13 +78,15 @@ class Admin_model extends CI_Model {
 		return $this->db->get();
 	}
 	
-	public function get_machine_groups() {
+	public function get_machine_groups() 
+    {
 		$this->db->select('*');
 		$this->db->from('MachineGroup');
 		return $this->db->get();
 	}
 	
-	public function get_levels($user_id = false, $machine_id = false) {
+	public function get_levels($user_id = false, $machine_id = false) 
+    {
 		$this->db->select('*');
 		$this->db->from('UserLevel');
 		if ($user_id != false)
@@ -95,7 +100,8 @@ class Admin_model extends CI_Model {
 		return $this->db->get();
 	}
 	// TODO: This query needs checking.
-	public function get_admins() {
+	public function get_admins() 
+    {
 		$this->db->select('u.id, u.name, u.email');
 		$this->db->distinct();
 		$this->db->from('aauth_users as u');
@@ -104,8 +110,16 @@ class Admin_model extends CI_Model {
 		$this->db->like('g.name', 'Admin');
 		return $this->db->get();
 	}
-	public function set_user_quota($user_id, $amount) {
+	public function set_user_quota($user_id, $amount) 
+    {
 		$this->db->update('extended_users_information', array('Quota' => $amount), array('id' => $user_id));
 		return True;
 	}
+    
+    public function timetable_get_supervision_slots($start_time, $end_time) 
+    {
+        $sql = "SELECT * FROM Supervision WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d') AND 
+                      EndTime < STR_TO_DATE(?,'%Y-%m-%d')";
+        return $this->db->query($sql, array($start_time, $end_time));
+    }
 }

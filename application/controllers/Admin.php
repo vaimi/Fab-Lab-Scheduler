@@ -38,6 +38,7 @@ class Admin extends CI_Controller
 	
 	public function moderate_timetables() 
 	{
+        $this->session->set_userdata('sv_fetch_time', time());
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Admin";
@@ -141,6 +142,49 @@ class Admin extends CI_Controller
 	//
 	// AJAX functions
 	//
+	
+	// Timetable
+    public function timetable_fetch_supervision_sessions() {
+        // get calendar request
+        $start_time = $this->input->get('start');
+        $end_time = $this->input->get('end');
+        // get supervision slots
+        $slots = $this->Admin_model->timetable_get_supervision_slots($start_time, $end_time);
+        $response = array();
+        foreach($slots->result() as $slot)
+		{
+            $slot_array = array
+            (
+                'id' => $slot->SupervisionID,
+                'title' => $slot->aauth_usersID,
+                'assigned' => $slot->aauth_usersID,
+                'start' => $slot->StartTime,
+                'end' => $slot->EndTime
+            );
+            array_push($response, $slot_array);
+        }
+        echo json_encode($response);
+    }
+    
+	/**
+	 * Save events from session file to database
+	 * @access admin
+	 */
+	public function timetable_save() {
+        
+    }
+    
+    public function timetable_new_slot() {
+        
+    }
+    
+    public function timetable_modify_slot() {
+        
+    }
+    
+    private function timetable_add_to_session($event) {
+        
+    }
 
 	// Users management
 

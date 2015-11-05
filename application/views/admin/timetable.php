@@ -32,6 +32,7 @@
 			// store data so the calendar knows to render an event upon drop
 			$(this).data('event', {
 				title: $.trim($(this).text()), // use the element's text as the event title
+                assigned: $.trim($(this).data( "assigned" )),
 				stick: true // maintain when user navigates (see docs on the renderEvent method)
 			});
 
@@ -49,14 +50,26 @@
 		-----------------------------------------------------------------*/
 
 		$('#calendar').fullCalendar({
+            eventSources: [
+            // your event source
+                {
+                    url: 'timetable_fetch_supervision_sessions', // use the `url` property
+                    color: '#006600'  // an option!
+                }
+            ],
 			header: {
 				left: 'prev,next today',
 				center: 'title',
 				right: 'month,agendaWeek,agendaDay'
 			},
+            allDaySlot: false,
 			allDayDefault: false,
 			defaultTimedEventDuration: '08:00:00',
+            forceEventDuration: true,
+            timeFormat: 'HH:mm',
+            axisFormat: 'HH:mm',
 			editable: true,
+            firstDay: 1,
 			droppable: true, // this allows things to be dropped onto the calendar
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			eventClick: function(event, element) {
@@ -65,27 +78,68 @@
 				$('#calendar').fullCalendar('updateEvent', event);
 			},
 			editable: true,
+            eventRender: function(event){
+                var assigned = event.assigned;
+            },
 			eventResize: function(event, delta, revertFunc) {
-				//event resize callback
-				alert(event.title + " end is now " + event.end.format());
-
-				if (!confirm("is this okay?")) {
-					revertFunc();
-				}
-
+                //Resize callback
+                var post_data = {
+                    "id": event.id,
+                    "assigned": event.assigned,
+                    "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
+                    "end": moment(event.end).format("DD-MM-YYYY HH:mm")
+                }
+				$.ajax({
+                    type: "POST",
+                    url: "timetable_modify_slot",
+                    data: post_data,
+                    success: function(data) {
+                        // return success
+                        if (data.length > 0) {
+                            //
+                        }
+                    }
+                });
 			},
-			 eventDrop: function(event, delta, revertFunc) {
-				//event move callback
-				alert(event.title + " was dropped on " + event.start.format());
-
-				if (!confirm("Are you sure about this change?")) {
-					revertFunc();
-				}
-
+            eventDrop: function(event, delta, revertFunc) {
+                //move callback
+                var post_data = {
+                    "id": event.id,
+                    "assigned": event.assigned,
+                    "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
+                    "end": moment(event.end).format("DD-MM-YYYY HH:mm")
+                }
+				$.ajax({
+                    type: "POST",
+                    url: "timetable_modify_slot",
+                    data: post_data,
+                    success: function(data) {
+                        // return success
+                        if (data.length > 0) {
+                            //
+                        }
+                    }
+                });
 			},
-			drop: function(date, jsEvent, ui) {
-				//external event drop callback
-				alert("Hello!");
+            eventReceive: function(event){
+                //external event drop callback
+                console.log(event);
+                var post_data = {
+                    "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
+                    "end": moment(event.end).format("DD-MM-YYYY HH:mm"),
+                    "assigned": event.assigned
+                }
+				$.ajax({
+                    type: "POST",
+                    url: "timetable_new_slot",
+                    data: post_data,
+                    success: function(data) {
+                        // return success
+                        if (data.length > 0) {
+                            //
+                        }
+                    }
+                });
 			}
 		});
 		
@@ -98,7 +152,7 @@
 		<h4>Supervisors</h4>
 		<ul class="list-group" id='external-events'>
 		<?php foreach ($admins as $row ) {?>
-			<li class='fc-event list-group-item' id="<?php echo $row->id ?>" ><?php echo $row->name; ?>(<?php echo$row->email ?>)</li>
+			<li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1' data-assigned='<?=$row->id?>'><?php echo $row->name; ?>(<?php echo$row->email ?>)</li>
 		<?php }?>
 		</ul>
 	</div>
