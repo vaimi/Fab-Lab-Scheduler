@@ -33,11 +33,12 @@
         });
     }
     function removeEvent(id) {
+        var event = $("#calendar").fullCalendar( 'clientEvents', id)[0];
         var post_data = {
             "id": event.id,
             "assigned": event.assigned,
-            "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
-            "end": moment(event.end).format("DD-MM-YYYY HH:mm")
+            "start": moment(event._start).format("YYYY-MM-DD HH:mm:ss"),
+            "end": moment(event._end).format("YYYY-MM-DD HH:mm:ss")
         }
         $.ajax({
             type: "POST",
@@ -56,8 +57,8 @@
         var post_data = {
             "id": event.id,
             "assigned": event.assigned,
-            "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
-            "end": moment(event.end).format("DD-MM-YYYY HH:mm")
+            "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
+            "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss")
         }
         $.ajax({
             type: "POST",
@@ -136,6 +137,7 @@
 			eventClick: function(event, element) {
                 $('#modalTitle').html(event.title);
                 $('#modalBody').html(event.description);
+                $('#event_remove_button').attr('href',"javascript:removeEvent(" + event.id + ")");
                 $('#eventUrl').attr('href',event.url);
                 $('#eventModal').modal();
 				//open modal/tooltip for deletion and manual data entry
@@ -182,7 +184,7 @@
                         // return success
                         if (data.length > 0) {
                             event.color = "#000066";
-                            $('#calendar').fullCalendar('renderEvent', event);
+                            $('#calendar').fullCalendar('updateEvent', event);
                         }
                     }
                 });
@@ -229,7 +231,7 @@
             <p>Some text in the modal.</p>
           </div>
           <div class="modal-footer">
-                <a id="event_remove_button" type="button" class="btn btn-danger" data-dismiss="modal">
+                <a id="event_remove_button" type="button" class="btn btn-danger">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
                     <!-- Modal with selectable days -->
                 </a>

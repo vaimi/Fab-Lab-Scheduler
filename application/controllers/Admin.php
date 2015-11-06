@@ -41,6 +41,7 @@ class Admin extends CI_Controller
         $this->session->set_userdata('sv_fetch_time', time());
         $this->session->set_userdata('sv_unsaved_modified_items', array());
         $this->session->set_userdata('sv_unsaved_new_items', array());
+        $this->session->set_userdata('sv_unsaved_deleted_items', array());
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Admin";
@@ -191,6 +192,7 @@ class Admin extends CI_Controller
 	public function timetable_save() {
         $new_slots = $this->session->userdata('sv_unsaved_new_items');
         $modified_slots = $this->session->userdata('sv_unsaved_modified_items');
+        $deleted_slots = $this->session->userdata('sv_unsaved_deleted_items');
         
         $errors = array();
         
@@ -202,8 +204,16 @@ class Admin extends CI_Controller
         {
             $this->Admin_model->timetable_save_modified($slot);
         }
+        foreach($deleted_slots as $slot)
+        {
+            if ($slot->id > 0)
+            {
+                $this->Admin_model->timetable_save_deleted($slot);
+            }
+        }
         $this->session->set_userdata('sv_unsaved_new_items', array());
         $this->session->set_userdata('sv_unsaved_modified_items', array());
+        $this->session->set_userdata('sv_unsaved_deleted_items', array());
         echo json_encode(array("success" => 1, "errors" => $errors));
     }
     
@@ -218,7 +228,7 @@ class Admin extends CI_Controller
         $slot->end = $end;
         $slot->id = -1 - count($this->session->userdata('sv_unsaved_new_items'));
         $unsaved = $this->session->userdata('sv_unsaved_new_items');
-        $unsaved[] = $slot;
+        $unsaved[$slot->id] = $slot;
         $this->session->set_userdata('sv_unsaved_new_items', $unsaved);
         echo json_encode(array("id" => $slot->id));
     }
@@ -231,13 +241,83 @@ class Admin extends CI_Controller
         
         if ($id < 0)
         {
-            //fetch from $this->session->userdata('sv_unsaved_new_items');
+            $slots = $this->session->userdata('sv_unsaved_new_items');
+            foreach($slots as $key_id => $value)
+            {
+                if ($key_id == $id)
+                {
+                    $deleted = $this->session->userdata('sv_unsaved_deleted_items');
+                    $deleted[] = $slots[$key_id];
+                    $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
+                    unset($slots[$key_id]);
+                    $this->session->set_userdata('sv_unsaved_new_items', $slots);
+                    break;
+                }
+            }
         } else {
-            //try to fetch from $this->session->userdata('sv_unsaved_modified_items');
-            //if not found, use database
+            $found = false;
+            $slots = $this->session->userdata('sv_unsaved_modified_items');
+            foreach($slots as $key_id => $value)
+            {
+                if ($key_id == $id)
+                {
+                    $deleted = $this->session->userdata('sv_unsaved_deleted_items');
+                    $deleted[] = $slots[$key_id];
+                    $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
+                    unset($slots[$key_id]);
+                    $this->session->set_userdata('sv_unsaved_modified_items', $slots);
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found)
+            {
+                $db_slot = $this->Admin_model->timetable_fetch_by_id($id);
+                
+                $slot = $db_slot->result()[0];
+                $new_slot = new stdClass();
+                $new_slot->id = $slot->SupervisionID;
+                $new_slot->assigned = $slot->aauth_usersID;
+                $new_slot->start = $slot->StartTime;
+                $new_slot->end = $slot->EndTime;
+                            
+                $deleted = $this->session->userdata('sv_unsaved_deleted_items');
+                $deleted[] = $new_slot;
+                $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
+            }
         }
-        //put to sv_unsaved_deleted_items
-        echo json_encode(array("success" => 1));
+        echo json_encode(array("success" => 1 ,$this->session->userdata('sv_unsaved_deleted_items')));
+    }
+                    
+    public function timetable_restore_slot() {
+        $id = $this->input->post("id"); 
+        $assigned = $this->input->post("assigned");
+        $start = $this->input->post("start");
+        $end = $this->input->post("end");
+        
+        $slots = $this->session->userdata('sv_unsaved_deleted_items');
+        foreach($slots as $key_id => $value)
+        {
+            if ($key_id == $id)
+            {
+                if ($id < 0)
+                {
+                    $new = $this->session->userdata('sv_unsaved_new_items');
+                    $new[] = $slots[$key_id];
+                    $this->session->set_userdata('sv_unsaved_new_items', $new);
+                } 
+                else 
+                {
+                    //TODO maybe check that it's really modified
+                    $modified = $this->session->userdata('sv_unsaved_modified_items');
+                    $modified[] = $slots[$key_id];
+                    $this->session->set_userdata('sv_unsaved_modified_items', $modified);
+                }
+                unset($slots[$key_id]);
+                $this->session->set_userdata('sv_unsaved_deleted_items', $slots);
+                break;
+            }
+        }
     }
     
     public function timetable_modify_slot() {
@@ -246,14 +326,28 @@ class Admin extends CI_Controller
         $start = $this->input->post("start");
         $end = $this->input->post("end");    
         
-        $slot = new stdClass();
-        $slot->assigned = $assigned;
-        $slot->start = $start;
-        $slot->end = $end;
-        $slot->id = $id;
-        $unsaved = $this->session->userdata('sv_unsaved_modified_items');
-        $unsaved[] = $slot;
-        $this->session->set_userdata('sv_unsaved_modified_items', $unsaved);
+        if($id > 0)
+        {
+            $slot = new stdClass();
+            $slot->assigned = $assigned;
+            $slot->start = $start;
+            $slot->end = $end;
+            $slot->id = $id;
+            $slots = $this->session->userdata('sv_unsaved_modified_items');
+            $slots[$id] = $slot;
+            $this->session->set_userdata('sv_unsaved_modified_items', $slots);
+        } 
+        else
+        {
+            $slot = new stdClass();
+            $slot->assigned = $assigned;
+            $slot->start = $start;
+            $slot->end = $end;
+            $slot->id = $id;
+            $slots = $this->session->userdata('sv_unsaved_new_items');
+            $slots[$id] = $slot;
+            $this->session->set_userdata('sv_unsaved_new_items', $slots);
+        }
         echo json_encode(array("success" => 1));
     }
 

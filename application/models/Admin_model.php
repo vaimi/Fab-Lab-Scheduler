@@ -144,4 +144,17 @@ class Admin_model extends CI_Model {
         $this->db->insert('Supervision', $data);
     }
     
+    public function timetable_save_deleted($slot)
+    {
+        $this->db->delete('Supervision', array('SupervisionId' => $slot->id)); 
+    }
+    
+    public function timetable_fetch_by_id($id)
+    {
+        $this->db->select('*');
+		$this->db->from('Supervision');
+		$this->db->where('SupervisionID', $id);
+		return $this->db->get();
+    }
+    
 }
