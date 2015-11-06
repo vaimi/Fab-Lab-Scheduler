@@ -112,6 +112,10 @@
                 {
                     url: 'timetable_fetch_supervision_sessions', // use the `url` property
                     color: '#006600'  // an option!
+                },
+                {
+                    url: 'timetable_fetch_mod_and_new_sessions', // use the `url` property
+                    color: '#000066'  // an option!
                 }
             ],
 			header: {
@@ -146,8 +150,8 @@
                 var post_data = {
                     "id": event.id,
                     "assigned": event.assigned,
-                    "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
-                    "end": moment(event.end).format("DD-MM-YYYY HH:mm")
+                    "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
+                    "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss")
                 }
 				$.ajax({
                     type: "POST",
@@ -167,8 +171,8 @@
                 var post_data = {
                     "id": event.id,
                     "assigned": event.assigned,
-                    "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
-                    "end": moment(event.end).format("DD-MM-YYYY HH:mm")
+                    "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
+                    "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss")
                 }
 				$.ajax({
                     type: "POST",
@@ -187,8 +191,8 @@
                 //external event drop callback
                 console.log(event);
                 var post_data = {
-                    "start": moment(event.start).format("DD-MM-YYYY HH:mm"),
-                    "end": moment(event.end).format("DD-MM-YYYY HH:mm"),
+                    "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
+                    "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss"),
                     "assigned": event.assigned
                 }
 				$.ajax({

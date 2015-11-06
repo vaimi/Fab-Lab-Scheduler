@@ -153,18 +153,34 @@ class Admin extends CI_Controller
         // get supervision slots
         $slots = $this->Admin_model->timetable_get_supervision_slots($start_time, $end_time);
         $response = array();
+        
+        $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
+        
         foreach($slots->result() as $slot)
 		{
-            $slot_array = array
-            (
-                'id' => $slot->SupervisionID,
-                'title' => $slot->aauth_usersID,
-                'assigned' => $slot->aauth_usersID,
-                'start' => $slot->StartTime,
-                'end' => $slot->EndTime
-            );
-            array_push($response, $slot_array);
+            if (!in_array($slot->SupervisionID, $modIDs))
+            {
+                $slot_array = array (
+                    'id' => $slot->SupervisionID,
+                    'title' => $slot->aauth_usersID,
+                    'assigned' => $slot->aauth_usersID,
+                    'start' => $slot->StartTime,
+                    'end' => $slot->EndTime
+                );
+                array_push($response, $slot_array);
+            }
+            
         }
+        echo json_encode($response);
+    }
+    
+    public function timetable_fetch_mod_and_new_sessions() {
+        $start_time = $this->input->get('start');
+        $end_time = $this->input->get('end');
+        // get supervision slots
+        
+        
+        $response = array_merge($this->session->userdata('sv_unsaved_new_items'), $this->session->userdata('sv_unsaved_modified_items'));
         echo json_encode($response);
     }
     
