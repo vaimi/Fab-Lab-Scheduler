@@ -298,6 +298,7 @@
 	        <p>Select start date: <input type="text" class="modaldate" id="startDate"></p>
 	        <p>Select end date: <input type="text" class="modaldate" id="endDate"></p>
 	        <p>Copy to date and forth: <input type="text" class="modaldate" id="copyStartDate"></p>
+	        <p>Remember to save <b>before</b> copying!</p>
 	      </div>
 	      <div class="modal-footer">
 		    <a type="button" class="btn btn-success" onclick="copySchedules();">Copy</a>
