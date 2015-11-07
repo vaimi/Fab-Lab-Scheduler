@@ -350,7 +350,26 @@ class Admin extends CI_Controller
         }
         echo json_encode(array("success" => 1));
     }
-
+	//Schedules 
+	
+    /**
+     * Copy schedules from database with offset.
+     *
+     * @access admin
+     */
+    public function schedule_copy() {
+    	if ($this->input->server('REQUEST_METHOD') == 'POST') {
+    		$startDate = $this->input->post("startDate");
+    		$endDate = $this->input->post("endDate");
+    		$copyStartDate = $this->input->post("copyStartDate");
+    		$a = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
+    	}
+    	else {
+    		// TODO: redirect or block bad request
+    		redirect('400'); //Bad Request
+    	}
+    }
+    
 	// Users management
 
 	/**

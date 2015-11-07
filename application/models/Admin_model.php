@@ -156,5 +156,24 @@ class Admin_model extends CI_Model {
 		$this->db->where('SupervisionID', $id);
 		return $this->db->get();
     }
-    
+    public function schedule_copy($startDate, $endDate, $copyStartDate) {
+    	$r = $this->timetable_get_supervision_slots($startDate, $endDate);
+    	//Make DateTime objects.
+    	$copyStartDateObj =  new DateTime($copyStartDate);
+    	$startDateObj =  new DateTime($startDate);
+    	//This offset is added to replicated schedules
+    	$offset = date_diff($startDateObj, $copyStartDateObj);
+    	foreach ($r->result() as $row) {
+    		$new_start_time =  new DateTime($row->StartTime);
+    		$new_end_time =  new DateTime($row->EndTime);
+    		$new_start_time->add($offset);
+    		$new_end_time->add($offset);
+    		$slot = new StdClass();
+    		$slot->start = $new_start_time->format('Y-m-d H:i:s');
+    		$slot->end = $new_end_time->format('Y-m-d H:i:s');
+    		$slot->assigned = $row->aauth_usersID;
+    		$this->timetable_save_new($slot);
+    	}
+    	
+    }
 }

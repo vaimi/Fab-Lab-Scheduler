@@ -78,10 +78,39 @@
     $('#save_button').click(function(){
 		saveData();
 	});
+
+    //Schedule functions 
+    function copySchedules() {
+		var sDate = $("#startDate").datepicker( "getDate" );
+		var eDate = $("#endDate").datepicker( "getDate" );
+		var csDate = $("#copyStartDate").datepicker( "getDate" );
+        if ( sDate === null || eDate === null || csDate === null ) {
+            alert("Dates cannot be empty.");
+            return;
+        }
+        sDate = moment($("#startDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+		eDate = moment($("#endDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+		csDate = moment($("#copyStartDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+    	var post_data = {
+              "startDate" : sDate,
+              "endDate" : eDate,
+              "copyStartDate" : csDate
+        };
+		$.ajax({
+        	type: "POST",
+            url: "schedule_copy",
+            data: post_data,
+            success: function(data) {
+            }
+    	});
+    }
+
     
 	$(document).ready(function() {
 
-		$( "#datepicker" ).datepicker();
+		/* initialize the Datepickers
+		-----------------------------------------------------------------*/
+		$( ".modaldate" ).datepicker();
 
 		/* initialize the external events
 		-----------------------------------------------------------------*/
@@ -229,10 +258,13 @@
 	        <h4 class="modal-title">Copy selected schedules</h4>
 	      </div>
 	      <div class="modal-body">
-	        <p>Date: <input type="text" id="datepicker"></p>
+	        <p>Select start date: <input type="text" class="modaldate" id="startDate"></p>
+	        <p>Select end date: <input type="text" class="modaldate" id="endDate"></p>
+	        <p>Copy to date and forth: <input type="text" class="modaldate" id="copyStartDate"></p>
 	      </div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    <a type="button" class="btn btn-success" onclick="copySchedules();">Copy</a>
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 	      </div>
 	    </div>
 	

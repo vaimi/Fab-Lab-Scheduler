@@ -44,7 +44,6 @@
 	<link rel='stylesheet' href='<?php echo asset_url();?>css/jquery-ui.min.css' />
 	<script src='<?php echo asset_url();?>js/moment.min.js'></script>
 	<script src='<?php echo asset_url();?>js/fullcalendar.js'></script>
-	<!-- <script src='<?php echo asset_url();?>js/jquery-ui.custom.min.js'></script> --> 
 	<script src='<?php echo asset_url();?>js/jquery-ui.min.js'></script>
 	<!-- fullcalendar scheduler -->
 	<link rel='stylesheet' href='<?php echo asset_url();?>css/scheduler.css' />
