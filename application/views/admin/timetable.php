@@ -4,11 +4,11 @@
 			<span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save
 		</a>
 		<span class="btn-separator"></span>
-		<button type="button" class="btn btn-primary">
+		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#copyModal">
 			<span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy schedule...
 			<!-- Modal with two calendars -->
 		</button>
-		<button type="button" class="btn btn-danger">
+		<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#removeModal">
 			<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete schedules...
 			<!-- Modal with selectable days -->
 		</button>
@@ -81,6 +81,7 @@
     
 	$(document).ready(function() {
 
+		$( "#datepicker" ).datepicker();
 
 		/* initialize the external events
 		-----------------------------------------------------------------*/
@@ -217,7 +218,50 @@
 	});
 
 </script>
-    <!-- Modal -->
+	<!-- Copy Schedule Modal -->
+	<div id="copyModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Copy selected schedules</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>Date: <input type="text" id="datepicker"></p>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	
+	  </div>
+	</div>
+	<!-- Remove Schedule Modal -->
+	<div id="removeModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Remove selected schedules</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>Some text in the modal.</p>
+	      </div>
+	      <div class="modal-footer">
+	      	<a id="event_remove_button" type="button" class="btn btn-danger">
+            	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
+            </a>
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	
+	  </div>
+	</div>
+    <!-- Event Modal -->
     <div id="eventModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 

@@ -44,10 +44,10 @@ class Admin extends CI_Controller
         $this->session->set_userdata('sv_unsaved_deleted_items', array());
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Admin";
-		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$jdata['title'] = "Timetables";
+		$jdata['message'] = "You can manage timetables and add supervisors";
 		$this->load->view('partials/jumbotron', $jdata);
-		//Get admins from db
+		//Get admins (Supervisors) from db
 		$data['admins'] = $this->Admin_model->get_admins()->result();
 		$this->load->view('admin/timetable', $data);
 		$this->load->view('partials/footer');
