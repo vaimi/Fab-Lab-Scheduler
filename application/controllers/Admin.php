@@ -362,7 +362,8 @@ class Admin extends CI_Controller
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
     		$copyStartDate = $this->input->post("copyStartDate");
-    		$a = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
+    		$info = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
+    		echo json_encode(array("info" => $info ));
     	}
     	else {
     		// TODO: redirect or block bad request

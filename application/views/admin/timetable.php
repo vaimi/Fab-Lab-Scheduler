@@ -27,7 +27,7 @@
                 // return success
                 if (data.length > 0) {
                     $('#calendar').fullCalendar('refetchEvents');
-                    alert("hello!");
+                    alert("events fetched!");
                 }
             }
         });
@@ -101,6 +101,8 @@
             url: "schedule_copy",
             data: post_data,
             success: function(data) {
+                alert(data);
+                $('#calendar').fullCalendar('refetchEvents');
             }
     	});
     }

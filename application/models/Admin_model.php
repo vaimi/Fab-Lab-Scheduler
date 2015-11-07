@@ -163,7 +163,9 @@ class Admin_model extends CI_Model {
     	$startDateObj =  new DateTime($startDate);
     	//This offset is added to replicated schedules
     	$offset = date_diff($startDateObj, $copyStartDateObj);
+    	$info = array();
     	foreach ($r->result() as $row) {
+    		$tmp = array();
     		$new_start_time =  new DateTime($row->StartTime);
     		$new_end_time =  new DateTime($row->EndTime);
     		$new_start_time->add($offset);
@@ -173,7 +175,14 @@ class Admin_model extends CI_Model {
     		$slot->end = $new_end_time->format('Y-m-d H:i:s');
     		$slot->assigned = $row->aauth_usersID;
     		$this->timetable_save_new($slot);
+    		
+    		$tmp['startTime_old'] = $row->StartTime;
+    		$tmp['EndTime_old'] = $row->EndTime;
+    		$tmp['startTime_new'] = $slot->start;
+    		$tmp['EndTime_new'] = $slot->end;
+    		$tmp['id'] = $slot->assigned;
+    		array_push($info, $tmp);
     	}
-    	
+    	return $info;
     }
 }
