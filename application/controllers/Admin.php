@@ -370,7 +370,23 @@ class Admin extends CI_Controller
     		redirect('400'); //Bad Request
     	}
     }
-    
+    /**
+     * Delete schedules which is in between start and end time.
+     *
+     * @access admin
+     */
+    public function schedule_delete() {
+    	if ($this->input->server('REQUEST_METHOD') == 'POST') {
+    		$startDate = $this->input->post("startDate");
+    		$endDate = $this->input->post("endDate");
+    		$success = $this->Admin_model->timetable_delete_supervision_slots($startDate, $endDate);
+    		echo json_encode(array("results is " => $success ));
+    	}
+    	else {
+    		// TODO: redirect or block bad request
+    		redirect('400'); //Bad Request
+    	}
+    }
 	// Users management
 
 	/**

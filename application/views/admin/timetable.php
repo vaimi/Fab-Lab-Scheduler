@@ -88,6 +88,14 @@
             alert("Dates cannot be empty.");
             return;
         }
+        if ( sDate >= eDate ) {
+            alert("Start date must be earlier than end date");
+            return;
+        }
+        if ( eDate >= csDate ) {
+            alert("End date must be earlier Copy to date");
+            return;
+        }
         sDate = moment($("#startDate").datepicker( "getDate" )).format("YYYY-MM-DD");
 		eDate = moment($("#endDate").datepicker( "getDate" )).format("YYYY-MM-DD");
 		csDate = moment($("#copyStartDate").datepicker( "getDate" )).format("YYYY-MM-DD");
@@ -106,7 +114,34 @@
             }
     	});
     }
-
+    function removeSchedules() {
+		var sDate = $("#remove_startDate").datepicker( "getDate" );
+		var eDate = $("#remove_endDate").datepicker( "getDate" );
+        if ( sDate === null || eDate === null) {
+            alert("Dates cannot be empty.");
+            return;
+        }
+        if ( sDate >= eDate ) {
+            alert("Start date must be earlier than end date");
+            return;
+        }
+        sDate = moment($("#remove_startDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+		eDate = moment($("#remove_endDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+    	var post_data = {
+              "startDate" : sDate,
+              "endDate" : eDate
+        };
+		$.ajax({
+        	type: "POST",
+            url: "schedule_delete",
+            data: post_data,
+            success: function(data) {
+                alert(data);
+                $('#calendar').fullCalendar('refetchEvents');
+            }
+    	});
+    }
+    
     
 	$(document).ready(function() {
 
@@ -283,10 +318,11 @@
 	        <h4 class="modal-title">Remove selected schedules</h4>
 	      </div>
 	      <div class="modal-body">
-	        <p>Some text in the modal.</p>
+	        <p>Select start date: <input type="text" class="modaldate" id="remove_startDate"></p>
+	        <p>Select end date: <input type="text" class="modaldate" id="remove_endDate"></p>
 	      </div>
 	      <div class="modal-footer">
-	      	<a id="event_remove_button" type="button" class="btn btn-danger">
+	      	<a id="event_remove_button" type="button" class="btn btn-danger" onclick="removeSchedules();">
             	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
             </a>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
