@@ -323,7 +323,7 @@
 	        <p>Select end date: <input type="text" class="modaldate" id="remove_endDate"></p>
 	      </div>
 	      <div class="modal-footer">
-	      	<a id="event_remove_button" type="button" class="btn btn-danger" onclick="removeSchedules();">
+	      	<a type="button" class="btn btn-danger" onclick="removeSchedules();">
             	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
             </a>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
