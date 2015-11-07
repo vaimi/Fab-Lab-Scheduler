@@ -11,3 +11,5 @@ Fab-Lab-Scheduler.iml
 .settings
 .idea/php.xml
 application/tests/build/logs/junit.xml
+application/tests/start_tests.bat
+application/tests/build/logs/junit.xml
