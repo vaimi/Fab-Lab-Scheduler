@@ -45,7 +45,7 @@ class Admin extends CI_Controller
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Timetables";
-		$jdata['message'] = "You can manage timetables and add supervisors";
+		$jdata['message'] = "You can manage supervisor times and add supervisors to the timetables";
 		$this->load->view('partials/jumbotron', $jdata);
 		//Get admins (Supervisors) from db
 		$data['admins'] = $this->Admin_model->get_admins()->result();
@@ -363,7 +363,7 @@ class Admin extends CI_Controller
     		$endDate = $this->input->post("endDate");
     		$copyStartDate = $this->input->post("copyStartDate");
     		$info = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
-    		echo json_encode(array("info" => $info ));
+    		echo json_encode(array("affected rows" => count($info), "info" => $info ));
     	}
     	else {
     		// TODO: redirect or block bad request
