@@ -42,6 +42,7 @@ class Admin extends CI_Controller
         $this->session->set_userdata('sv_unsaved_modified_items', array());
         $this->session->set_userdata('sv_unsaved_new_items', array());
         $this->session->set_userdata('sv_unsaved_deleted_items', array());
+		$this->session->set_userdata('sv_saved_items', array());
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Timetables";
@@ -146,22 +147,40 @@ class Admin extends CI_Controller
 	// AJAX functions
 	//
 	
-	// Timetable
+    /**
+     * Supervision session fetching
+     * 
+     * Fetches supervision sessions from the database. If supervision session is already in one of the session variables, 
+     * version in database is discarded. 
+     * 
+     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s
+     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s
+     * @uses _SESSION['sv_unsaved_modified_items'] for removing duplicate entries
+     * @uses _SESSION['sv_unsaved_deleted_items'] for removing duplicate entries
+     * @uses _SESSION['sv_saved_items'] Fetched items are saved also to this variable
+     * 
+     * @access admin
+     * @return echo events in json array //TODO example
+     */
     public function timetable_fetch_supervision_sessions() {
+        // TODO check that request is in valid format
         // get calendar request
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
-        // get supervision slots
-        $slots = $this->Admin_model->timetable_get_supervision_slots($start_time, $end_time);
-        $response = array();
         
+        // get supervision slots from db
+        $slots = $this->Admin_model->timetable_get_supervision_slots($start_time, $end_time);
+        
+        $response = array();
         $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
         $modIDsDeleted = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items'));
         $modIDsSaved = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
         foreach($slots->result() as $slot)
 		{
+            // Check for duplicate
             if (!in_array($slot->SupervisionID, $modIDs) and !in_array($slot->SupervisionID, $modIDsDeleted))
             {
+                // Make array in output format
                 $slot_array = array (
                     'id' => $slot->SupervisionID,
                     'title' => "uid: ". $slot->aauth_usersID. " sid: ". $slot->SupervisionID,
@@ -188,21 +207,45 @@ class Admin extends CI_Controller
         echo json_encode($response);
     }
     
+    /**
+     * Modified/new session fetching
+     * 
+     * Fetches supervision sessions from the new/modified session variables. 
+     * 
+     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses _SESSION['sv_unsaved_modified_items'] session variable for modified entries
+     * @uses _SESSION['sv_unsaved_new_items'] session variable for new entries
+     * 
+     * @access admin
+     * @return echo events in json array //TODO example
+     */
     public function timetable_fetch_mod_and_new_sessions() {
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
-        // get supervision slots
-        
-        
+        // Merge session variables for response
         $response = array_merge($this->session->userdata('sv_unsaved_new_items'), $this->session->userdata('sv_unsaved_modified_items'));
         echo json_encode($response);
     }
     
+    /**
+     * Deleted session fetching
+     * 
+     * Sessions aren't deleted before save is pressed. They are just marked as deleted before that. This functions fetches those events.
+     * 
+     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses _SESSION['sv_unsaved_deleted_items'] session variable for deleted entries
+     * 
+     * @access admin
+     * @return echo events in json array //TODO example
+     */
     public function timetable_fetch_deleted_sessions() {
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
-        // get supervision slots
+        
         $response = $this->session->userdata('sv_unsaved_deleted_items');
+        //Re-create array indexes
         $response = array_values($response);
         echo json_encode($response);
     }
