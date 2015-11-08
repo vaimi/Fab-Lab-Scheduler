@@ -19,6 +19,15 @@
 	</div>
 	<hr>
 <script>
+    
+    // Colors used in events
+    var ttColors = {
+        "saved": "#5cb85c",
+        "modified": "#5bc0de",
+        "deleted": "#d9534f",
+        "public": "#f0ad4e" 
+    };
+    
     function saveData() {
         $.ajax({
             type: "POST",
@@ -27,11 +36,12 @@
                 // return success
                 if (data.length > 0) {
                     $('#calendar').fullCalendar('refetchEvents');
-                    alert("events fetched!");
+                    //alert("events fetched!");
                 }
             }
         });
     }
+    
     function removeEvent(id) {
         var event = $("#calendar").fullCalendar( 'clientEvents', id)[0];
         var post_data = {
@@ -47,12 +57,13 @@
             success: function(data) {
                 // return success
                 if (data.length > 0) {
-                    event.color = "#660000";
+                    event.color = ttColors.deleted;
                     $('#calendar').fullCalendar('updateEvent', event);
                 }
             }
         });
     }
+    
     function restoreEvent(id) {
         var post_data = {
             "id": event.id,
@@ -67,7 +78,7 @@
             success: function(data) {
                 // return success
                 if (data.length > 0) {
-                    event.color = "#000066";
+                    event.color = ttColors.modified;
                     $('#calendar').fullCalendar('updateEvent', event);
                 }
             }
@@ -188,12 +199,16 @@
             eventSources: [
             // your event source
                 {
-                    url: 'timetable_fetch_supervision_sessions', // use the `url` property
-                    color: '#006600'  // an option!
+                    url: 'timetable_fetch_supervision_sessions',
+                    color: ttColors.saved
                 },
                 {
-                    url: 'timetable_fetch_mod_and_new_sessions', // use the `url` property
-                    color: '#000066'  // an option!
+                    url: 'timetable_fetch_mod_and_new_sessions', 
+                    color: ttColors.modified
+                },
+                {
+                    url: 'timetable_fetch_deleted_sessions', 
+                    color: ttColors.deleted
                 }
             ],
 			header: {
@@ -239,7 +254,7 @@
                     success: function(data) {
                         // return success
                         if (data.length > 0) {
-                            event.color = "#000066";
+                            event.color = ttColors.modified;
                             $('#calendar').fullCalendar('updateEvent', event);
                         }
                     }
@@ -260,7 +275,7 @@
                     success: function(data) {
                         // return success
                         if (data.length > 0) {
-                            event.color = "#000066";
+                            event.color = ttColors.modified;
                             $('#calendar').fullCalendar('updateEvent', event);
                         }
                     }

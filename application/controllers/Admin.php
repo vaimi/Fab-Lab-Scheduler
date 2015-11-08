@@ -156,10 +156,11 @@ class Admin extends CI_Controller
         $response = array();
         
         $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
+        $modIDsDeleted = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items'));
         $modIDsSaved = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
         foreach($slots->result() as $slot)
 		{
-            if (!in_array($slot->SupervisionID, $modIDs))
+            if (!in_array($slot->SupervisionID, $modIDs) and !in_array($slot->SupervisionID, $modIDsDeleted))
             {
                 $slot_array = array (
                     'id' => $slot->SupervisionID,
@@ -194,6 +195,15 @@ class Admin extends CI_Controller
         
         
         $response = array_merge($this->session->userdata('sv_unsaved_new_items'), $this->session->userdata('sv_unsaved_modified_items'));
+        echo json_encode($response);
+    }
+    
+    public function timetable_fetch_deleted_sessions() {
+        $start_time = $this->input->get('start');
+        $end_time = $this->input->get('end');
+        // get supervision slots
+        $response = $this->session->userdata('sv_unsaved_deleted_items');
+        $response = array_values($response);
         echo json_encode($response);
     }
     
@@ -261,8 +271,7 @@ class Admin extends CI_Controller
                     $deleted = $this->session->userdata('sv_unsaved_deleted_items');
                     $deleted[$id] = $slots[$key_id];
                     $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
-                    unset($slots[$key_id]);
-                    $this->session->set_userdata('sv_unsaved_new_items', $slots);
+                    unset($_SESSION['sv_unsaved_new_items'][$key_id]);
                     break;
                 }
             }
@@ -276,8 +285,7 @@ class Admin extends CI_Controller
                     $deleted = $this->session->userdata('sv_unsaved_deleted_items');
                     $deleted[$id] = $slots[$key_id];
                     $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
-                    unset($slots[$key_id]);
-                    $this->session->set_userdata('sv_unsaved_modified_items', $slots);
+                    unset($_SESSION['sv_unsaved_modified_items'][$key_id]);
                     $found = true;
                     break;
                 }
