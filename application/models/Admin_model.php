@@ -122,12 +122,6 @@ class Admin_model extends CI_Model {
                       EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
         return $this->db->query($sql, array($start_time, $end_time));
     }
-    public function timetable_delete_supervision_slots($start_time, $end_time)
-    {
-    	$sql = "DELETE FROM Supervision WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d') AND
-                      EndTime < STR_TO_DATE(?,'%Y-%m-%d')";
-    	return $this->db->query($sql, array($start_time, $end_time));
-    }
     public function timetable_save_modified($slot)
     {
             $data = array(
