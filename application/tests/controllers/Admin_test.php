@@ -188,4 +188,34 @@ class Admin_test extends TestCase
 		$output = $this->request('POST', ['Admin', 'unban_user'], ['echo' => '-1']);
 		$this->assertContains('false', $output);
 	}
+	public function test_schedule_copy_invalid_request_get()
+	{
+		$this->request->setCallablePreConstructor(
+				function () {
+					// Get mock object
+					$auth = $this->getDouble(
+							'aauth', ['is_admin' => TRUE]
+							);
+					// Inject mock object
+					load_class_instance('aauth', $auth);
+				}
+				);
+		$output = $this->request('GET', ['Admin', 'schedule_copy'], ['startDate' => '2010-11-11 02:00:00', 'endDate' => '2010-12-12 02:00:00', 'copyStartDate' => '2010-12-15 02:00:00' ]);
+		$this->assertNull($output);
+	}
+	public function test_schedule_delete_invalid_request_get()
+	{
+		$this->request->setCallablePreConstructor(
+				function () {
+					// Get mock object
+					$auth = $this->getDouble(
+							'aauth', ['is_admin' => TRUE]
+							);
+					// Inject mock object
+					load_class_instance('aauth', $auth);
+				}
+				);
+		$output = $this->request('GET', ['Admin', 'schedule_delete'], ['startDate' => '2010-11-11 02:00:00', 'endDate' => '2010-12-12 02:00:00', 'copyStartDate' => '2010-12-15 02:00:00' ]);
+		$this->assertNull($output);
+	}
 }

@@ -4,11 +4,11 @@
 			<span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save
 		</a>
 		<span class="btn-separator"></span>
-		<button type="button" class="btn btn-primary">
+		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#copyModal">
 			<span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy schedule...
 			<!-- Modal with two calendars -->
 		</button>
-		<button type="button" class="btn btn-danger">
+		<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#removeModal">
 			<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete schedules...
 			<!-- Modal with selectable days -->
 		</button>
@@ -27,7 +27,7 @@
                 // return success
                 if (data.length > 0) {
                     $('#calendar').fullCalendar('refetchEvents');
-                    alert("hello!");
+                    alert("events fetched!");
                 }
             }
         });
@@ -78,9 +78,86 @@
     $('#save_button').click(function(){
 		saveData();
 	});
+
+    //Schedule functions 
+    function copySchedules() {
+		var sDate = $("#startDate").datepicker( "getDate" );
+		var eDate = $("#endDate").datepicker( "getDate" );
+		var csDate = $("#copyStartDate").datepicker( "getDate" );
+        if ( sDate === null || eDate === null || csDate === null ) {
+            alert("Dates cannot be empty.");
+            return;
+        }
+        if ( sDate >= eDate ) {
+            alert("Start date must be earlier than end date");
+            return;
+        }
+        if ( eDate >= csDate ) {
+            alert("End date must be earlier Copy to date");
+            return;
+        }
+        sDate = moment($("#startDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+		eDate = moment($("#endDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+		csDate = moment($("#copyStartDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+    	var post_data = {
+              "startDate" : sDate,
+              "endDate" : eDate,
+              "copyStartDate" : csDate
+        };
+		$.ajax({
+        	type: "POST",
+            url: "schedule_copy",
+            data: post_data,
+            success: function(data) {
+                //alert(data);
+                $('#calendar').fullCalendar('refetchEvents');
+            }
+    	});
+    }
+    function removeSchedules() {
+
+//     	console.log($('#calendar').fullCalendar('clientEvents'));
+		var sDate = $("#remove_startDate").datepicker( "getDate" );
+		var eDate = $("#remove_endDate").datepicker( "getDate" );
+        if ( sDate === null || eDate === null) {
+            alert("Dates cannot be empty.");
+            return;
+        }
+        if ( sDate >= eDate ) {
+            alert("Start date must be earlier than end date");
+            return;
+        }
+        sDate = moment($("#remove_startDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+		eDate = moment($("#remove_endDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+    	var post_data = {
+              "startDate" : sDate,
+              "endDate" : eDate
+        };
+		$.ajax({
+        	type: "POST",
+            url: "schedule_delete",
+            data: post_data,
+            success: function(data) 
+            {
+                alert(data);
+                var json = JSON.parse(data);
+                var a = json['deleted_ids'];
+                for (var j in a) {
+//                     console.log(j);
+                    var event = $('#calendar').fullCalendar( 'clientEvents', j)[0];
+                    event.color = "#660000";
+                    $('#calendar').fullCalendar('updateEvent', event);
+                }
+            }
+    	});
+    }
+    
     
 	$(document).ready(function() {
 
+		/* initialize the Datepickers
+		-----------------------------------------------------------------*/
+		$( ".modaldate" ).datepicker();
 
 		/* initialize the external events
 		-----------------------------------------------------------------*/
@@ -205,6 +282,8 @@
                         // return success
                         if (data.length > 0) {
                             response = $.parseJSON(data);
+                            //used for coloring events
+                            event._id = response.id;
                             event.id = response.id;
                         }
                     }
@@ -217,7 +296,55 @@
 	});
 
 </script>
-    <!-- Modal -->
+	<!-- Copy Schedule Modal -->
+	<div id="copyModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Copy selected schedules</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>Select start date: <input type="text" class="modaldate" id="startDate"></p>
+	        <p>Select end date: <input type="text" class="modaldate" id="endDate"></p>
+	        <p>Copy to date and forth: <input type="text" class="modaldate" id="copyStartDate"></p>
+	        <p>Remember to save <b>before</b> copying!</p>
+	      </div>
+	      <div class="modal-footer">
+		    <a type="button" class="btn btn-success" onclick="copySchedules();">Copy</a>
+	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	
+	  </div>
+	</div>
+	<!-- Remove Schedule Modal -->
+	<div id="removeModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Remove selected schedules</h4>
+	      </div>
+	      <div class="modal-body">
+	        <p>Select start date: <input type="text" class="modaldate" id="remove_startDate"></p>
+	        <p>Select end date: <input type="text" class="modaldate" id="remove_endDate"></p>
+	      </div>
+	      <div class="modal-footer">
+	      	<a type="button" class="btn btn-danger" onclick="removeSchedules();">
+            	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
+            </a>
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div>
+	
+	  </div>
+	</div>
+    <!-- Event Modal -->
     <div id="eventModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 

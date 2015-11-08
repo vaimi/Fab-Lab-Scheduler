@@ -118,11 +118,16 @@ class Admin_model extends CI_Model {
     
     public function timetable_get_supervision_slots($start_time, $end_time) 
     {
-        $sql = "SELECT * FROM Supervision WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d') AND 
-                      EndTime < STR_TO_DATE(?,'%Y-%m-%d')";
+        $sql = "SELECT * FROM Supervision WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
+                      EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
         return $this->db->query($sql, array($start_time, $end_time));
     }
-    
+    public function timetable_delete_supervision_slots($start_time, $end_time)
+    {
+    	$sql = "DELETE FROM Supervision WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d') AND
+                      EndTime < STR_TO_DATE(?,'%Y-%m-%d')";
+    	return $this->db->query($sql, array($start_time, $end_time));
+    }
     public function timetable_save_modified($slot)
     {
             $data = array(
@@ -156,5 +161,33 @@ class Admin_model extends CI_Model {
 		$this->db->where('SupervisionID', $id);
 		return $this->db->get();
     }
-    
+    public function schedule_copy($startDate, $endDate, $copyStartDate) {
+    	$r = $this->timetable_get_supervision_slots($startDate, $endDate);
+    	//Make DateTime objects.
+    	$copyStartDateObj =  new DateTime($copyStartDate);
+    	$startDateObj =  new DateTime($startDate);
+    	//This offset is added to replicated schedules
+    	$offset = date_diff($startDateObj, $copyStartDateObj);
+    	$info = array();
+    	foreach ($r->result() as $row) {
+    		$tmp = array();
+    		$new_start_time =  new DateTime($row->StartTime);
+    		$new_end_time =  new DateTime($row->EndTime);
+    		$new_start_time->add($offset);
+    		$new_end_time->add($offset);
+    		$slot = new StdClass();
+    		$slot->start = $new_start_time->format('Y-m-d H:i:s');
+    		$slot->end = $new_end_time->format('Y-m-d H:i:s');
+    		$slot->assigned = $row->aauth_usersID;
+    		$this->timetable_save_new($slot);
+    		
+    		$tmp['startTime_old'] = $row->StartTime;
+    		$tmp['EndTime_old'] = $row->EndTime;
+    		$tmp['startTime_new'] = $slot->start;
+    		$tmp['EndTime_new'] = $slot->end;
+    		$tmp['id'] = $slot->assigned;
+    		array_push($info, $tmp);
+    	}
+    	return $info;
+    }
 }
