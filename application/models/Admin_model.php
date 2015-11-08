@@ -118,8 +118,8 @@ class Admin_model extends CI_Model {
     
     public function timetable_get_supervision_slots($start_time, $end_time) 
     {
-        $sql = "SELECT * FROM Supervision WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d') AND 
-                      EndTime < STR_TO_DATE(?,'%Y-%m-%d')";
+        $sql = "SELECT * FROM Supervision WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
+                      EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
         return $this->db->query($sql, array($start_time, $end_time));
     }
     public function timetable_delete_supervision_slots($start_time, $end_time)

@@ -156,19 +156,31 @@ class Admin extends CI_Controller
         $response = array();
         
         $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
-        
+        $modIDsSaved = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
         foreach($slots->result() as $slot)
 		{
             if (!in_array($slot->SupervisionID, $modIDs))
             {
                 $slot_array = array (
                     'id' => $slot->SupervisionID,
-                    'title' => $slot->aauth_usersID,
+                    'title' => "uid: ". $slot->aauth_usersID. " sid: ". $slot->SupervisionID,
                     'assigned' => $slot->aauth_usersID,
                     'start' => $slot->StartTime,
                     'end' => $slot->EndTime
                 );
                 array_push($response, $slot_array);
+                if (!in_array($slot->SupervisionID, $modIDsSaved))
+                {
+                //create saved slot
+	                $current_saved_slots = $this->session->userdata('sv_saved_items');
+	                $s = new stdClass();
+	                $s->assigned = $slot->aauth_usersID;
+	                $s->start = $slot->StartTime;
+	                $s->end = $slot->EndTime;
+	                $s->id = $slot->SupervisionID;
+	                $current_saved_slots[$s->id] = $s;
+	                $this->session->set_userdata('sv_saved_items', $current_saved_slots);
+                }
             }
             
         }
@@ -247,7 +259,7 @@ class Admin extends CI_Controller
                 if ($key_id == $id)
                 {
                     $deleted = $this->session->userdata('sv_unsaved_deleted_items');
-                    $deleted[] = $slots[$key_id];
+                    $deleted[$id] = $slots[$key_id];
                     $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
                     unset($slots[$key_id]);
                     $this->session->set_userdata('sv_unsaved_new_items', $slots);
@@ -262,7 +274,7 @@ class Admin extends CI_Controller
                 if ($key_id == $id)
                 {
                     $deleted = $this->session->userdata('sv_unsaved_deleted_items');
-                    $deleted[] = $slots[$key_id];
+                    $deleted[$id] = $slots[$key_id];
                     $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
                     unset($slots[$key_id]);
                     $this->session->set_userdata('sv_unsaved_modified_items', $slots);
@@ -282,7 +294,7 @@ class Admin extends CI_Controller
                 $new_slot->end = $slot->EndTime;
                             
                 $deleted = $this->session->userdata('sv_unsaved_deleted_items');
-                $deleted[] = $new_slot;
+                $deleted[$id] = $new_slot;
                 $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
             }
         }
@@ -348,6 +360,14 @@ class Admin extends CI_Controller
             $slots[$id] = $slot;
             $this->session->set_userdata('sv_unsaved_new_items', $slots);
         }
+        $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
+        //Delete if in saved array.
+        if (in_array($id, $modIDs))
+        {
+        	$tmp = $this->session->userdata('sv_saved_items');
+        	unset($tmp[$id]);
+        	$this->session->set_userdata('sv_saved_items', $tmp);
+        }
         echo json_encode(array("success" => 1));
     }
 	//Schedules 
@@ -368,6 +388,13 @@ class Admin extends CI_Controller
     	else {
     		// TODO: redirect or block bad request
     		redirect('400'); //Bad Request
+//     		[sv_unsaved_new_items]	Array [1]
+//     		[-1]	stdClass
+//     		assigned	12
+//     		end	2015-10-27 08:00:00
+//     		id	-1
+//     		start	2015-10-27 00:00:00
+    		
     	}
     }
     /**
@@ -379,8 +406,63 @@ class Admin extends CI_Controller
     	if ($this->input->server('REQUEST_METHOD') == 'POST') {
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
-    		$success = $this->Admin_model->timetable_delete_supervision_slots($startDate, $endDate);
-    		echo json_encode(array("results is " => $success ));
+    		$startDate = new DateTime($startDate);
+    		$endDate = new DateTime($endDate);
+    		//Set time to 23:59:59
+    		$endDate->setTime(23,59,59);
+    		
+    		$slots_current_deleted = $this->session->userdata('sv_unsaved_deleted_items');
+    		//saved
+	    	$slots = $this->session->userdata('sv_saved_items');
+	    	$tmp = $this->session->userdata('sv_saved_items');
+    		foreach($slots as $slot)
+    		{
+    			$sDate = new DateTime($slot->start);
+    			$eDate = new DateTime($slot->end);
+    			if ($sDate > $startDate && $eDate < $endDate) 
+    			{
+    				unset($tmp[$slot->id]);
+    				$slots_current_deleted[$slot->id] = $slot;
+    			}
+    		}
+    		$this->session->set_userdata('sv_saved_items', $tmp);
+    		//new
+    		$slots = $this->session->userdata('sv_unsaved_new_items');
+    		$tmp = $this->session->userdata('sv_unsaved_new_items');
+    		foreach($slots as $slot)
+    		{
+    			$sDate = new DateTime($slot->start);
+    			$eDate = new DateTime($slot->end);
+    			if ($sDate > $startDate && $eDate < $endDate)
+    			{
+    				unset($tmp[$slot->id]);
+    				$slots_current_deleted[$slot->id] = $slot;
+    			}
+    		}
+    		$this->session->set_userdata('sv_unsaved_new_items', $tmp);
+    		//modified
+    		$slots = $this->session->userdata('sv_unsaved_modified_items');
+    		$tmp = $this->session->userdata('sv_unsaved_modified_items');
+    		foreach($slots as $slot)
+    		{
+    			$sDate = new DateTime($slot->start);
+    			$eDate = new DateTime($slot->end);
+    			if ($sDate > $startDate && $eDate < $endDate)
+    			{
+    				unset($tmp[$slot->id]);
+    				$slots_current_deleted[$slot->id] = $slot;
+    			}
+    		}
+    		$this->session->set_userdata('sv_unsaved_modified_items', $tmp);
+    		
+    		$this->session->set_userdata('sv_unsaved_deleted_items', $slots_current_deleted);
+//     		$success = $this->Admin_model->timetable_delete_supervision_slots($startDate, $endDate);
+     		echo json_encode(array(
+     		"deleted_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items') ),
+     		"modified_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items') ),
+     		"new_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_new_items') ),
+     		"saved_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items') )
+     		));
     	}
     	else {
     		// TODO: redirect or block bad request
