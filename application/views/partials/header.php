@@ -48,6 +48,10 @@
 	<!-- fullcalendar scheduler -->
 	<link rel='stylesheet' href='<?php echo asset_url();?>css/scheduler.css' />
 	<script src='<?php echo asset_url();?>js/scheduler.js'></script>
+      
+    <link rel="stylesheet" href="<?php echo asset_url();?>css/bootstrap-datetimepicker.min.css" />
+    <script type="text/javascript" src="<?php echo asset_url();?>js/bootstrap-datetimepicker.min.js"></script>
+      
   </head>
  
   <body>

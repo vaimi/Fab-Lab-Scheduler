@@ -367,10 +367,54 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title" id="event_header">Modal Header</h4>
+            <h4 class="modal-title" id="event_header">Modify event</h4>
           </div>
           <div class="modal-body">
-            <p>Some text in the modal.</p>
+            <div class="row">
+                <div class='col-sm-6'>
+                    <div class="form-group">
+                        <label for="startpicker">Select start time:</label>
+                        <div class='input-group date' id='startpicker'>
+                            <input type='text' readonly="readonly" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        $(function () {
+                            $('#startpicker').datetimepicker({
+                                ignoreReadonly:true
+                            });
+                        });
+                    </script>
+                    <div class="form-group">
+                        <label for="endpicker">Select end time:</label>
+                        <div class='input-group date' id='endpicker'>
+                            <input type='text' readonly="readonly" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <script type="text/javascript">
+                        $(function () {
+                            $('#endpicker').datetimepicker({
+                                ignoreReadonly:true
+                            });
+                        });
+                    </script>
+                    <div class="form-group">
+                        <label for="supervisionpicker">Select supervisor:</label>
+                        <select class="form-control" id="supervisionpicker">
+                            <?php foreach ($admins as $row ) {?>
+                                <option id="<?=$row->id ?>"><?=$row->name; ?></option>
+                            <?php }?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
           </div>
           <div class="modal-footer">
                 <a id="event_remove_button" type="button" class="btn btn-danger">
