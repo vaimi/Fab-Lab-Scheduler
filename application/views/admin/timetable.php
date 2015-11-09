@@ -384,12 +384,22 @@
       </div>
     </div>
 	<div class="col-md-2">
-		<h4>Supervisors</h4>
-		<ul class="list-group" id='external-events'>
-		<?php foreach ($admins as $row ) {?>
-			<li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1' data-assigned='<?=$row->id?>'><?php echo $row->name; ?>(<?php echo$row->email ?>)</li>
-		<?php }?>
-		</ul>
+        <div class="row">
+            <h4>Supervisors</h4>
+            <ul class="list-group" id='external-events'>
+            <?php foreach ($admins as $row ) {?>
+                <li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1' data-assigned='<?=$row->id?>'><?php echo $row->name; ?>(<?php echo$row->email ?>)</li>
+            <?php }?>
+            </ul>
+        </div>
+        <div class="row well hidden-xs hidden-sm">
+            <h4>Legend</h4>
+            <span class="label label-success">Saved</span>
+            <span class="label label-info">Modified</span>
+            <span class="label label-warning">Public</span>
+            <span class="label label-public-saved">Saved public</span>
+            <span class="label label-danger">Unsaved deletion</span>
+        </div>
 	</div>
 	<div class="col-md-10" id='calendar'></div>
 </div>
