@@ -4,12 +4,55 @@ class User extends CI_Controller
 	public function __construct() {
 		parent::__construct();
 		$this->load->model('User_model');
+		$this->load->library("Aauth");
+	}
+	
+	public function reset_password($user_id, $verification_code)
+	{
+		if ($this->aauth->reset_password($user_id, $verification_code))
+		{
+			$this->load->view('user/reset_password_success');
+			return;
+		}
+		else
+		{
+			$this->load->view('user/reset_password_wrong_link');
+			return;
+		}
+	}
+	
+	public function forget_password()
+	{
+		
+		if ($this->input->method() == 'post')
+		{
+			$email = $this->input->post('email');
+			
+			
+			if ($this->aauth->remind_password($email) == false)
+			{
+				$this->load->view('user/user_not_found');
+				return;
+			}
+			else 
+			{
+				$data = array('email' => $email);
+				// display notification that email has been sent
+				$this->load->view('user/forget_pass_email_sent', $data);
+				return;
+			}
+		}
+		else
+		{
+			$this->load->view('user/forget_password');
+			return;
+		}
 	}
 
 	public function registration() 
 	{
 
-		$this->load->library("Aauth");
+		
 		if ($this->input->method() == 'post')
 		{
 			$post_data = array

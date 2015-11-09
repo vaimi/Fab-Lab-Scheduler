@@ -29,6 +29,7 @@
 			<input type="hidden" id='current' name='current' value='<?php echo current_url();?>' />
 			<button type="submit" class='btn btn-success'>Log in</button>
 		</p>
+		<p>Forgot your password? <a href="<?php echo base_url();?>user/forget_password">Reset it</a>.</p>
 	</form>
 
 </div>
