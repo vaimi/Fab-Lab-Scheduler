@@ -430,6 +430,15 @@ class Admin extends CI_Controller
      */
     public function schedule_copy() {
     	if ($this->input->server('REQUEST_METHOD') == 'POST') {
+    		//If slots are modified or deleted.
+    		if (count($this->session->userdata('sv_unsaved_modified_items')) > 0 
+    		|| count($this->session->userdata('sv_unsaved_new_items')) > 0
+    		|| count($this->session->userdata('sv_unsaved_deleted_items')) > 0)
+    		{
+    			echo json_encode(array("Error" => "Save timetable first."));
+    			return;
+    		}
+    		
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
     		$copyStartDate = $this->input->post("copyStartDate");
@@ -439,13 +448,6 @@ class Admin extends CI_Controller
     	else {
     		// TODO: redirect or block bad request
     		redirect('400'); //Bad Request
-//     		[sv_unsaved_new_items]	Array [1]
-//     		[-1]	stdClass
-//     		assigned	12
-//     		end	2015-10-27 08:00:00
-//     		id	-1
-//     		start	2015-10-27 00:00:00
-    		
     	}
     }
     /**
@@ -507,7 +509,6 @@ class Admin extends CI_Controller
     		$this->session->set_userdata('sv_unsaved_modified_items', $tmp);
     		
     		$this->session->set_userdata('sv_unsaved_deleted_items', $slots_current_deleted);
-//     		$success = $this->Admin_model->timetable_delete_supervision_slots($startDate, $endDate);
      		echo json_encode(array(
      		"deleted_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items') ),
      		"modified_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items') ),

@@ -120,14 +120,15 @@
             url: "schedule_copy",
             data: post_data,
             success: function(data) {
-                //alert(data);
-                $('#calendar').fullCalendar('refetchEvents');
+                alert(data);
+                if (!JSON.parse(data).hasOwnProperty('Error') )
+                {
+                	$('#calendar').fullCalendar('refetchEvents');
+                }
             }
     	});
     }
     function removeSchedules() {
-
-//     	console.log($('#calendar').fullCalendar('clientEvents'));
 		var sDate = $("#remove_startDate").datepicker( "getDate" );
 		var eDate = $("#remove_endDate").datepicker( "getDate" );
         if ( sDate === null || eDate === null) {
@@ -152,11 +153,10 @@
             {
                 alert(data);
                 var json = JSON.parse(data);
-                var a = json['deleted_ids'];
-                for (var j in a) {
-//                     console.log(j);
-                    var event = $('#calendar').fullCalendar( 'clientEvents', j)[0];
-                    event.color = "#660000";
+                var deleted_ids = json['deleted_ids'];
+                for (var id in deleted_ids) {
+                    var event = $('#calendar').fullCalendar( 'clientEvents', id)[0];
+                    event.color = "#660000"; // Red color
                     $('#calendar').fullCalendar('updateEvent', event);
                 }
             }
