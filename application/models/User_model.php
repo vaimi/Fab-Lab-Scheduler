@@ -5,6 +5,7 @@ class User_model extends CI_Model {
     {
         // Call the Model constructor
         parent::__construct();
+        $this->load->library("Aauth");
     }
     
     function update_verification($user_id)
@@ -104,7 +105,10 @@ class User_model extends CI_Model {
     	{
     		if (strpos($basic_keys, "|".$key."|") !== false)
     		{
+    			if ($key == 'pass')
+    				$user_information[$key] = 
     			$basic_user_info[$key] = $user_information[$key];
+    			
     		}
     		else 
     		{

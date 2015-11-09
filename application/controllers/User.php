@@ -188,8 +188,13 @@ class User extends CI_Controller
 			'address_postal_code'	=> $this->input->post('address_postal_code'),
 			'student_number'	=> $this->input->post('student_number')
 		);
+		if ($this->input->post('first_password') === $this->input->post('second_password'))
+		{
+			$this->aauth->update_user($this->session->userdata['id'], false, $this->input->post('first_password'), $this->input->post('name'));
+		}
 		
 		$this->User_model->update_user($new_user_info, $this->session->userdata['id']);
+		
 		
 		$this->session->set_userdata('name', $new_user_info['name']);
 		$this->session->set_userdata('surname', $new_user_info['surname']);
