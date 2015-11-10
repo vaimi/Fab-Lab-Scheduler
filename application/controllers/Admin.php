@@ -72,6 +72,33 @@ class Admin extends CI_Controller
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Admin";
 		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		//Get machineGroups
+		$mGroups = 	$this->Admin_model->get_machine_groups()->result();
+		//Machines
+		$ms = $this->Admin_model->get_machines()->result();
+// 		var_dump($mGroups);
+// 		var_dump($m);
+// 		die();
+		$results = array();
+		foreach ($mGroups as $mGroup) 
+		{
+			$tmp = array(
+					"MachineGroupID" => $mGroup->MachineGroupID,
+					"Name" => $mGroup->Name,
+					"Description" => $mGroup->Description,
+					"NeedSupervision" => $mGroup->NeedSupervision
+			);
+			foreach ($ms as $m) 
+			{
+				if ($mGroup->MachineGroupID == $m->MachineGroupID) 
+				{
+					array_push($tmp,$m);
+				}
+			}
+			array_push($results,$tmp);
+		}
+// 		var_dump($results);
+// 		die();
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('admin/machines');
 		$this->load->view('partials/footer');
