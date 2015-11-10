@@ -56,6 +56,7 @@ class Admin extends CI_Controller
 			}
 			array_push($results,$tmp);
 		}
+
 		$d['machineGroups'] = $results;
 // 		var_dump($results);
 // 		die();
