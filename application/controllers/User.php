@@ -58,7 +58,8 @@ class User extends CI_Controller
 			$post_data = array
 			(
 				'username' => $this->input->post('username'),
-				'password' => $this->input->post('password'),
+				'first_password' => $this->input->post('first_password'),
+				'second_password' => $this->input->post('second_password'),
 				'surname' => $this->input->post('surname'),
 				'email' => $this->input->post('email'),
 				'address_street' => $this->input->post('address_street'),
@@ -280,6 +281,9 @@ class User extends CI_Controller
 		}
 		if ($post_data['surname'] == ''){
 			$error[] = $this->aauth->CI->lang->line('aauth_error_surname_invalid');
+		}
+		if ($post_data['first_password'] != $post_data['second_password']){
+			$error[] = 'Password does not match';
 		}
 		
 		if (count($error) > 0)
