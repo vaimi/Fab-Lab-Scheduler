@@ -5,6 +5,28 @@ class User_model extends CI_Model {
     {
         // Call the Model constructor
         parent::__construct();
+        $this->load->library("Aauth");
+    }
+    
+    function update_verification($user_id)
+    {
+    	$ver_code = random_string('alnum', 16);
+    	$data['verification_code'] = $ver_code;
+    	$this->db->where('id', $user_id);
+    	$this->db->update('aauth_users', $data);
+    	return $ver_code;
+    }
+    
+    function get_user_by_email($email)
+    {
+    	$sql = "select * 
+    			from aauth_users a
+    			inner join extended_users_information b on a.id=b.id
+    			where a.email=?";
+    	$users = $this->db->query($sql, array($email))->result_array();
+    	if (count($users) == 0)
+    		return null;
+    	return $users[0];
     }
     
     function get_user_data($id)
@@ -83,7 +105,10 @@ class User_model extends CI_Model {
     	{
     		if (strpos($basic_keys, "|".$key."|") !== false)
     		{
+    			if ($key == 'pass')
+    				$user_information[$key] = 
     			$basic_user_info[$key] = $user_information[$key];
+    			
     		}
     		else 
     		{

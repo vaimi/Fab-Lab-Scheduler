@@ -12,6 +12,20 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label class="control-label col-xs-2" for="email_input">Password:</label>
+					<div class="col-xs-8">
+						<input type="password" class="form-control" id="first_password"
+							placeholder="Password">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-2" for="email_input">Repeat Password:</label>
+					<div class="col-xs-8">
+						<input type="password" class="form-control" id="second_password"
+							placeholder="Repeat Password">
+					</div>
+				</div>
+				<div class="form-group">
 					<label class="control-label col-xs-2">Name:</label>
 					<div class="col-xs-4">
 						<input type="text" class="form-control" id="name_input"
@@ -72,7 +86,9 @@ function update_user(user_id) {
 		'phone_number': $('#phone_number_input').val(),
 		'address_street': $('#address_street_input').val(),
 		'address_postal_code': $('#address_postal_code_input').val(),
-		'student_number': $('#student_number_input').val()
+		'student_number': $('#student_number_input').val(),
+		'first_password': $('#first_password').val(),
+		'second_password': $('#second_password').val()
 	};
 	$('#user_data_form').fadeOut('fast');
 	$.ajax({
