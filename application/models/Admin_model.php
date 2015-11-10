@@ -33,7 +33,10 @@ class Admin_model extends CI_Model {
 		$this->db->where('main.id', $user_id);
 		return $this->db->get();
 	}
-	
+	public function create_new_machine($data)
+	{
+		$this->db->insert('Machine', $data);
+	}
 	public function update_user_data($user_data) 
     {
 		$data = array(

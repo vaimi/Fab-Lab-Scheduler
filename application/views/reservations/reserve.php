@@ -65,6 +65,11 @@
 <script>
 
 	$(function() { // document ready
+		$("#datepicker").datepicker();
+
+		$("#dp_btn").click( function() {
+			$( "#datepicker" ).datepicker( "show" );
+		});
 
 		$('#calendar').fullCalendar({
 			now: '2015-10-26',

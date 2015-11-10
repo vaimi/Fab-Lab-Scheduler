@@ -13,7 +13,47 @@ class Admin extends CI_Controller
 	//
 	// Sites
 	//
-
+	public function upload_image()
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
+		if ($this->input->method() == 'post')
+		{
+			$uploaddir = 'F:/xampp/htdocs/Fab-Lab-Scheduler/assets/images/admin_uploads/';
+			$file_extension = pathinfo($_FILES['fileToUpload']['name'], PATHINFO_EXTENSION);
+			$file_name = random_string('alnum', 50).'.'.$file_extension;
+			$uploadfile = $uploaddir . basename($file_name);
+			if (move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $uploadfile))
+			{
+				$data = array('upload_file' => $file_name, 'errors' => array());
+				$this->load->view('admin/upload_image', $data);
+			} else
+			{
+				$data = array('upload_file' => '', 'errors' => array());
+				switch($_FILES['fileToUpload']['error'])
+				{
+					case UPLOAD_ERR_INI_SIZE:
+						$data['errors'][] = 'File too big, please choose a smaller file';
+						break;
+					case UPLOAD_ERR_NO_FILE:
+						$data['errors'][] = 'No file found, please upload again';
+						break;
+					default:
+						$data['errors'][] = 'Error uploading file, please try again';
+						break;
+				}
+				$this->load->view('admin/upload_image', $data);
+			}
+		}
+		else
+		{
+			$data = array('upload_file' => '', 'errors' => array());
+			$this->load->view('admin/upload_image', $data);
+		}
+	}
+	
 	public function moderate_general() 
 	{
 		$this->load->view('partials/header');
@@ -110,8 +150,12 @@ class Admin extends CI_Controller
 	{
 		if ($this->input->method() == 'post')
 		{
+			// TODO: $this->form_validation->set_rules('name', 'Machine group name', 'required|alpha');
 			$name = $this->input->post('name');
+			// TODO: $this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
+			// TODO: xss_filtering?
 			$description = $this->input->post('description');
+			// TODO: ??
 			$need_supervision = $this->input->post('need_supervision')?$this->input->post('need_supervision'):'';
 			
 			$errors = [];
@@ -148,27 +192,54 @@ class Admin extends CI_Controller
 		}
 	}
 	
-	public function create_machine($machine_group='') 
+	/**
+	 * This is called when creating a new machine in moderate_machines.
+	 */
+	public function create_machine()
 	{
 		if ($this->input->method() == 'post')
 		{
 			//Get post data
-			if($this->input->post('needSupervision')) {
+			if($this->input->post('needSupervisor')) {
 				$needSupervision = true;
 			}
 			else {
 				$needSupervision = false;
 			}
+			// TODO: Should load all of the time?
+			$this->load->library('form_validation');
 			$machinename = $this->input->post('machinename');
+			$machine_group_id = $this->input->post('machineGroup');
 			$manufacturer = $this->input->post('manufacturer');
 			$model = $this->input->post('model');
 			$desc = $this->input->post('desc');
-			
-			$this->moderate_machines();
+			$this->form_validation->set_rules('machinename', 'Machine Name', 'required');
+			// TODO Should also match in the db
+			$this->form_validation->set_rules('machineGroup', 'Machine Group', 'required|is_natural');
+			$this->form_validation->set_rules('manufacturer', 'Manufacturer', 'required');
+			$this->form_validation->set_rules('model', 'Model', 'required');
+			$this->form_validation->set_rules('desc', 'Description', 'required');
+			if ($this->form_validation->run() == FALSE)
+			{
+				//echo errors.
+				echo validation_errors();
+				die();
+			}
+			else {
+				//insert machine into db.
+				$this->Admin_model->create_new_machine( array(
+						"MachineGroupID" => $machine_group_id,
+						"MachineName" => $machinename,
+						"Manufacturer" => $manufacturer,
+						"Model" => $model,
+						"NeedSupervision" => $needSupervision,
+						"Description" => $desc
+				));
+			}
 		}
 		else
 		{
-			$this->load->view('admin/create_machine');
+			redirect('404');
 		}
 	}
 
@@ -250,6 +321,7 @@ class Admin extends CI_Controller
      * @return echo events in json array //TODO example
      */
     public function timetable_fetch_mod_and_new_sessions() {
+    	//TODO validation
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
         // Merge session variables for response
@@ -270,6 +342,7 @@ class Admin extends CI_Controller
      * @return echo events in json array //TODO example
      */
     public function timetable_fetch_deleted_sessions() {
+    	//TODO validation
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
         
@@ -312,6 +385,7 @@ class Admin extends CI_Controller
     }
     
     public function timetable_new_slot() {
+    	//TODO validation
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
         $end = $this->input->post("end");    
@@ -328,6 +402,7 @@ class Admin extends CI_Controller
     }
     
     public function timetable_remove_slot() {
+    	//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -382,6 +457,7 @@ class Admin extends CI_Controller
     }
                     
     public function timetable_restore_slot() {
+    	//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -413,6 +489,7 @@ class Admin extends CI_Controller
     }
     
     public function timetable_modify_slot() {
+    	//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -467,7 +544,9 @@ class Admin extends CI_Controller
     			echo json_encode(array("Error" => "Save timetable first."));
     			return;
     		}
-    		
+    		//$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		//$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		//$this->form_validation->set_rules('copyStartDate', 'Copy Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
     		$copyStartDate = $this->input->post("copyStartDate");
@@ -486,6 +565,8 @@ class Admin extends CI_Controller
      */
     public function schedule_delete() {
     	if ($this->input->server('REQUEST_METHOD') == 'POST') {
+    		//$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		//$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
     		$startDate = new DateTime($startDate);
@@ -565,6 +646,7 @@ class Admin extends CI_Controller
 	 * @return bool Delete fails/succeeds
 	 */
 	public function delete_user() {
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -588,6 +670,7 @@ class Admin extends CI_Controller
 	 * @return bool Ban fails/succeeds
 	 */
 	public function ban_user() {
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -611,6 +694,7 @@ class Admin extends CI_Controller
 	 * @return bool Unban fails/succeeds
 	 */
 	public function unban_user() {
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -631,6 +715,7 @@ class Admin extends CI_Controller
 	 * @return echo list of results as html
 	 */
 	 public function user_search() {
+	 	//validation form??
         $search_data = $this->input->post('search_data');
 		$offset = $this->input->post('offset') ? $this->input->post('offset') : "0";
         $query = $this->Admin_model->get_autocomplete($search_data);
@@ -655,6 +740,7 @@ class Admin extends CI_Controller
 	 */
 	 public function fetch_user_data() {
 		// Fetch basic data
+	 	//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
         $user_id = $this->input->post('user_id');
         $query = $this->Admin_model->get_user_data($user_id);
 		$basic = $query->result()[0];
@@ -706,6 +792,17 @@ class Admin extends CI_Controller
 	 * @return echo {"success":"true"} or {"success":"false", "errors":array of strings}
 	 */
 	public function save_user_data() {
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
+		//$this->form_validation->set_rules('username', 'User name', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('password', 'Password', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('surname', 'Last name', 'required|alpha');
+		//$this->form_validation->set_rules('password', 'Password', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('email', 'Email', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('address_street', 'Street address', 'alpha_numeric');
+		//$this->form_validation->set_rules('address_postal_code', 'Zip code', 'numeric');
+		//$this->form_validation->set_rules('phone_number', 'Phone number', 'numeric');
+		//$this->form_validation->set_rules('company', 'Company', '');
+		//$this->form_validation->set_rules('student_number', 'Student number', 'numeric');
 		$form_data = array (
 			'user_id' => $this->input->post('user_id'),
 			'username' => $this->input->post('username'),
@@ -794,6 +891,7 @@ class Admin extends CI_Controller
 	 */
 	public function set_quota() 
 	{
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = intval($this->input->post('user_id'));
 		$amount = $this->input->post('amount');
 		$amount = ($amount == -1) ? 10 : $amount; //TODO fetch from database the default. Check if amount is not set at all
