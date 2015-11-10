@@ -139,7 +139,7 @@ class User extends CI_Controller
 	{
 		if (!$this->aauth->is_loggedin())
 		{
-			redirect('home/index'); //not found
+			redirect('home/index');
 		}
 		else
 		{
