@@ -3,11 +3,13 @@ class Admin extends CI_Controller
 {
 	public function __construct() {
 		parent::__construct();
-		$this->load->model('Admin_model');
 		if (!$this->aauth->is_admin())
 		{
 			redirect('404');
 		}
+		$this->load->model('Admin_model');
+		// TODO: Should load all of the time?
+		$this->load->library('form_validation');
 	}
 
 	//
@@ -75,9 +77,6 @@ class Admin extends CI_Controller
 		$mGroups = 	$this->Admin_model->get_machine_groups()->result();
 		//Machines
 		$ms = $this->Admin_model->get_machines()->result();
-// 		var_dump($mGroups);
-// 		var_dump($m);
-// 		die();
 		$results = array();
 		foreach ($mGroups as $mGroup) 
 		{
@@ -96,10 +95,7 @@ class Admin extends CI_Controller
 			}
 			array_push($results,$tmp);
 		}
-
 		$d['machineGroups'] = $results;
-// 		var_dump($results);
-// 		die();
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('admin/machines', $d);
 		$this->load->view('partials/footer');
@@ -150,13 +146,22 @@ class Admin extends CI_Controller
 	{
 		if ($this->input->method() == 'post')
 		{
-			// TODO: $this->form_validation->set_rules('name', 'Machine group name', 'required|alpha');
+			//validate variables
+			$this->form_validation->set_rules('name', 'Machine group name', 'required|alpha');
 			$name = $this->input->post('name');
 			// TODO: $this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 			// TODO: xss_filtering?
 			$description = $this->input->post('description');
 			// TODO: ??
 			$need_supervision = $this->input->post('need_supervision')?$this->input->post('need_supervision'):'';
+			
+			
+			if ($this->form_validation->run() == FALSE)
+			{
+				//echo errors.
+				echo validation_errors();
+				return;
+			}
 			
 			$errors = [];
 			if (trim($name) == '')
@@ -175,8 +180,8 @@ class Admin extends CI_Controller
 			else 
 			{
 				$need_supervision = $need_supervision==''?0:1;
-				$sql = "insert into MachineGroup(Name, Description, NeedSupervision) values (?, ?, ?)";
-				$this->db->query($sql, array($name, $description, $need_supervision));
+				$data = array("Name" => $name , "Description" => $description, "NeedSupervision" => $need_supervision);
+				$this->Admin_model->create_new_machine_group($data);
 				redirect('admin/machines', 'refresh');
 			}
 		}
@@ -206,8 +211,6 @@ class Admin extends CI_Controller
 			else {
 				$needSupervision = false;
 			}
-			// TODO: Should load all of the time?
-			$this->load->library('form_validation');
 			$machinename = $this->input->post('machinename');
 			$machine_group_id = $this->input->post('machineGroup');
 			$manufacturer = $this->input->post('manufacturer');
@@ -536,7 +539,8 @@ class Admin extends CI_Controller
      * @access admin
      */
     public function schedule_copy() {
-    	if ($this->input->server('REQUEST_METHOD') == 'POST') {
+    	if ($this->input->server('REQUEST_METHOD') == 'POST') 
+    	{
     		//If slots are modified or deleted.
     		if (count($this->session->userdata('sv_unsaved_modified_items')) > 0 
     		|| count($this->session->userdata('sv_unsaved_new_items')) > 0
@@ -545,14 +549,26 @@ class Admin extends CI_Controller
     			echo json_encode(array("Error" => "Save timetable first."));
     			return;
     		}
-    		//$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-    		//$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-    		//$this->form_validation->set_rules('copyStartDate', 'Copy Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		$this->form_validation->set_rules('copyStartDate', 'Copy Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
     		$copyStartDate = $this->input->post("copyStartDate");
-    		$info = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
-    		echo json_encode(array("affected rows" => count($info), "info" => $info ));
+    		
+    		
+    		if ($this->form_validation->run() == FALSE)
+    		{
+    			//echo errors.
+    			echo validation_errors();
+    			die();
+    		}
+    		else 
+    		{
+    			$info = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
+    			echo json_encode(array("affected rows" => count($info), "info" => $info ));
+    		}
     	}
     	else {
     		// TODO: redirect or block bad request

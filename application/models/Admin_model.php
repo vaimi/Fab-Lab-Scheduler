@@ -37,6 +37,10 @@ class Admin_model extends CI_Model {
 	{
 		$this->db->insert('Machine', $data);
 	}
+	public function create_new_machine_group($data)
+	{
+		$this->db->insert('MachineGroup', $data);
+	}
 	public function update_user_data($user_data) 
     {
 		$data = array(
