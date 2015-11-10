@@ -6,10 +6,7 @@ class Admin_model extends CI_Model {
         // Call the Model constructor
         parent::__construct();
     }
-	public function create_new_machine($data) 
-	{
-		$this->db->insert('Machine', $data);
-	}
+	
 	public function get_autocomplete($search_data, $offset=0)
     {
 		$this->db->select('main.id, main.email, main.name, extra.phone_number, extra.surname, extra.student_number');

@@ -15,7 +15,6 @@
 					placeholder="Machine Group Name" /></p>
 		<p>Description:</p>
 		<p><textarea id="description" name="description" required=""><?php echo $description;?></textarea></p>
-		<p><a href="<?php echo base_url();?>admin/upload_image" target="_blank" onclick="window.open('<?php echo base_url();?>admin/upload_image', 'newwindow', 'width=640, height=640'); return false;">Upload picture</a></p>
 		<p>Need Supervision: <input type="checkbox" value="need_supervision" name="need_supervision" id="need_supervision" <?php if ($need_supervision !='') { ?> checked <?php } ?> /></p>
 		<p>
 			<div class="btn-toolbar">

@@ -13,47 +13,6 @@ class Admin extends CI_Controller
 	//
 	// Sites
 	//
-	
-	public function upload_image()
-	{
-		if (!$this->aauth->is_admin())
-		{
-			redirect('404');
-		}
-		if ($this->input->method() == 'post')
-		{
-			$uploaddir = 'F:/xampp/htdocs/Fab-Lab-Scheduler/assets/images/admin_uploads/';
-			$file_extension = pathinfo($_FILES['fileToUpload']['name'], PATHINFO_EXTENSION);
-			$file_name = random_string('alnum', 50).'.'.$file_extension;
-			$uploadfile = $uploaddir . basename($file_name);
-			if (move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $uploadfile))
-			{
-				$data = array('upload_file' => $file_name, 'errors' => array());
-				$this->load->view('admin/upload_image', $data);
-			} else 
-			{
-				$data = array('upload_file' => '', 'errors' => array());
-				switch($_FILES['fileToUpload']['error'])
-				{
-					case UPLOAD_ERR_INI_SIZE:
-						$data['errors'][] = 'File too big, please choose a smaller file';
-						break;
-					case UPLOAD_ERR_NO_FILE:
-						$data['errors'][] = 'No file found, please upload again';
-						break;
-					default:
-						$data['errors'][] = 'Error uploading file, please try again';
-						break;
-				}
-				$this->load->view('admin/upload_image', $data);
-			}
-		}
-		else 
-		{
-			$data = array('upload_file' => '', 'errors' => array());
-			$this->load->view('admin/upload_image', $data);
-		}
-	}
 
 	public function moderate_general() 
 	{
@@ -83,7 +42,7 @@ class Admin extends CI_Controller
         $this->session->set_userdata('sv_unsaved_modified_items', array());
         $this->session->set_userdata('sv_unsaved_new_items', array());
         $this->session->set_userdata('sv_unsaved_deleted_items', array());
-        $this->session->set_userdata('sv_saved_items', array());
+		$this->session->set_userdata('sv_saved_items', array());
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Timetables";
@@ -122,12 +81,8 @@ class Admin extends CI_Controller
 	{
 		if ($this->input->method() == 'post')
 		{
-			//$this->form_validation->set_rules('name', 'Machine group name', 'required|alpha');
 			$name = $this->input->post('name');
-			//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
-			//xss_filtering?
 			$description = $this->input->post('description');
-			//??
 			$need_supervision = $this->input->post('need_supervision')?$this->input->post('need_supervision'):'';
 			
 			$errors = [];
@@ -149,7 +104,7 @@ class Admin extends CI_Controller
 				$need_supervision = $need_supervision==''?0:1;
 				$sql = "insert into MachineGroup(Name, Description, NeedSupervision) values (?, ?, ?)";
 				$this->db->query($sql, array($name, $description, $need_supervision));
-				redirect('admin/moderate_machines', 'refresh');
+				redirect('admin/machines', 'refresh');
 			}
 		}
 		else
@@ -163,73 +118,69 @@ class Admin extends CI_Controller
 			$this->load->view('admin/create_machine_group', $data);
 		}
 	}
-	/**
-	 * This is called when creating a new machine in moderate_machines.
-	 */
-	public function create_machine() 
+	
+	public function create_machine($machine_group='') 
 	{
 		if ($this->input->method() == 'post')
 		{
 			//Get post data
-			if($this->input->post('needSupervisor')) {
+			if($this->input->post('needSupervision')) {
 				$needSupervision = true;
 			}
 			else {
 				$needSupervision = false;
 			}
-			//Should load all of the time?
-			$this->load->library('form_validation');
-			
 			$machinename = $this->input->post('machinename');
-			$machine_group_id = $this->input->post('machineGroup');
 			$manufacturer = $this->input->post('manufacturer');
 			$model = $this->input->post('model');
 			$desc = $this->input->post('desc');
-			$this->form_validation->set_rules('machinename', 'Machine Name', 'required');
-			// TODO Should also match in the db
-			$this->form_validation->set_rules('machineGroup', 'Machine Group', 'required|is_natural');
-			$this->form_validation->set_rules('manufacturer', 'Manufacturer', 'required');
-			$this->form_validation->set_rules('model', 'Model', 'required');
-			$this->form_validation->set_rules('desc', 'Description', 'required');
-			if ($this->form_validation->run() == FALSE)
-			{
-				//invalid data
-				echo validation_errors();
-				die();
-			}
-			//insert machine into db.
-			$this->Admin_model->create_new_machine( array(
-				"MachineGroupID" => $machine_group_id,
-				"MachineName" => $machinename,
-				"Manufacturer" => $manufacturer,
-				"Model" => $model,
-				"NeedSupervision" => $needSupervision,
-				"Description" => $desc
-			));
+			
+			$this->moderate_machines();
 		}
-		redirect('admin/moderate_machines','refresh');
+		else
+		{
+			$this->load->view('admin/create_machine');
+		}
 	}
 
 	//
 	// AJAX functions
 	//
 	
-	// Timetable
+    /**
+     * Supervision session fetching
+     * 
+     * Fetches supervision sessions from the database. If supervision session is already in one of the session variables, 
+     * version in database is discarded. 
+     * 
+     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s
+     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s
+     * @uses _SESSION['sv_unsaved_modified_items'] for removing duplicate entries
+     * @uses _SESSION['sv_unsaved_deleted_items'] for removing duplicate entries
+     * @uses _SESSION['sv_saved_items'] Fetched items are saved also to this variable
+     * 
+     * @access admin
+     * @return echo events in json array //TODO example
+     */
     public function timetable_fetch_supervision_sessions() {
+        // TODO check that request is in valid format
         // get calendar request
-		// TODO validation
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
-        // get supervision slots
-        $slots = $this->Admin_model->timetable_get_supervision_slots($start_time, $end_time);
-        $response = array();
         
+        // get supervision slots from db
+        $slots = $this->Admin_model->timetable_get_supervision_slots($start_time, $end_time);
+        
+        $response = array();
         $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
+        $modIDsDeleted = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items'));
         $modIDsSaved = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
         foreach($slots->result() as $slot)
 		{
-            if (!in_array($slot->SupervisionID, $modIDs))
+            // Check for duplicate
+            if (!in_array($slot->SupervisionID, $modIDs) and !in_array($slot->SupervisionID, $modIDsDeleted))
             {
+                // Make array in output format
                 $slot_array = array (
                     'id' => $slot->SupervisionID,
                     'title' => "uid: ". $slot->aauth_usersID. " sid: ". $slot->SupervisionID,
@@ -256,12 +207,46 @@ class Admin extends CI_Controller
         echo json_encode($response);
     }
     
+    /**
+     * Modified/new session fetching
+     * 
+     * Fetches supervision sessions from the new/modified session variables. 
+     * 
+     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses _SESSION['sv_unsaved_modified_items'] session variable for modified entries
+     * @uses _SESSION['sv_unsaved_new_items'] session variable for new entries
+     * 
+     * @access admin
+     * @return echo events in json array //TODO example
+     */
     public function timetable_fetch_mod_and_new_sessions() {
-		//TODO validation
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
-        // get supervision slots
+        // Merge session variables for response
         $response = array_merge($this->session->userdata('sv_unsaved_new_items'), $this->session->userdata('sv_unsaved_modified_items'));
+        echo json_encode($response);
+    }
+    
+    /**
+     * Deleted session fetching
+     * 
+     * Sessions aren't deleted before save is pressed. They are just marked as deleted before that. This functions fetches those events.
+     * 
+     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses _SESSION['sv_unsaved_deleted_items'] session variable for deleted entries
+     * 
+     * @access admin
+     * @return echo events in json array //TODO example
+     */
+    public function timetable_fetch_deleted_sessions() {
+        $start_time = $this->input->get('start');
+        $end_time = $this->input->get('end');
+        
+        $response = $this->session->userdata('sv_unsaved_deleted_items');
+        //Re-create array indexes
+        $response = array_values($response);
         echo json_encode($response);
     }
     
@@ -314,7 +299,6 @@ class Admin extends CI_Controller
     }
     
     public function timetable_remove_slot() {
-		//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -330,8 +314,7 @@ class Admin extends CI_Controller
                     $deleted = $this->session->userdata('sv_unsaved_deleted_items');
                     $deleted[$id] = $slots[$key_id];
                     $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
-                    unset($slots[$key_id]);
-                    $this->session->set_userdata('sv_unsaved_new_items', $slots);
+                    unset($_SESSION['sv_unsaved_new_items'][$key_id]);
                     break;
                 }
             }
@@ -345,8 +328,7 @@ class Admin extends CI_Controller
                     $deleted = $this->session->userdata('sv_unsaved_deleted_items');
                     $deleted[$id] = $slots[$key_id];
                     $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
-                    unset($slots[$key_id]);
-                    $this->session->set_userdata('sv_unsaved_modified_items', $slots);
+                    unset($_SESSION['sv_unsaved_modified_items'][$key_id]);
                     $found = true;
                     break;
                 }
@@ -371,7 +353,6 @@ class Admin extends CI_Controller
     }
                     
     public function timetable_restore_slot() {
-		//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -403,7 +384,6 @@ class Admin extends CI_Controller
     }
     
     public function timetable_modify_slot() {
-		//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -460,12 +440,8 @@ class Admin extends CI_Controller
     		}
     		
     		$startDate = $this->input->post("startDate");
-			//$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-			//$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-			//$this->form_validation->set_rules('copyStartDate', 'Copy Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
     		$endDate = $this->input->post("endDate");
     		$copyStartDate = $this->input->post("copyStartDate");
-			
     		$info = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
     		echo json_encode(array("affected rows" => count($info), "info" => $info ));
     	}
@@ -481,9 +457,6 @@ class Admin extends CI_Controller
      */
     public function schedule_delete() {
     	if ($this->input->server('REQUEST_METHOD') == 'POST') {
-			//$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-			//$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
     		$startDate = new DateTime($startDate);
@@ -563,7 +536,6 @@ class Admin extends CI_Controller
 	 * @return bool Delete fails/succeeds
 	 */
 	public function delete_user() {
-		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -587,7 +559,6 @@ class Admin extends CI_Controller
 	 * @return bool Ban fails/succeeds
 	 */
 	public function ban_user() {
-		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -611,7 +582,6 @@ class Admin extends CI_Controller
 	 * @return bool Unban fails/succeeds
 	 */
 	public function unban_user() {
-		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -632,7 +602,6 @@ class Admin extends CI_Controller
 	 * @return echo list of results as html
 	 */
 	 public function user_search() {
-		//validation form??
         $search_data = $this->input->post('search_data');
 		$offset = $this->input->post('offset') ? $this->input->post('offset') : "0";
         $query = $this->Admin_model->get_autocomplete($search_data);
@@ -657,7 +626,6 @@ class Admin extends CI_Controller
 	 */
 	 public function fetch_user_data() {
 		// Fetch basic data
-		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
         $user_id = $this->input->post('user_id');
         $query = $this->Admin_model->get_user_data($user_id);
 		$basic = $query->result()[0];
@@ -709,17 +677,6 @@ class Admin extends CI_Controller
 	 * @return echo {"success":"true"} or {"success":"false", "errors":array of strings}
 	 */
 	public function save_user_data() {
-		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
-		//$this->form_validation->set_rules('username', 'User name', 'required|alpha_numeric');
-		//$this->form_validation->set_rules('password', 'Password', 'required|alpha_numeric');
-		//$this->form_validation->set_rules('surname', 'Last name', 'required|alpha');
-		//$this->form_validation->set_rules('password', 'Password', 'required|alpha_numeric');
-		//$this->form_validation->set_rules('email', 'Email', 'required|alpha_numeric');
-		//$this->form_validation->set_rules('address_street', 'Street address', 'alpha_numeric');
-		//$this->form_validation->set_rules('address_postal_code', 'Zip code', 'numeric');
-		//$this->form_validation->set_rules('phone_number', 'Phone number', 'numeric');
-		//$this->form_validation->set_rules('company', 'Company', '');
-		//$this->form_validation->set_rules('student_number', 'Student number', 'numeric');
 		$form_data = array (
 			'user_id' => $this->input->post('user_id'),
 			'username' => $this->input->post('username'),
@@ -732,7 +689,7 @@ class Admin extends CI_Controller
 			'company' => $this->input->post('company'),
 			'student_number' => $this->input->post('student_number')
 		);
-		//needs validation
+		
 		$groups = $this->aauth->list_groups();
 		parse_str($this->input->post('groups'), $group_data);
 		$user_groups = $this->aauth->get_user_groups($form_data['user_id']);
@@ -808,7 +765,6 @@ class Admin extends CI_Controller
 	 */
 	public function set_quota() 
 	{
-		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = intval($this->input->post('user_id'));
 		$amount = $this->input->post('amount');
 		$amount = ($amount == -1) ? 10 : $amount; //TODO fetch from database the default. Check if amount is not set at all

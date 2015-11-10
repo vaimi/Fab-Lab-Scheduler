@@ -17,12 +17,7 @@
 						</tr>
 						<tr>
 							<td><label for="password">Password *</label></td>
-							<td><input type="password" class="form-control" name="first_password" id="first_password"
-								style="width: 200px;" value="" required="" autofocus="" placeholder="Password" /></td>
-						</tr>
-						<tr>
-							<td><label for="password">Retype Password *</label></td>
-							<td><input type="password" class="form-control" name="second_password" id="second_password"
+							<td><input type="password" class="form-control" name="password" id="password"
 								style="width: 200px;" value="" required="" autofocus="" placeholder="Password" /></td>
 						</tr>
 						<tr>
