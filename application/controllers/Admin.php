@@ -104,7 +104,7 @@ class Admin extends CI_Controller
 				$need_supervision = $need_supervision==''?0:1;
 				$sql = "insert into MachineGroup(Name, Description, NeedSupervision) values (?, ?, ?)";
 				$this->db->query($sql, array($name, $description, $need_supervision));
-				redirect('admin/machines', 'refresh');
+				redirect('admin/moderate_machines', 'refresh');
 			}
 		}
 		else
@@ -118,29 +118,51 @@ class Admin extends CI_Controller
 			$this->load->view('admin/create_machine_group', $data);
 		}
 	}
-	
-	public function create_machine($machine_group='') 
+	/**
+	 * This is called when creating a new machine in moderate_machines.
+	 */
+	public function create_machine() 
 	{
 		if ($this->input->method() == 'post')
 		{
 			//Get post data
-			if($this->input->post('needSupervision')) {
+			if($this->input->post('needSupervisor')) {
 				$needSupervision = true;
 			}
 			else {
 				$needSupervision = false;
 			}
+			//Should load all of the time?
+			$this->load->library('form_validation');
+			
 			$machinename = $this->input->post('machinename');
+			$machine_group_id = $this->input->post('machineGroup');
 			$manufacturer = $this->input->post('manufacturer');
 			$model = $this->input->post('model');
 			$desc = $this->input->post('desc');
-			
-			$this->moderate_machines();
+			$this->form_validation->set_rules('machinename', 'Machine Name', 'required');
+			// TODO Should also match in the db
+			$this->form_validation->set_rules('machineGroup', 'Machine Group', 'required|is_natural');
+			$this->form_validation->set_rules('manufacturer', 'Manufacturer', 'required');
+			$this->form_validation->set_rules('model', 'Model', 'required');
+			$this->form_validation->set_rules('desc', 'Description', 'required');
+			if ($this->form_validation->run() == FALSE)
+			{
+				//invalid data
+				echo validation_errors();
+				die();
+			}
+			//insert machine into db.
+			$this->Admin_model->create_new_machine( array(
+				"MachineGroupID" => $machine_group_id,
+				"MachineName" => $machinename,
+				"Manufacturer" => $manufacturer,
+				"Model" => $model,
+				"NeedSupervision" => $needSupervision,
+				"Description" => $desc
+			));
 		}
-		else
-		{
-			$this->load->view('admin/create_machine');
-		}
+		redirect('admin/moderate_machines','refresh');
 	}
 
 	//
