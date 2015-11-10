@@ -26,6 +26,7 @@ class User extends CI_Controller
 		
 		if ($this->input->method() == 'post')
 		{
+			//$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 			$email = $this->input->post('email');
 			
 			
@@ -57,8 +58,10 @@ class User extends CI_Controller
 		{
 			$post_data = array
 			(
+				//TODO validation
 				'username' => $this->input->post('username'),
-				'password' => $this->input->post('password'),
+				'first_password' => $this->input->post('first_password'),
+				'second_password' => $this->input->post('second_password'),
 				'surname' => $this->input->post('surname'),
 				'email' => $this->input->post('email'),
 				'address_street' => $this->input->post('address_street'),
@@ -96,6 +99,7 @@ class User extends CI_Controller
 		$this->load->library("Aauth");
 		if ($this->input->method() == 'post')
 		{
+			//TODO validation
 			$password = $this->input->post('password');
 			$email = $this->input->post('email');
 			$remember = $this->input->post('remember')?true:false;
@@ -113,8 +117,11 @@ class User extends CI_Controller
 				$this->session->set_userdata('phone_number', $row->phone_number);
 				$this->session->set_userdata('student_number', $row->student_number);
 				$this->session->set_userdata('quota', $row->quota);
-				
-				redirect($current_url, 'refresh');
+				$pos = strpos($current_url, 'user/logout');
+				if ($pos == false)
+					redirect($current_url, 'refresh');
+				else 
+					redirect(base_url(), 'refresh');
 				
 			}
 			else //login fail, go to login page with fail information
@@ -132,18 +139,19 @@ class User extends CI_Controller
 	{
 		if (!$this->aauth->is_loggedin())
 		{
-			$this->load->view('page_not_found_404');
+			redirect('home/index'); //not found
 		}
 		else
 		{
 			$this->aauth->logout();
-			$this->load->view('user/logout');
+			redirect(base_url().'user/logout', 'refresh');
 		}
 			
 	}
 	
 	public function verification($user_id, $verification)
 	{
+		//TODO validation?
 		$verify_result = $this->aauth->verify_user($user_id, $verification);
 		if (!$verify_result)
 		{
@@ -179,7 +187,7 @@ class User extends CI_Controller
 			$this->load->view('page_not_found_404');
 			return;
 		}
-		
+		//TODO validation
 		$new_user_info = array(
 			'name'	=> $this->input->post('name'),
 			'surname'	=> $this->input->post('surname'),
@@ -255,6 +263,7 @@ class User extends CI_Controller
 		$error = array();
 		// , $surname, $address_street, $address_postal_number, $phone_number, $company, $student_number
 		// validate inputed data
+		// TODO use codeigniter form_validation
 		if (empty($post_data['username']))
 		{
 			$error[] = $this->aauth->CI->lang->line('aauth_error_username_required');
@@ -277,6 +286,9 @@ class User extends CI_Controller
 		}
 		if ($post_data['surname'] == ''){
 			$error[] = $this->aauth->CI->lang->line('aauth_error_surname_invalid');
+		}
+		if ($post_data['first_password'] != $post_data['second_password']){
+			$error[] = 'Password does not match';
 		}
 		
 		if (count($error) > 0)
