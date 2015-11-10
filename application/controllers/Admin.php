@@ -42,6 +42,7 @@ class Admin extends CI_Controller
         $this->session->set_userdata('sv_unsaved_modified_items', array());
         $this->session->set_userdata('sv_unsaved_new_items', array());
         $this->session->set_userdata('sv_unsaved_deleted_items', array());
+        $this->session->set_userdata('sv_saved_items', array());
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Timetables";
