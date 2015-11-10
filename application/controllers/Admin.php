@@ -56,10 +56,11 @@ class Admin extends CI_Controller
 			}
 			array_push($results,$tmp);
 		}
+		$d['machineGroups'] = $results;
 // 		var_dump($results);
 // 		die();
 		$this->load->view('partials/jumbotron', $jdata);
-		$this->load->view('admin/machines');
+		$this->load->view('admin/machines', $d);
 		$this->load->view('partials/footer');
 	}
 	

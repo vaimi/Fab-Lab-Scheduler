@@ -21,8 +21,10 @@
 		  <label class="col-md-4 control-label" for="selectmachine">Machine</label>
 		  <div class="col-md-4">
 			<select id="selectmachine" name="selectmachine" class="form-control">
-			  <option value="1">Option one</option>
-			  <option value="2">Option two</option>
+			<?php foreach ($machines as $machine): ?>
+			<option value="<?php echo $machine->MachineID?>"><?php echo $machine->MachineID . " " . $machine->MachineName
+			. " " . $machine->Manufacturer . " " . $machine->Model ?></option>
+			<?php endforeach; ?>
 			</select>
 		  </div>
 		</div>
