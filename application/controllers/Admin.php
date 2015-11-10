@@ -13,6 +13,47 @@ class Admin extends CI_Controller
 	//
 	// Sites
 	//
+	
+	public function upload_image()
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
+		if ($this->input->method() == 'post')
+		{
+			$uploaddir = 'F:/xampp/htdocs/Fab-Lab-Scheduler/assets/images/admin_uploads/';
+			$file_extension = pathinfo($_FILES['fileToUpload']['name'], PATHINFO_EXTENSION);
+			$file_name = random_string('alnum', 50).'.'.$file_extension;
+			$uploadfile = $uploaddir . basename($file_name);
+			if (move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $uploadfile))
+			{
+				$data = array('upload_file' => $file_name, 'errors' => array());
+				$this->load->view('admin/upload_image', $data);
+			} else 
+			{
+				$data = array('upload_file' => '', 'errors' => array());
+				switch($_FILES['fileToUpload']['error'])
+				{
+					case UPLOAD_ERR_INI_SIZE:
+						$data['errors'][] = 'File too big, please choose a smaller file';
+						break;
+					case UPLOAD_ERR_NO_FILE:
+						$data['errors'][] = 'No file found, please upload again';
+						break;
+					default:
+						$data['errors'][] = 'Error uploading file, please try again';
+						break;
+				}
+				$this->load->view('admin/upload_image', $data);
+			}
+		}
+		else 
+		{
+			$data = array('upload_file' => '', 'errors' => array());
+			$this->load->view('admin/upload_image', $data);
+		}
+	}
 
 	public function moderate_general() 
 	{
