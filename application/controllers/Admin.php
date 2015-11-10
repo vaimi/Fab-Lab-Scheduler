@@ -83,9 +83,9 @@ class Admin extends CI_Controller
 		{
 			$tmp = array(
 					"MachineGroupID" => $mGroup->MachineGroupID,
-					"Name" => $mGroup->Name,
-					"Description" => $mGroup->Description,
-					"NeedSupervision" => $mGroup->NeedSupervision
+					"Name" => $mGroup->Name
+// 					"Description" => $mGroup->Description,
+// 					"NeedSupervision" => $mGroup->NeedSupervision
 			);
 			foreach ($ms as $m) 
 			{
@@ -235,6 +235,7 @@ class Admin extends CI_Controller
 						"NeedSupervision" => $needSupervision,
 						"Description" => $desc
 				));
+				redirect('admin/moderate_machines');
 			}
 		}
 		else
