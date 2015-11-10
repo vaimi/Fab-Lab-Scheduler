@@ -113,8 +113,11 @@ class User extends CI_Controller
 				$this->session->set_userdata('phone_number', $row->phone_number);
 				$this->session->set_userdata('student_number', $row->student_number);
 				$this->session->set_userdata('quota', $row->quota);
-				
-				redirect($current_url, 'refresh');
+				$pos = strpos($current_url, 'user/logout');
+				if ($pos == false)
+					redirect($current_url, 'refresh');
+				else 
+					redirect(base_url(), 'refresh');
 				
 			}
 			else //login fail, go to login page with fail information
@@ -132,12 +135,12 @@ class User extends CI_Controller
 	{
 		if (!$this->aauth->is_loggedin())
 		{
-			$this->load->view('page_not_found_404');
+			$this->load->view('user/logout');
 		}
 		else
 		{
 			$this->aauth->logout();
-			$this->load->view('user/logout');
+			redirect(base_url().'user/logout', 'refresh');
 		}
 			
 	}
