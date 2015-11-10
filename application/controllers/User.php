@@ -26,6 +26,7 @@ class User extends CI_Controller
 		
 		if ($this->input->method() == 'post')
 		{
+			//$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
 			$email = $this->input->post('email');
 			
 			
@@ -57,6 +58,7 @@ class User extends CI_Controller
 		{
 			$post_data = array
 			(
+				//TODO validation
 				'username' => $this->input->post('username'),
 				'first_password' => $this->input->post('first_password'),
 				'second_password' => $this->input->post('second_password'),
@@ -97,6 +99,7 @@ class User extends CI_Controller
 		$this->load->library("Aauth");
 		if ($this->input->method() == 'post')
 		{
+			//TODO validation
 			$password = $this->input->post('password');
 			$email = $this->input->post('email');
 			$remember = $this->input->post('remember')?true:false;
@@ -136,7 +139,7 @@ class User extends CI_Controller
 	{
 		if (!$this->aauth->is_loggedin())
 		{
-			$this->load->view('user/logout');
+			redirect('home/index'); //not found
 		}
 		else
 		{
@@ -148,6 +151,7 @@ class User extends CI_Controller
 	
 	public function verification($user_id, $verification)
 	{
+		//TODO validation?
 		$verify_result = $this->aauth->verify_user($user_id, $verification);
 		if (!$verify_result)
 		{
@@ -183,7 +187,7 @@ class User extends CI_Controller
 			$this->load->view('page_not_found_404');
 			return;
 		}
-		
+		//TODO validation
 		$new_user_info = array(
 			'name'	=> $this->input->post('name'),
 			'surname'	=> $this->input->post('surname'),
@@ -259,6 +263,7 @@ class User extends CI_Controller
 		$error = array();
 		// , $surname, $address_street, $address_postal_number, $phone_number, $company, $student_number
 		// validate inputed data
+		// TODO use codeigniter form_validation
 		if (empty($post_data['username']))
 		{
 			$error[] = $this->aauth->CI->lang->line('aauth_error_username_required');

@@ -122,8 +122,12 @@ class Admin extends CI_Controller
 	{
 		if ($this->input->method() == 'post')
 		{
+			//$this->form_validation->set_rules('name', 'Machine group name', 'required|alpha');
 			$name = $this->input->post('name');
+			//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
+			//xss_filtering?
 			$description = $this->input->post('description');
+			//??
 			$need_supervision = $this->input->post('need_supervision')?$this->input->post('need_supervision'):'';
 			
 			$errors = [];
@@ -213,6 +217,7 @@ class Admin extends CI_Controller
 	// Timetable
     public function timetable_fetch_supervision_sessions() {
         // get calendar request
+		// TODO validation
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
         // get supervision slots
@@ -252,6 +257,7 @@ class Admin extends CI_Controller
     }
     
     public function timetable_fetch_mod_and_new_sessions() {
+		//TODO validation
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
         // get supervision slots
@@ -308,6 +314,7 @@ class Admin extends CI_Controller
     }
     
     public function timetable_remove_slot() {
+		//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -364,6 +371,7 @@ class Admin extends CI_Controller
     }
                     
     public function timetable_restore_slot() {
+		//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -395,6 +403,7 @@ class Admin extends CI_Controller
     }
     
     public function timetable_modify_slot() {
+		//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
@@ -451,8 +460,12 @@ class Admin extends CI_Controller
     		}
     		
     		$startDate = $this->input->post("startDate");
+			//$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+			//$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+			//$this->form_validation->set_rules('copyStartDate', 'Copy Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
     		$endDate = $this->input->post("endDate");
     		$copyStartDate = $this->input->post("copyStartDate");
+			
     		$info = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
     		echo json_encode(array("affected rows" => count($info), "info" => $info ));
     	}
@@ -468,6 +481,9 @@ class Admin extends CI_Controller
      */
     public function schedule_delete() {
     	if ($this->input->server('REQUEST_METHOD') == 'POST') {
+			//$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+			//$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
     		$startDate = new DateTime($startDate);
@@ -547,6 +563,7 @@ class Admin extends CI_Controller
 	 * @return bool Delete fails/succeeds
 	 */
 	public function delete_user() {
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -570,6 +587,7 @@ class Admin extends CI_Controller
 	 * @return bool Ban fails/succeeds
 	 */
 	public function ban_user() {
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -593,6 +611,7 @@ class Admin extends CI_Controller
 	 * @return bool Unban fails/succeeds
 	 */
 	public function unban_user() {
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
@@ -613,6 +632,7 @@ class Admin extends CI_Controller
 	 * @return echo list of results as html
 	 */
 	 public function user_search() {
+		//validation form??
         $search_data = $this->input->post('search_data');
 		$offset = $this->input->post('offset') ? $this->input->post('offset') : "0";
         $query = $this->Admin_model->get_autocomplete($search_data);
@@ -637,6 +657,7 @@ class Admin extends CI_Controller
 	 */
 	 public function fetch_user_data() {
 		// Fetch basic data
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
         $user_id = $this->input->post('user_id');
         $query = $this->Admin_model->get_user_data($user_id);
 		$basic = $query->result()[0];
@@ -688,6 +709,17 @@ class Admin extends CI_Controller
 	 * @return echo {"success":"true"} or {"success":"false", "errors":array of strings}
 	 */
 	public function save_user_data() {
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
+		//$this->form_validation->set_rules('username', 'User name', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('password', 'Password', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('surname', 'Last name', 'required|alpha');
+		//$this->form_validation->set_rules('password', 'Password', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('email', 'Email', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('address_street', 'Street address', 'alpha_numeric');
+		//$this->form_validation->set_rules('address_postal_code', 'Zip code', 'numeric');
+		//$this->form_validation->set_rules('phone_number', 'Phone number', 'numeric');
+		//$this->form_validation->set_rules('company', 'Company', '');
+		//$this->form_validation->set_rules('student_number', 'Student number', 'numeric');
 		$form_data = array (
 			'user_id' => $this->input->post('user_id'),
 			'username' => $this->input->post('username'),
@@ -700,7 +732,7 @@ class Admin extends CI_Controller
 			'company' => $this->input->post('company'),
 			'student_number' => $this->input->post('student_number')
 		);
-		
+		//needs validation
 		$groups = $this->aauth->list_groups();
 		parse_str($this->input->post('groups'), $group_data);
 		$user_groups = $this->aauth->get_user_groups($form_data['user_id']);
@@ -776,6 +808,7 @@ class Admin extends CI_Controller
 	 */
 	public function set_quota() 
 	{
+		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		$user_id = intval($this->input->post('user_id'));
 		$amount = $this->input->post('amount');
 		$amount = ($amount == -1) ? 10 : $amount; //TODO fetch from database the default. Check if amount is not set at all
