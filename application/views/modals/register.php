@@ -26,9 +26,9 @@
 								style="width: 200px;" value="" required="" autofocus="" placeholder="Password" /></td>
 						</tr>
 						<tr>
-							<td><label for="surname">Surname *</label></td>
+							<td><label for="surname">Full name *</label></td>
 							<td><input type="text" class="form-control" name="surname" id="surname"
-								style="width: 200px;" value="" required="" autofocus="" placeholder="Surname" /></td>
+								style="width: 200px;" value="" required="" autofocus="" placeholder="Full name" /></td>
 						</tr>
 			
 						<tr>

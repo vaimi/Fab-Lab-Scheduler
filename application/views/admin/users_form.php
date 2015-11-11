@@ -94,13 +94,17 @@
 				</div>
 				<div class="form-group">
 					<label class="control-label col-md-2">Name:</label>
-					<div class="col-md-4">
+					<div class="col-md-8">
 						<input type="text" class="form-control" id="name_input" placeholder="First Name" value=<?=$basic->name;?>>
 					</div>
-					<div class="col-md-4">
-						<input type="text" class="form-control" id="surname_input" placeholder="Last Name" value=<?=$basic->surname;?>>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-md-2" for="email_input">Full name:</label>
+					<div class="col-md-8">
+						<input type="email" class="form-control" id="surname_input" placeholder="Full name" value=<?=$basic->surname;?>>
 					</div>
 				</div>
+				
 				<div class="form-group">
 					<label class="control-label col-md-2">Address:</label>
 					<div class="col-md-4">

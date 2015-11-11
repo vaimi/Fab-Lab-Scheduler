@@ -27,12 +27,15 @@
 				</div>
 				<div class="form-group">
 					<label class="control-label col-xs-2">Name:</label>
-					<div class="col-xs-4">
+					<div class="col-xs-8">
 						<input type="text" class="form-control" id="name_input"
 							placeholder="First Name"
 							value=<?php echo $name; ?>>
 					</div>
-					<div class="col-xs-4">
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-2">Full name:</label>
+					<div class="col-xs-8">
 						<input type="text" class="form-control" id="surname_input"
 							placeholder="Last Name"
 							value=<?php echo $surname; ?>>
