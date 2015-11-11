@@ -1,4 +1,6 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+<link rel="stylesheet" type="text/css"  href="<?php echo asset_url() . "css/jquery.qtip.min.css"; ?>" />
+<script src="<?php echo asset_url() . "js/jquery.qtip.min.js"; ?>"  ></script>
 
 <div class="container">
 	<article>
@@ -97,9 +99,29 @@
 				error: function() {
 					$('#script-warning').show();
 				}
+			},
+			eventAfterRender : function( event, element, view ) { 
+// 				console.log(element);
+// 				console.log(event);
+// 				console.log(view);
+				$(element).qtip({ // Grab some elements to apply the tooltip to
+					show: { 
+						effect: function() { $(this).slideDown(); },
+						solo: true,
+						event: 'click'
+			        },
+			        hide: { 
+			        	event: false
+			        },
+				    content: {
+				        text: 'My common piece of text here'
+				    }
+				});
+				console.log(element);
 			}
+			
 		});
-	
+		
 	});
 
 </script>

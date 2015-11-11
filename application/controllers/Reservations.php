@@ -55,7 +55,7 @@ class Reservations extends CI_Controller
 				"resourceId" => "mac_1",
 				"start" => "2015-10-26T09:00:00",
 				"end" => "2015-10-26T10:00:00",
-				"url" => "confirm/1/1",
+				//"url" => "confirm/1/1",
 				"title" => "FREE"
 			),
 			array 
@@ -73,7 +73,7 @@ class Reservations extends CI_Controller
 				"resourceId" => "mac_1",
 				"start" => "2015-10-26T12:00:00",
 				"end" => "2015-10-26T13:15:00",
-				"url" => "confirm/1/3",
+				//"url" => "confirm/1/3",
 				"title" => "FREE"
 			)
 		);
