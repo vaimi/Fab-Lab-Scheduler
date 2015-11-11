@@ -7,6 +7,17 @@ class Machine_model extends CI_Model {
         parent::__construct();
     }
     
+    public function get_machine($machine_id)
+    {
+    	$this->db->select('*');
+    	$this->db->from('Machine as mc');
+    	$this->db->where('MachineID', $machine_id);
+    	$result = $this->db->get()->result_array();
+    	if (count($result) == 0)
+    		return null;
+    	return $result[0];
+    }
+    
     public function change_activation_status($machine_id)
     {
     	$this->db->select('*');

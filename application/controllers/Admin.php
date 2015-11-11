@@ -98,6 +98,7 @@ class Admin extends CI_Controller
 			array_push($results,$tmp);
 		}
 		$d['machineGroups'] = $results;
+		$d['machine_groups'] = $mGroups;
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('admin/machines', $d);
 		$this->load->view('partials/footer');
@@ -1061,6 +1062,38 @@ class Admin extends CI_Controller
 			echo '{"result": true}';
 		else
 			echo '{"result": false}';
+	}
+	public function edit_machine($machine_id=0)
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+			return;
+		}
+		$this->load->model('Machine_model');
+		$machine = $this->Machine_model->get_machine($machine_id);
+		if ($machine == null)
+		{
+			echo '{"result":false}';
+			return;
+		}
+		
+		$machine_name = $this->input->post('machine_name');
+		$machine_group_id = $this->input->post('machine_group_id');
+		$manufacturer = $this->input->post('manufacturer');
+		$model = $this->input->post('model');
+		$desc = $this->input->post('description');
+		$need_supervision = ($this->input->post('need_supervision')=='yes')?true:false;
+		if ($this->Machine_model->update_data($machine_id, $machine_name, $machine_group_id, $manufacturer, $model, $desc, $need_supervision))
+		{
+			echo '{"result":true}';
+			return; 
+		}
+		else
+		{
+			echo '{"result":false}';
+			return;
+		}
 	}
 
 	// Helper functions

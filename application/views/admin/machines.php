@@ -12,7 +12,6 @@
 		<tbody>
 			<?php foreach ($machineGroups as $mg):?>
 			<tr id="machine_group_<?php echo $mg['MachineGroupID']; ?>" data-toggle="collapse" data-target="#accordion_<?php echo $mg['MachineGroupID']?>" class="clickable">
-			
 				<td><?php echo $mg['MachineGroupID']?></td>
 				
 				<td><?php echo $mg['Name'];?></td>
@@ -40,21 +39,21 @@
 					
 				</td>
 			</tr>
-			<tr id="machine_in_group_<?php echo $mg['MachineGroupID'];?>">
+			<tr >
 				<td colspan="3">
 					<div id="accordion_<?php echo $mg['MachineGroupID'];?>" class="collapse">
 						<table class="table table-hover machine_table">
 							<thead>
 								<th>MID</th><th>Manufacturer</th><th>Model</th><th>Tools</th>
 							</thead>
-							<tbody>
+							<tbody id="machine_in_group_<?php echo $mg['MachineGroupID'];?>">
 							<?php foreach ($mg['machines'] as $m):?>
 								<tr id="machine_<?php echo $m->MachineID ?>">
 									<td><?php echo $m->MachineID ?></td>
-									<td><?php echo $m->Manufacturer ?></td>
-									<td><?php echo $m->Model ?></td>
+									<td id="detail_manufacturer_<?php echo $m->MachineID ?>"><?php echo $m->Manufacturer ?></td>
+									<td id="detail_model_<?php echo $m->MachineID ?>"><?php echo $m->Model ?></td>
 									<td>
-										<button type="button" class="btn btn-info">
+										<button type="button" class="btn btn-info" onclick="$('#edit_machine_<?php echo $m->MachineID; ?>').modal('show');">
 											<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
 										</button>
 										<span id="activate_machine_button_<?php echo $m->MachineID; ?>">
@@ -72,6 +71,44 @@
 											<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
 										</button>
 									</td>
+									<div id="edit_machine_<?php echo $m->MachineID; ?>" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Edit Machine</h4>
+	      </div>
+	      <div class="modal-body">
+		  	
+
+					<label for="machine_group_id_<?php echo $m->MachineID; ?>">Machine group</label>
+					<select id="machine_group_id_<?php echo $m->MachineID; ?>" class="form-control">
+					<?php foreach ($machine_groups as $mg) {?>
+						<option <?php if ($mg->MachineGroupID == $m->MachineGroupID) {?> selected <?php } ?> value="<?php echo $mg->MachineGroupID; ?>"><?php echo $mg->Name; ?></option>
+					<?php }?>
+					</select>
+					<label for="machine_name_<?php echo $m->MachineID; ?>">Name</label>
+			  		<input type="text" value="<?php echo $m->MachineName ?>" class="form-control focusedInput" id="machine_name_<?php echo $m->MachineID; ?>" name="machine_name_<?php echo $m->MachineID; ?>" placeholder="Machine name" aria-describedby="basic-addon1">
+			  		<label for="manufacturer_<?php echo $m->MachineID; ?>">Manufacturer</label>
+			  		<input type="text" value="<?php echo $m->Manufacturer ?>" class="form-control focusedInput" id="manufacturer_<?php echo $m->MachineID; ?>" name="manufacturer_<?php echo $m->MachineID; ?>" placeholder="Manufacturer" aria-describedby="basic-addon1">
+			  		<label for="model_<?php echo $m->MachineID; ?>">Model</label>
+			  		<input type="text" value="<?php echo $m->Model ?>" class="form-control focusedInput" id="model_<?php echo $m->MachineID; ?>" name="model_<?php echo $m->MachineID; ?>" placeholder="Model" aria-describedby="basic-addon1">
+			  		<label for="desc">Description:</label>
+					<textarea class="form-control" rows="5" id="desc_<?php echo $m->MachineID; ?>" name="desc_<?php echo $m->MachineID; ?>" ><?php echo $m->Description ?></textarea>
+					<div class="checkbox">
+			 			<label><input type="checkbox" id="needSupervision_<?php echo $m->MachineID; ?>" name="needSupervisor_<?php echo $m->MachineID; ?>" <?php if ($m->NeedSupervision == 1) {?> checked <?php } ?> value="yes">Need supervision</label>
+					</div>
+					<div class="btn-toolbar">
+						<button type="submit" class='btn btn-success' onclick="edit_machine(<?php echo $m->MachineID; ?>, <?php echo $m->MachineGroupID; ?>);">Save</button>
+						<button type="button" class='btn' data-dismiss="modal" onclick="$('#edit_machine_<?php echo $m->MachineID; ?>').modal('hide');" >Cancel</button>
+					</div>
+	      </div>
+	    </div>
+	
+	  </div>
+	</div>
 								</tr>
 							
 							<?php endforeach;?>
@@ -184,6 +221,45 @@
 							}
 						});
 					}
+				}
+				
+				function edit_machine(machine_id, old_machine_group_id)
+				{
+					$.ajax({
+						type: "POST",
+						dataType : 'json',
+						data: {
+							'machine_group_id' : $('#machine_group_id_' + machine_id.toString()).val(),
+							'machine_name' : $('#machine_name_' + machine_id.toString()).val(),
+							'manufacturer' : $('#manufacturer_' + machine_id.toString()).val(),
+							'model' : $('#model_' + machine_id.toString()).val(),
+							'description' : $('#desc_' + machine_id.toString()).val(),
+							'need_supervision': $('#needSupervision_' + machine_id.toString()).is(':checked')?'yes':''
+							},
+						url: "<?php echo base_url('admin/edit_machine'); ?>/" + machine_id,
+						success: function(data) {
+							// return success
+							if (data.result == true) 
+							{
+								//$('#machine_' + machine_id.toString()).fadeOut();
+								
+								$('#detail_manufacturer_' + machine_id.toString()).html($('#manufacturer_' + machine_id.toString()).val());
+								$('#detail_model_' + machine_id.toString()).html($('#model_' + machine_id.toString()).val());
+								$('#edit_machine_' + machine_id.toString()).modal('hide');
+								
+								if (old_machine_group_id!=$('#machine_group_id_' + machine_id.toString()).val())
+								{
+									machine_content = $('#machine_' + machine_id.toString()).html();
+									$('#machine_' + machine_id.toString()).remove();
+									$('#machine_in_group_' + $('#machine_group_id_' + machine_id.toString()).val().toString()).append(machine_content);
+								}
+							}
+							else
+							{
+								window.alert('Something wrong, cannot edit the machine!!!');
+							}
+						}
+					});
 				}
 				
 			</script>
