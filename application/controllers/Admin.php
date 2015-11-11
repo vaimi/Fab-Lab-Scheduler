@@ -82,7 +82,9 @@ class Admin extends CI_Controller
 		{
 			$tmp = array(
 					"MachineGroupID" => $mGroup->MachineGroupID,
-					"Name" => $mGroup->Name
+					"Name" => $mGroup->Name,
+					'active' => $mGroup->active,
+					'machines' => array()
 // 					"Description" => $mGroup->Description,
 // 					"NeedSupervision" => $mGroup->NeedSupervision
 			);
@@ -90,7 +92,7 @@ class Admin extends CI_Controller
 			{
 				if ($mGroup->MachineGroupID == $m->MachineGroupID) 
 				{
-					array_push($tmp,$m);
+					$tmp['machines'][] = $m;
 				}
 			}
 			array_push($results,$tmp);
@@ -1002,7 +1004,64 @@ class Admin extends CI_Controller
 				echo  $message = 'Ooops!  Your upload triggered the following error:  '.$_FILES['file']['error'];
 			}
 		}
-	} 
+	}
+	
+	public function change_activation_status_machine($machine_id)
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+			return;
+		}
+		$this->load->model('Machine_model');
+		$result = $this->Machine_model->change_activation_status($machine_id);
+		if ($result)
+			echo '{"result": true}';
+		else
+			echo '{"result": false}';
+	}
+	public function change_activation_status_machine_group($machine_group_id)
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+			return;
+		}
+		$this->load->model('MachineGroup_model');
+		$result = $this->MachineGroup_model->change_activation_status($machine_group_id);
+		if ($result)
+			echo '{"result": true}';
+		else
+			echo '{"result": false}';
+	}
+	public function delete_machine_group($machine_group_id)
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+			return;
+		}
+		$this->load->model('MachineGroup_model');
+		$result = $this->MachineGroup_model->delete_machine_group($machine_group_id);
+		if ($result)
+			echo '{"result": true}';
+		else
+			echo '{"result": false}';
+	}
+	public function delete_machine($machine_id)
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+			return;
+		}
+		$this->load->model('Machine_model');
+		$result = $this->Machine_model->delete_machine($machine_id);
+		if ($result)
+			echo '{"result": true}';
+		else
+			echo '{"result": false}';
+	}
 
 	// Helper functions
 
