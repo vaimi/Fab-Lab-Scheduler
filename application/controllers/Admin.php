@@ -918,6 +918,91 @@ class Admin extends CI_Controller
 			echo json_encode(array('success' => 0));
 		}
 	}
+	
+	public function send_emails()
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		if ($this->input->method() != 'post')
+		{
+			
+			$jdata = array();
+			$data = array('email_content' => '', 'email_subject' => '', 'action' => 'form');
+			$jdata['title'] = "Send emails to users";
+			$jdata['message'] = "This function allow admins to send emails to all registered users.";
+			$this->load->view('partials/jumbotron', $jdata);
+			$this->load->view('admin/send_emails', $data);
+			$this->load->view('partials/footer');
+			return;
+		}
+		else //post
+		{
+			$email_subject = $this->input->post('email_subject');
+			$email_content = $this->input->post('email_content');
+			$action = $this->input->post('action');
+			
+			$jdata = array();
+			$data = array('email_content' => $email_content, 'email_subject' => $email_subject, 'action' => $action);
+			$jdata['title'] = "Send emails to users";
+			$jdata['message'] = "This function allow admins to send emails to all registered users.";
+			$this->load->view('partials/jumbotron', $jdata);
+			$this->load->view('admin/send_emails', $data);
+			$this->load->view('partials/footer');
+			
+			if ($action == 'test')
+			{
+				$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+				$this->email->to($this->session->userdata('email'));
+				$this->email->subject($email_subject);
+				$this->email->message($email_content);
+				$this->email->send();
+			}
+			else if ($action == 'confirmed')
+			{
+				$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+				$this->email->subject($email_subject);
+				$this->email->message($email_content);
+				
+				
+				$this->load->model('User_model');
+				$users = $this->User_model->get_all_users();
+				foreach($users as $user)
+				{
+					$this->email->to($user['email']);
+					$this->email->send();
+				}
+			}
+			
+			return;
+		}
+	}
+	
+	public function post_image()
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+			return;
+		}
+		if ($_FILES['file']['name']) {
+			if (!$_FILES['file']['error']) {
+				$ext = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+				$filename = random_string('alnum', 50) . '.' . $ext;
+				$destination = 'assets/images/admin_uploads/' . $filename; //change this directory
+				$location = $_FILES["file"]["tmp_name"];
+				move_uploaded_file($location, $destination);
+				echo trim(base_url(). 'assets/images/admin_uploads/' . $filename);//change this URL
+			}
+			else
+			{
+				echo  $message = 'Ooops!  Your upload triggered the following error:  '.$_FILES['file']['error'];
+			}
+		}
+	} 
 
 	// Helper functions
 

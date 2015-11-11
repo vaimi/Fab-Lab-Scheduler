@@ -57,6 +57,9 @@
                 <li<?= set_active_nav('admin/moderate_users') ?>>
                   <?php echo anchor('admin/moderate_users', 'Users');?>
                 </li>
+                <li<?= set_active_nav('admin/send_emails') ?>>
+                  <?php echo anchor('admin/send_emails', 'Send email');?>
+                </li>
 
               </ul>
               <?php } ?>

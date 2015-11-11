@@ -127,5 +127,14 @@ class User_model extends CI_Model {
     		$this->db->update('extended_users_information', $extended_user_info);
     	}
     }
+    
+    function get_all_users()
+    {
+    	$sql = "select *
+    			from aauth_users a
+    			inner join extended_users_information b on a.id=b.id";
+    	$users = $this->db->query($sql)->result_array();
+    	return $users;
+    }
 
 }

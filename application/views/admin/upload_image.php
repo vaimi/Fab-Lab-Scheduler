@@ -5,13 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<script type="text/javascript" src="<?php echo base_url();?>assets/js/jquery-1.11.3.min.js"></script>
 		<script type="text/javascript" src="<?php echo base_url();?>assets/js/clipboard.min.js"></script>
-		<script>
-		$(document).ready(function() {
-			new Clipboard('.btn');
-		});
-			
 		
-		</script>
 		<title>Fab Lab Scheduler</title>
 	</head>
 	<body>
@@ -31,6 +25,14 @@
 		    Copy to clipboard
 		</button>
 		</p>
+		<script>
+		$(document).ready(function() {
+			var clipboard = new Clipboard('.btn');
+		    clipboard.on('success', function(e) {
+		        window.alert('Copied');
+		    });
+		});
+		</script>
 		<?php } ?>
 	</body>
 </html>
