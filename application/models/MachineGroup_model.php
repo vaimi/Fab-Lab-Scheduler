@@ -7,6 +7,17 @@ class MachineGroup_model extends CI_Model {
         parent::__construct();
     }
     
+    public function get_machine_group($machine_group_id)
+    {
+    	$this->db->select('*');
+    	$this->db->from('MachineGroup');
+    	$this->db->where('MachineGroupID', $machine_group_id);
+    	$result = $this->db->get()->result_array();
+    	if (count($result) == 0)
+    		return null;
+    	return $result[0];
+    }
+    
     public function change_activation_status($machine_group_id)
     {
     	$this->db->select('*');
@@ -44,7 +55,7 @@ class MachineGroup_model extends CI_Model {
     {
     	$this->db->select('*');
     	$this->db->from('MachineGroup as mc');
-    	$this->db->where('MachineGroupID', $machine_group_id);
+    	$this->db->where('MachineGroupID', $id);
     	$result = $this->db->get()->result_array();
     	if (count($result) == 0)
     		return false;

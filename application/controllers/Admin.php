@@ -1095,6 +1095,38 @@ class Admin extends CI_Controller
 			return;
 		}
 	}
+	
+	public function edit_machine_group($machine_group_id=0)
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
+		$this->load->model('MachineGroup_model');
+		$machine_group = $this->MachineGroup_model->get_machine_group($machine_group_id);
+		if ($machine_group == null)
+		{
+			redirect('404');
+			return;
+		}
+		
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		if ($this->input->method() != 'post')
+		{
+			$this->load->view('admin/edit_machine_group', array('machine_group' => $machine_group,'action'=>'show'));
+		}
+		else
+		{
+			$name = $this->input->post('name');
+			$description = $this->input->post('description');
+			$need_supervision = ($this->input->post('need_supervision') != '')?true:false;
+			$result = $this->MachineGroup_model->update_data($machine_group_id, $name, $description, $need_supervision);
+			$machine_group = $this->MachineGroup_model->get_machine_group($machine_group_id);
+			$this->load->view('admin/edit_machine_group', array('machine_group' => $machine_group,'action'=>'edit'));
+		}
+		$this->load->view('partials/footer');
+	}
 
 	// Helper functions
 

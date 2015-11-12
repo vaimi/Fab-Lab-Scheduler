@@ -19,7 +19,7 @@
 					<button type="button" class="noProp btn btn-info" name="<?php echo $mg['MachineGroupID']?>" data-toggle="modal" data-target="#createMachineModal" >
 						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New machine
 					</button>
-					<button type="button" class="btn btn-info">
+					<button type="button" class="btn btn-info" onclick="window.location='<?php echo base_url('admin/edit_machine_group/'.$mg['MachineGroupID']) ?>'">
 						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
 					</button>
 					<span id="activate_button_<?php echo $mg['MachineGroupID']; ?>">
