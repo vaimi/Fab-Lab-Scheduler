@@ -63,6 +63,8 @@
 		<legend>Search by calendar</legend>
 		<div id="calendar"></div>
 	</article>
+	
+	
 </div>
 <script>
 
@@ -100,10 +102,28 @@
 					$('#script-warning').show();
 				}
 			},
-			eventAfterRender : function( event, element, view ) { 
+			eventAfterRender : function( e, element, view ) { 
 // 				console.log(element);
-				console.log(event);
+				console.log(e);
 // 				console.log(view);
+				var sTime = moment(e.start._i).format("HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eTime = moment(e.end._i).format("HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var rModal = '<div>'+
+					'<h4>'+ e.id +'Available time: '+ sTime +' - '+ eTime +'</h4>'+
+				'<p>Reserve time between:</p>' +
+				'<div class="input-group bootstrap-timepicker timepicker">'+
+		           ' <input type="text" class=" input-small" data-provide="timepicker" data-minute-step="30"> -' +
+		        '</div>' +	
+				'<div class="input-group bootstrap-timepicker timepicker">'+
+		           ' <input type="text" class=" input-small" data-provide="timepicker" data-minute-step="30">' +
+		        '</div>' +	
+		        '<br>' +
+				'<div class="btn-group" role="group" aria-label="...">' +
+					'<button type="button" class="btn btn-primary">Reserve</button>' +
+					'<button type="button" class="btn btn-default">Cancel</button>' +
+				'</div>' +
+			'</div>';
+				var t = e.id + "<br>" + sTime  + "<br>" + eTime;
 				$(element).qtip({ // Grab some elements to apply the tooltip to
 					show: { 
 						effect: function() { $(this).slideDown(); },
@@ -115,7 +135,7 @@
 			        },
 				    content: {
 					    title: "Reservation",
-				        text: 'My common piece of text here',
+				        text: rModal,
 				        button: true
 				    },
 				    style: {
