@@ -102,7 +102,7 @@
 			},
 			eventAfterRender : function( event, element, view ) { 
 // 				console.log(element);
-// 				console.log(event);
+				console.log(event);
 // 				console.log(view);
 				$(element).qtip({ // Grab some elements to apply the tooltip to
 					show: { 
@@ -114,10 +114,14 @@
 			        	event: false
 			        },
 				    content: {
-				        text: 'My common piece of text here'
+					    title: "Reservation",
+				        text: 'My common piece of text here',
+				        button: true
+				    },
+				    style: {
+				        classes: 'qtip-bootstrap'
 				    }
 				});
-				console.log(element);
 			}
 			
 		});
