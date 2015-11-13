@@ -187,7 +187,7 @@ class Reservations extends CI_Controller
         		"resourceId" => "mac_" . $free_slot->machine,
         		"start" => date("Y-m-d H:i:s",$free_slot->start),
         		"end" => date("Y-m-d H:i:s",$free_slot->end),
-        		"title" => "Free " . date("g \h i \m",$free_slot->end - $free_slot->start),
+        		"title" => "Free " . date("G \h i \m",$free_slot->end - $free_slot->start),
         		"reserved" => 0
         	);
         }
