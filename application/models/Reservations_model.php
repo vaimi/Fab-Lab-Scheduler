@@ -15,7 +15,7 @@ class Reservations_model extends CI_Model {
 
     }
 
-    public function reservations_get_reserved_slots($start_time, $end_time, $machine) 
+    public function reservations_get_reserved_slots($start_time, $end_time, $machine="*") 
     {
         $sql = "SELECT * FROM Reservation WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                       EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? ORDER BY StartTime DESC";

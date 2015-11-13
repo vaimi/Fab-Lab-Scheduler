@@ -96,12 +96,17 @@
 				}
 			},
 
-			events: { // you can also specify a plain string like 'json/events.json'
-				url: '<?php echo base_url('reservations/reserve_get_reserved_slots')?>',
-				error: function() {
-					$('#script-warning').show();
-				}
-			},
+            eventSources: [
+            // your event source
+                {
+                    url: 'reserve_get_reserved_slots',
+                    color: "#f0ad4e"
+                },
+                {
+                    url: 'reserve_get_free_slots', 
+                    color: "#5cb85c"
+                }
+            ],
 			eventAfterRender : function( e, element, view ) { 
 // 				console.log(element);
 				console.log(e);

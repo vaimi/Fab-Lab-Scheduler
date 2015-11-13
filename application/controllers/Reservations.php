@@ -174,13 +174,45 @@ class Reservations extends CI_Controller
 		return $slot_array;
 		// return free slots as an array of objects. Note that these have to be still filtered based on user level.
 	}
+
+	public function reserve_get_free_slots() 
+	{
+		$start = $this->input->get('start');
+        $end = $this->input->get('end');
+        $free_slots = $this->calculate_free_slots($start, $end); //TODO these need to be still filtered (e.g. if there is no break with supervision session/multiple supervisors) + user level
+        $response = array();
+        foreach ($free_slots as $free_slot) 
+        {
+        	$response[] = array(
+        		"resourceId" => "mac_" . $free_slot->machine,
+        		"start" => date("Y-m-d H:i:s",$free_slot->start),
+        		"end" => date("Y-m-d H:i:s",$free_slot->end),
+        		"title" => "Free " . date("g \h i \m",$free_slot->end - $free_slot->start),
+        		"reserved" => 0
+        	);
+        }
+        $this->output->set_output(json_encode($response));
+
+	}
 	
-	public function reserve_get_reserved_slots() {
-		//TODO: Load these from db
+	public function reserve_get_reserved_slots() 
+	{
     	$start = $this->input->get('start');
         $end = $this->input->get('end');
 		//var_dump($this->calculate_free_slots($start, $end));
-		$response = array 
+		$reservations = $this->Reservations_model->reservations_get_reserved_slots($start, $end);
+		$response = array();
+		foreach ($reservations as $reservation) 
+		{
+			$response[] = array(
+				"resourceId" => "mac_" . $reservation->MachineGroupID,
+        		"start" => date("Y-m-d H:i:s", $reservation->StartTime),
+        		"end" => date("Y-m-d H:i:s", $$reservation->EndTime),
+        		"title" => "Reserved",
+        		"reserved" => 1
+			);
+		}		
+		/*$response = array 
 		(
 			array 
 			(
@@ -209,48 +241,13 @@ class Reservations extends CI_Controller
 				//"url" => "confirm/1/3",
 				"title" => "FREE"
 			)
-		);
+		);*/
 		$this->output->set_output(json_encode($response));
 	}
 
-	/*public function reserve_get_reserved_slots() {
-		//TODO: Load these from db
-		$response = array 
-		(
-			array 
-			(
-				"id" => "cat_1_1",
-				"resourceId" => "mac_1",
-				"start" => "2015-10-26T09:00:00",
-				"end" => "2015-10-26T10:00:00",
-				//"url" => "confirm/1/1",
-				"title" => "FREE"
-			),
-			array 
-			(
-				"id" => "cat_1_2",
-				"resourceId" => "mac_1",
-				"start" => "2015-10-26T10:00:00",
-				"end" => "2015-10-26T12:00:00",
-				"color" => "#f00",
-				"title" => "RESERVED"
-			),
-			array 
-			(
-				"id" => "cat_1_3",
-				"resourceId" => "mac_1",
-				"start" => "2015-10-26T12:00:00",
-				"end" => "2015-10-26T13:15:00",
-				//"url" => "confirm/1/3",
-				"title" => "FREE"
-			)
-		);
-		$this->output->set_output(json_encode($response));
-	}*/
-	
 	public function reserve_get_machines() {
-		//$response = $this->Reservations_model->reservations_get_machines();
-		$response = array 
+		$response = $this->Reservations_model->reservations_get_machines();
+		/*$response = array 
 		(
 			array 
 			(
@@ -270,7 +267,7 @@ class Reservations extends CI_Controller
 					)
 				)
 			)
-		);
+		);*/
 		$this->output->set_output(json_encode($response));
 	}
 }
