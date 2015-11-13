@@ -31,4 +31,46 @@ class Reservations_model extends CI_Model {
         $this->db->where('Level > 3');
         return $this->db->get();
     }
+
+    private function reservations_get_group_machines($group_id)
+    {
+        
+        $this->db->select('MachineID, Manufacturer, Model');
+        $this->db->from('Machine');
+        $this->db->where('active', 1);
+        $this->db->where('MachineGroupID', $group_id);
+        return $this->db->get();
+    }
+
+    public function reservations_get_machines()
+    {
+        $this->db->select('MachineGroupID, Name');
+        $this->db->from('MachineGroup');
+        $this->db->where('active', 1);
+        $groups = $this->db->get();
+        $response = array();
+        if ($groups->num_rows() > 0) {
+            foreach($groups->result() as $group)
+            {
+                $group_array = array(
+                    "id" => "cat_" . $group->MachineGroupID,
+                    "title" => $group->Name,
+                    "children" => array()
+                );
+                $machines = $this->reservations_get_group_machines($group->MachineGroupID);
+                if ($machines->num_rows() > 0)
+                {
+                    foreach($machines->result() as $machine)
+                    {
+                        $group_array['children'][] = array(
+                            "id" => "mac_" . $machine->MachineID,
+                            "title" => $machine->Manufacturer . " " . $machine->Model
+                        );
+                    }
+                    $response[] = $group_array;
+                }
+            }
+        }
+        return $response;
+    }
 }

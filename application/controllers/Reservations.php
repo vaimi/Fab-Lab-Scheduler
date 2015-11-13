@@ -4,6 +4,7 @@ class Reservations extends CI_Controller
 	public function __construct() {
 		parent::__construct();
 		$this->load->model("Reservations_model");
+		
 	}
 	
 	public function index() {
@@ -248,7 +249,7 @@ class Reservations extends CI_Controller
 	}*/
 	
 	public function reserve_get_machines() {
-		//TODO: Load these from db
+		//$response = $this->Reservations_model->reservations_get_machines();
 		$response = array 
 		(
 			array 
