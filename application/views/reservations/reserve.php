@@ -90,14 +90,14 @@
 			resourceLabelText: 'Machines',
 			defaultView: 'timelineDay',
 			resources: { // you can also specify a plain string like 'json/resources.json'
-				url: '<?php echo base_url('reservations/json_get_machines')?>',
+				url: '<?php echo base_url('reservations/reserve_get_machines')?>',
 				error: function() {
 					$('#script-warning').show();
 				}
 			},
 
 			events: { // you can also specify a plain string like 'json/events.json'
-				url: '<?php echo base_url('reservations/json_get_reservations')?>',
+				url: '<?php echo base_url('reservations/reserve_get_reserved_slots')?>',
 				error: function() {
 					$('#script-warning').show();
 				}
