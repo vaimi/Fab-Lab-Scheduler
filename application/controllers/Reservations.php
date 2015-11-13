@@ -72,8 +72,8 @@ class Reservations extends CI_Controller
 				{
 					// First slot
 					$first = array_pop($reserved);
-					$first->StartTime = strtotime('g:i a', $first->StartTime);
-					$first->EndTime = strtotime('g:i a', $first->EndTime);
+					$first->StartTime = strtotime($first->StartTime);
+					$first->EndTime = strtotime($first->EndTime);
 					if($supervision_session->date_StartTime > $first->StartTime)
 					{
 						if (count($reserved) > 0)
@@ -111,13 +111,15 @@ class Reservations extends CI_Controller
 						{
 							$slot->required = 3;
 						}
+						$slot_array[] = $slot;
+						$previous_end = $first->EndTime;
 					}
 					// Middle slots
 					while(count($reserved) > 0)
 					{
 						$reservation = array_pop($reserved);
-						$reservation->StartTime = strtotime('g:i a', $reservation->StartTime);
-						$reservation->EndTime = strtotime('g:i a', $reservation->EndTime);
+						$reservation->StartTime = strtotime($reservation->StartTime);
+						$reservation->EndTime = strtotime($reservation->EndTime);
 						$slot->machine = $supervisor_level->MachineID;
 						if($previous_end < $reservation->StartTime) 
 						{
@@ -133,6 +135,7 @@ class Reservations extends CI_Controller
 								$slot->required = 3;
 							}
 							$slot_array[] = $slot;
+							$previous_end = $reservation->EndTime;
 						}
 					}
 					// End slot
@@ -200,14 +203,14 @@ class Reservations extends CI_Controller
     	$start = $this->input->get('start');
         $end = $this->input->get('end');
 		//var_dump($this->calculate_free_slots($start, $end));
-		$reservations = $this->Reservations_model->reservations_get_reserved_slots($start, $end);
+		$reservations = $this->Reservations_model->reservations_get_all_reserved_slots($start, $end);
 		$response = array();
 		foreach ($reservations as $reservation) 
 		{
 			$response[] = array(
-				"resourceId" => "mac_" . $reservation->MachineGroupID,
-        		"start" => date("Y-m-d H:i:s", $reservation->StartTime),
-        		"end" => date("Y-m-d H:i:s", $$reservation->EndTime),
+				"resourceId" => "mac_" . $reservation->MachineID,
+        		"start" => $reservation->StartTime,
+        		"end" => $reservation->EndTime,
         		"title" => "Reserved",
         		"reserved" => 1
 			);

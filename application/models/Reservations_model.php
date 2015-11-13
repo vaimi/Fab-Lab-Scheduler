@@ -15,11 +15,20 @@ class Reservations_model extends CI_Model {
 
     }
 
-    public function reservations_get_reserved_slots($start_time, $end_time, $machine="*") 
+    public function reservations_get_reserved_slots($start_time, $end_time, $machine) 
     {
         $sql = "SELECT * FROM Reservation WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                       EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? ORDER BY StartTime DESC";
         $response = $this->db->query($sql, array($start_time, $end_time, $machine));
+        return $response->result();
+    }
+
+
+    public function reservations_get_all_reserved_slots($start_time, $end_time) 
+    {
+        $sql = "SELECT * FROM Reservation WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
+                      EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
+        $response = $this->db->query($sql, array($start_time, $end_time));
         return $response->result();
     }
 
