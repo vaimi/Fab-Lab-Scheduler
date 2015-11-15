@@ -4,7 +4,7 @@ class Reservations extends CI_Controller
 	public function __construct() {
 		parent::__construct();
 		$this->load->model("Reservations_model");
-		
+		$this->load->library('form_validation');
 	}
 	
 	public function index() {
@@ -126,6 +126,7 @@ class Reservations extends CI_Controller
 							$slot = new stdClass();
 							$slot->start = $previous_end;
 							$slot->end = $reservation->StartTime;
+							$slot->machine = $supervisor_level->MachineID;
 							if ($supervisor_level->Level == 5)
 							{
 								$slot->required = 0;
@@ -183,7 +184,7 @@ class Reservations extends CI_Controller
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
         $free_slots = $this->calculate_free_slots($start, $end); //TODO these need to be still filtered (e.g. if there is no break with supervision session/multiple supervisors) + user level
-        $response = array();
+	    $response = array();
         foreach ($free_slots as $free_slot) 
         {
         	$response[] = array(
@@ -272,5 +273,49 @@ class Reservations extends CI_Controller
 			)
 		);*/
 		$this->output->set_output(json_encode($response));
+	}
+	public function reserve_time() {
+		
+		$this->form_validation->set_rules('sDate', 'Start Date', 'required|regex_match[(\d{4}-\d{2}-\d{2})]');
+		$this->form_validation->set_rules('eDate', 'End Date', 'required|regex_match[(\d{4}-\d{2}-\d{2})]');
+		$this->form_validation->set_rules('rStartTime', 'Reserve Start Date', 'required|regex_match[(\d{2}:\d{2})]');
+		$this->form_validation->set_rules('rEndTime', 'Reserve End Date', 'required|regex_match[(\d{2}:\d{2})]');
+		
+		if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo validation_errors();
+			die();
+		}
+		else
+		{
+			$m_id = $this->input->post('mac_id');
+			$m_id = str_replace("mac_", "", $m_id);
+			$start_date = $this->input->post('sDate');
+			$end_date = $this->input->post('eDate');
+			$start_time = $this->input->post('rStartTime');
+			$end_time = $this->input->post('rEndTime');
+			echo $m_id . " " .  $start_time . " " . $end_time . " " . $start_date ." ". $end_date;
+			$start_time = new DateTime($start_date . " " . $start_time);
+			$end_time = new DateTime($end_date . " " . $end_time);
+			$start_modulo = $start_time->format('i') % 30;
+			$end_modulo = $end_time->format('i') % 30;
+			if ($start_time >= $end_time || $start_modulo != 0 || $end_modulo != 0) {
+				echo "Error (time does not match or start time bigger than end time)";
+				die();
+			}
+			$data = array(
+					'MachineID' => $m_id,
+					'aauth_usersID' => $this->session->userdata('id'),
+					'StartTime' => $start_time->format('Y-m-d H:i:s'),
+					'EndTime' => $end_time->format('Y-m-d H:i:s'),
+					'QRCode' => "dunno about this",
+					'PassCode' => "dunno about this"
+			);
+			//Should check overlapping between other reservations
+			$this->Reservations_model->set_new_reservation($data);
+			redirect("Reservations/reserve", "refresh");
+		}
+
 	}
 }

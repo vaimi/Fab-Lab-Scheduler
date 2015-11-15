@@ -82,4 +82,7 @@ class Reservations_model extends CI_Model {
         }
         return $response;
     }
+    public function set_new_reservation($data) {
+    	$this->db->insert('Reservation', $data);
+    }
 }

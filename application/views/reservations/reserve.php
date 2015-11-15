@@ -70,7 +70,7 @@
 
 	$(function() { // document ready
 		$("#datepicker").datepicker();
-
+        
 		$("#dp_btn").click( function() {
 			$( "#datepicker" ).datepicker( "show" );
 		});
@@ -108,27 +108,31 @@
                 }
             ],
 			eventAfterRender : function( e, element, view ) { 
-// 				console.log(element);
+				console.log(element);
 				console.log(e);
+				if (e.reserved == 1) return; 
 // 				console.log(view);
 				var sTime = moment(e.start._i).format("HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				var eTime = moment(e.end._i).format("HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var url = '<?php echo base_url(); ?>';
 				var rModal = '<div>'+
-					'<h4>'+ e.id +'Available time: '+ sTime +' - '+ eTime +'</h4>'+
+					'<h4>'+ e.resourceId +'Available time: '+ sTime +' - '+ eTime +'</h4>'+
 				'<p>Reserve time between:</p>' +
-				'<div class="input-group bootstrap-timepicker timepicker">'+
-		           ' <input type="text" class=" input-small" data-provide="timepicker" data-minute-step="30"> -' +
-		        '</div>' +	
-				'<div class="input-group bootstrap-timepicker timepicker">'+
-		           ' <input type="text" class=" input-small" data-provide="timepicker" data-minute-step="30">' +
-		        '</div>' +	
-		        '<br>' +
-				'<div class="btn-group" role="group" aria-label="...">' +
-					'<button type="button" class="btn btn-primary">Reserve</button>' +
-					'<button type="button" class="btn btn-default">Cancel</button>' +
-				'</div>' +
-			'</div>';
-				var t = e.id + "<br>" + sTime  + "<br>" + eTime;
+				'<form class="form-inline" method="post" action="' + url + 'reservations/reserve_time">' +
+					'<div>' + 
+						'<input type="hidden" name="mac_id" value="' + e.resourceId + '" />' +
+						'<input type="hidden" name="sDate" value="' + moment(e.start._i).format("YYYY-MM-DD") + '" />' +
+						'<input type="hidden" name="eDate" value="' + moment(e.start._i).format("YYYY-MM-DD") + '" />' +
+						'<input type="text" class="form-control" name="rStartTime" id=\'' + e.resourceId + '_start\' /> -' +
+						'<input type="text" class="form-control" name="rEndTime" id=\'' + e.resourceId + '_end\' />' +
+					'</div>' +
+					'<br>' +
+					'<div class="btn-group" role="group" aria-label="...">' +
+						'<button type="submit" action="" class="btn btn-primary" >Reserve</button>' +
+						'<button type="button" class="btn btn-default">Cancel</button>' +
+					'</div>' +
+				'</form>';
+
 				$(element).qtip({ // Grab some elements to apply the tooltip to
 					show: { 
 						effect: function() { $(this).slideDown(); },
@@ -138,6 +142,7 @@
 			        hide: { 
 			        	event: false
 			        },
+			        
 				    content: {
 					    title: "Reservation",
 				        text: rModal,
@@ -150,7 +155,6 @@
 			}
 			
 		});
-		
 	});
 
 </script>

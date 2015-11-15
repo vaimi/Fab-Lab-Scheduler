@@ -555,12 +555,7 @@ class Admin extends CI_Controller
     		$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
     		$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
     		$this->form_validation->set_rules('copyStartDate', 'Copy Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-    		
-    		$startDate = $this->input->post("startDate");
-    		$endDate = $this->input->post("endDate");
-    		$copyStartDate = $this->input->post("copyStartDate");
-    		
-    		
+
     		if ($this->form_validation->run() == FALSE)
     		{
     			//echo errors.
@@ -569,6 +564,9 @@ class Admin extends CI_Controller
     		}
     		else 
     		{
+    			$startDate = $this->input->post("startDate");
+    			$endDate = $this->input->post("endDate");
+    			$copyStartDate = $this->input->post("copyStartDate");
     			$info = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
     			echo json_encode(array("affected rows" => count($info), "info" => $info ));
     		}
