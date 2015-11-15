@@ -117,7 +117,7 @@
 				var url = '<?php echo base_url(); ?>';
 				var rModal = '<div>'+
 					'<h4>'+ e.resourceId +'Available time: '+ sTime +' - '+ eTime +'</h4>'+
-				'<p>Reserve time between:</p>' +
+				'<p>Reserve time between (HH:MM):</p>' +
 				'<form class="form-inline" method="post" action="' + url + 'reservations/reserve_time">' +
 					'<div>' + 
 						'<input type="hidden" name="mac_id" value="' + e.resourceId + '" />' +
