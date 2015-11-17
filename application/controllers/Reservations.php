@@ -202,7 +202,7 @@ class Reservations extends CI_Controller
 					$supervisor_level = $supervisor_level->row();
 					// Pass if we don't have sufficien level
 					if ($supervisor_level == null) {
-						continue 2;
+						continue;
 					}
 					// Get reservations
 					$reservations = $this->Reservations_model->reservations_get_reserved_slots($supervision_session->StartTime, $supervision_session->EndTime, $machine->MachineID);

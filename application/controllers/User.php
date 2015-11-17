@@ -256,6 +256,18 @@ class User extends CI_Controller
 		$texts = $this->Message_model->get_conversation($this->session->userdata('id'), $other_user_id);
 		$this->load->view('user/message_content', array('texts' => $texts));
 	}
+	
+	public function get_reservations()
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+		//Contains info about machines and levels.
+		$data['results'] = $this->User_model->get_reservations($this->session->userdata('id'));
+		$this->load->view('user/reservations_list', $data);
+	}
 	// Helpers 
 
 	private function verify_registration_data($post_data)
