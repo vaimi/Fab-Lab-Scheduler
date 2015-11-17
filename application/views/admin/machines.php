@@ -3,121 +3,126 @@
 	<?php echo '<a type="button" class="btn btn-primary" href=' . base_url('admin/create_machine_group') . '>'?>
 	  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New category
 	</a>
-	
-	<table class="table table-hover machine_table">
-		<thead>
-			<th>CID</th><th>Category name</th><th>Tools</th>
-		</thead>
-		
-		<tbody>
-			<?php foreach ($machineGroups as $mg):?>
-			<tr id="machine_group_<?php echo $mg['MachineGroupID']; ?>" data-toggle="collapse" data-target="#accordion_<?php echo $mg['MachineGroupID']?>" class="clickable">
-				<td><?php echo $mg['MachineGroupID']?></td>
-				
-				<td><?php echo $mg['Name'];?></td>
-				<td class="m_buttons">
-					<button type="button" class="noProp btn btn-info" name="<?php echo $mg['MachineGroupID']?>" data-toggle="modal" data-target="#createMachineModal" >
-						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New machine
-					</button>
-					<button type="button" class="btn btn-info" onclick="window.location='<?php echo base_url('admin/edit_machine_group/'.$mg['MachineGroupID']) ?>'">
-						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
-					</button>
-					<span id="activate_button_<?php echo $mg['MachineGroupID']; ?>">
-					<?php if ($mg['active'] == 0) {?>
-					<button type="button" class="btn btn-success" onclick="activate_deactivate_machine_group(<?php echo $mg['MachineGroupID']; ?>, false);">
-						<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Activate
-					</button>
-					<?php } else { ?>
-					<button type="button" class="btn btn-warning" onclick="activate_deactivate_machine_group(<?php echo $mg['MachineGroupID']; ?>, true);">
-						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Deactivate
-					</button>
-					<?php }?>
-					</span>
-					<button type="button" class="btn btn-danger" onclick="delete_machine_group(<?php echo $mg['MachineGroupID']; ?>, '<?php echo $mg['Name']; ?>');">
-						<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
-					</button>
-					
-				</td>
-			</tr>
-			<tr >
-				<td colspan="3">
-					<div id="accordion_<?php echo $mg['MachineGroupID'];?>" class="collapse">
-						<table class="table table-hover machine_table">
-							<thead>
-								<th>MID</th><th>Manufacturer</th><th>Model</th><th>Tools</th>
-							</thead>
-							<tbody id="machine_in_group_<?php echo $mg['MachineGroupID'];?>">
-							<?php foreach ($mg['machines'] as $m):?>
-								<tr id="machine_<?php echo $m->MachineID ?>">
-									<td><?php echo $m->MachineID ?></td>
-									<td id="detail_manufacturer_<?php echo $m->MachineID ?>"><?php echo $m->Manufacturer ?></td>
-									<td id="detail_model_<?php echo $m->MachineID ?>"><?php echo $m->Model ?></td>
-									<td>
-										<button type="button" class="btn btn-info" onclick="$('#edit_machine_<?php echo $m->MachineID; ?>').modal('show');">
-											<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
-										</button>
-										<span id="activate_machine_button_<?php echo $m->MachineID; ?>">
-											<?php if ($m->active == 0) {?>
-											<button type="button" class="btn btn-success" onclick="activate_deactivate_machine(<?php echo $m->MachineID; ?>, false);">
-												<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Activate
-											</button>
-											<?php } else { ?>
-											<button type="button" class="btn btn-warning" onclick="activate_deactivate_machine(<?php echo $m->MachineID; ?>, true);">
-												<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Deactivate
-											</button>
-											<?php }?>
-										</span>
-										<button type="button" class="btn btn-danger" onclick="delete_machine(<?php echo $m->MachineID; ?>, '<?php echo $m->Manufacturer ?>', '<?php echo $m->Model ?>');">
-											<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
-										</button>
-									</td>
-									<div id="edit_machine_<?php echo $m->MachineID; ?>" class="modal fade" role="dialog">
-	  <div class="modal-dialog">
-	
-	    <!-- Modal content-->
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal">&times;</button>
-	        <h4 class="modal-title">Edit Machine</h4>
-	      </div>
-	      <div class="modal-body">
-		  	
 
-					<label for="machine_group_id_<?php echo $m->MachineID; ?>">Machine group</label>
-					<select id="machine_group_id_<?php echo $m->MachineID; ?>" class="form-control">
-					<?php foreach ($machine_groups as $mg) {?>
-						<option <?php if ($mg->MachineGroupID == $m->MachineGroupID) {?> selected <?php } ?> value="<?php echo $mg->MachineGroupID; ?>"><?php echo $mg->Name; ?></option>
-					<?php }?>
-					</select>
-					<label for="machine_name_<?php echo $m->MachineID; ?>">Name</label>
-			  		<input type="text" value="<?php echo $m->MachineName ?>" class="form-control focusedInput" id="machine_name_<?php echo $m->MachineID; ?>" name="machine_name_<?php echo $m->MachineID; ?>" placeholder="Machine name" aria-describedby="basic-addon1">
-			  		<label for="manufacturer_<?php echo $m->MachineID; ?>">Manufacturer</label>
-			  		<input type="text" value="<?php echo $m->Manufacturer ?>" class="form-control focusedInput" id="manufacturer_<?php echo $m->MachineID; ?>" name="manufacturer_<?php echo $m->MachineID; ?>" placeholder="Manufacturer" aria-describedby="basic-addon1">
-			  		<label for="model_<?php echo $m->MachineID; ?>">Model</label>
-			  		<input type="text" value="<?php echo $m->Model ?>" class="form-control focusedInput" id="model_<?php echo $m->MachineID; ?>" name="model_<?php echo $m->MachineID; ?>" placeholder="Model" aria-describedby="basic-addon1">
-			  		<label for="desc">Description:</label>
-					<textarea class="form-control" rows="5" id="desc_<?php echo $m->MachineID; ?>" name="desc_<?php echo $m->MachineID; ?>" ><?php echo $m->Description ?></textarea>
-					<div class="checkbox">
-			 			<label><input type="checkbox" id="needSupervision_<?php echo $m->MachineID; ?>" name="needSupervisor_<?php echo $m->MachineID; ?>" <?php if ($m->NeedSupervision == 1) {?> checked <?php } ?> value="yes">Need supervision</label>
+	<div class="panel-group" id="accordion" role="tablist">
+		<?php foreach($machineGroups as $mg): ?>
+			<div id="machine_group_<?=$mg['MachineGroupID']?>" class="panel panel-info">
+				<div class="panel-heading" role="tab" id="heading_c<?=$mg['MachineGroupID']?>">
+					<h4 class="panel-title pull-left">
+						<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_<?=$mg['MachineGroupID']?>">
+							<?=$mg['MachineGroupID']?> <?=$mg['Name']?> 
+						</a>
+					</h4>
+					<div class="pull-right m_buttons">
+						<!-- Buttons on category -->
+						<a type="button" class="noProp btn btn-info" name="<?=$mg['MachineGroupID']?>" data-toggle="modal" data-target="#createMachineModal" >
+							<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New machine
+						</a>
+						<a type="button" class="btn btn-info" onclick="window.location='<?=base_url('admin/edit_machine_group/'.$mg['MachineGroupID']) ?>'">
+							<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
+						</a>
+							<span id="activate_button_<?php echo $mg['MachineGroupID']; ?>">
+						<?php if ($mg['active'] == 0) {?>
+						<a type="button" class="btn btn-success" onclick="activate_deactivate_machine_group(<?=$mg['MachineGroupID']; ?>, false);">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Activate
+						</a>
+						<?php } else { ?>
+						<a type="button" class="btn btn-warning" onclick="activate_deactivate_machine_group(<?=$mg['MachineGroupID']; ?>, true);">
+							<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Deactivate
+						</a>
+						<?php }?>
+						</span>
+						<a type="button" class="btn btn-danger" onclick="delete_machine_group(<?=$mg['MachineGroupID']; ?>, '<?=$mg['Name']; ?>');">
+							<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+						</a>
 					</div>
-					<div class="btn-toolbar">
-						<button type="submit" class='btn btn-success' onclick="edit_machine(<?php echo $m->MachineID; ?>, <?php echo $m->MachineGroupID; ?>);">Save</button>
-						<button type="button" class='btn' data-dismiss="modal" onclick="$('#edit_machine_<?php echo $m->MachineID; ?>').modal('hide');" >Cancel</button>
-					</div>
-	      </div>
-	    </div>
-	
-	  </div>
-	</div>
+					<div class="clearfix"></div>
+				</div>
+				<div id="collapse_<?=$mg['MachineGroupID']?>" class="panel-collapse collapse" role="tabpanel">
+					<table class="table table-hover machine_table table-striped" id="m_table_<?=$mg['MachineGroupID']?>">
+						<thead>
+							<tr>
+								<th>MID</th>
+								<th>Manufacturer & Model</th>
+								<th>Tools</th>
+							</tr>
+						</thead>
+						<tbody id="machine_in_group_<?$mg['MachineGroupID'];?>">
+							<?php foreach($mg['machines'] as $m):?>
+								<tr id="machine_<?=$m->MachineID?>">
+									<td><?=$m->MachineID?></td>
+									<td><?=$m->Manufacturer?> <?=$m->Model?></td>
+									<td>
+										<!-- Machine tools -->
+										<div>
+											<a type="button" class="btn btn-info" onclick="$('#edit_machine_<?=$m->MachineID; ?>').modal('show');">
+												<span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Edit
+											</a>
+											<span id="activate_machine_button_<?=$m->MachineID; ?>">
+												<?php if ($m->active == 0) {?>
+												<a type="button" class="btn btn-success" onclick="activate_deactivate_machine(<?=$m->MachineID; ?>, false);">
+													<span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Activate
+												</a>
+												<?php } else { ?>
+												<a type="button" class="btn btn-warning" onclick="activate_deactivate_machine(<?=$m->MachineID; ?>, true);">
+													<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Deactivate
+												</a>
+												<?php }?>
+											</span>
+											<a type="button" class="btn btn-danger" onclick="delete_machine(<?=$m->MachineID; ?>, '<?=$m->Manufacturer ?>', '<?=$m->Model ?>');">
+												<span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete
+											</a>
+										</div>
+										<div id="edit_machine_<?=$m->MachineID; ?>" class="modal fade" role="dialog">
+											<div class="modal-dialog">
+		
+										    <!-- Modal content-->
+										    <div class="modal-content">
+										      <div class="modal-header">
+										        <button type="button" class="close" data-dismiss="modal">&times;</button>
+										        <h4 class="modal-title">Edit Machine</h4>
+										      </div>
+										      <div class="modal-body">
+											  	
+
+														<label for="machine_group_id_<?php echo $m->MachineID; ?>">Machine group</label>
+														<select id="machine_group_id_<?php echo $m->MachineID; ?>" class="form-control">
+														<?php foreach ($machine_groups as $mg) {?>
+															<option <?php if ($mg->MachineGroupID == $m->MachineGroupID) {?> selected <?php } ?> value="<?php echo $mg->MachineGroupID; ?>"><?php echo $mg->Name; ?></option>
+														<?php }?>
+														</select>
+														<label for="machine_name_<?php echo $m->MachineID; ?>">Name</label>
+												  		<input type="text" value="<?php echo $m->MachineName ?>" class="form-control focusedInput" id="machine_name_<?php echo $m->MachineID; ?>" name="machine_name_<?php echo $m->MachineID; ?>" placeholder="Machine name" aria-describedby="basic-addon1">
+												  		<label for="manufacturer_<?php echo $m->MachineID; ?>">Manufacturer</label>
+												  		<input type="text" value="<?php echo $m->Manufacturer ?>" class="form-control focusedInput" id="manufacturer_<?php echo $m->MachineID; ?>" name="manufacturer_<?php echo $m->MachineID; ?>" placeholder="Manufacturer" aria-describedby="basic-addon1">
+												  		<label for="model_<?php echo $m->MachineID; ?>">Model</label>
+												  		<input type="text" value="<?php echo $m->Model ?>" class="form-control focusedInput" id="model_<?php echo $m->MachineID; ?>" name="model_<?php echo $m->MachineID; ?>" placeholder="Model" aria-describedby="basic-addon1">
+												  		<label for="desc">Description:</label>
+														<textarea class="form-control" rows="5" id="desc_<?php echo $m->MachineID; ?>" name="desc_<?php echo $m->MachineID; ?>" ><?php echo $m->Description ?></textarea>
+														<div class="checkbox">
+												 			<label><input type="checkbox" id="needSupervision_<?php echo $m->MachineID; ?>" name="needSupervisor_<?php echo $m->MachineID; ?>" <?php if ($m->NeedSupervision == 1) {?> checked <?php } ?> value="yes">Need supervision</label>
+														</div>
+														<div class="btn-toolbar">
+															<button type="submit" class='btn btn-success' onclick="edit_machine(<?php echo $m->MachineID; ?>, <?php echo $m->MachineGroupID; ?>);">Save</button>
+															<button type="button" class='btn' data-dismiss="modal" onclick="$('#edit_machine_<?php echo $m->MachineID; ?>').modal('hide');" >Cancel</button>
+														</div>
+										      </div>
+										    </div>
+										
+										  </div>
+										</div>
+									</td>
 								</tr>
-							
-							<?php endforeach;?>
-							</tbody>
-						</table>
-					</div>
-				</td>
-			</tr>
-			<?php endforeach;?>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		<?php endforeach; ?>
+	</div>
+</div>
+	
+	
 			<script>
 				$(".m_buttons").click(function(event){
 					console.log(event);
@@ -263,6 +268,3 @@
 				}
 				
 			</script>
-		</tbody>
-	</table>
-</div>
