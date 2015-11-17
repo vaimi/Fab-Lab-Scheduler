@@ -2,7 +2,11 @@
 <link rel="stylesheet" type="text/css"  href="<?php echo asset_url() . "css/jquery.qtip.min.css"; ?>" />
 <script src="<?php echo asset_url() . "js/jquery.qtip.min.js"; ?>"  ></script>
 
+<style>
+    .bootstrap-datetimepicker-widget{ z-index:1151 !important; position: relative; }
+</style>
 <div class="container">
+	<h4>Available quota: <?php echo $quota;?></h4>
 	<article>
 		<legend>Search by form</legend>
 		<form class="form-horizontal">
@@ -108,28 +112,31 @@
                 }
             ],
 			eventAfterRender : function( e, element, view ) { 
-				console.log(element);
-				console.log(e);
+// 				console.log(element);
+// 				console.log(e);
 				if (e.reserved == 1) return; 
 // 				console.log(view);
 				var sTime = moment(e.start._i).format("HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				var eTime = moment(e.end._i).format("HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				var url = '<?php echo base_url(); ?>';
 				var rModal = '<div>'+
-					'<h4>'+ e.resourceId +'Available time: '+ sTime +' - '+ eTime +'</h4>'+
+				//	'<h4>'+ e.resourceId +'Available time: '+ sTime +' - '+ eTime +'</h4>'+
+				'<h4>Available time: '+ sTime +' - '+ eTime +'</h4>'+
+				'<h4>Available quota: ' + <?php echo $quota ?> + '</h4>'+
 				'<p>Reserve time between (HH:MM):</p>' +
-				'<form class="form-inline" method="post" action="' + url + 'reservations/reserve_time">' +
+				'<form class="" method="post" action="' + url + 'reservations/reserve_time">' +
 					'<div>' + 
 						'<input type="hidden" name="mac_id" value="' + e.resourceId + '" />' +
 						'<input type="hidden" name="sDate" value="' + moment(e.start._i).format("YYYY-MM-DD") + '" />' +
 						'<input type="hidden" name="eDate" value="' + moment(e.start._i).format("YYYY-MM-DD") + '" />' +
 						'<input type="text" class="form-control" name="rStartTime" id=\'' + e.resourceId + '_start\' /> -' +
 						'<input type="text" class="form-control" name="rEndTime" id=\'' + e.resourceId + '_end\' />' +
+					//	'<h4>Left quota after reservation: ' + <?php //echo $quota ?> + '</h4>' +
 					'</div>' +
 					'<br>' +
 					'<div class="btn-group" role="group" aria-label="...">' +
 						'<button type="submit" action="" class="btn btn-primary" >Reserve</button>' +
-						'<button type="button" class="btn btn-default">Cancel</button>' +
+					//	'<button type="button" class="btn btn-default">Cancel</button>' +
 					'</div>' +
 				'</form>';
 
@@ -142,19 +149,43 @@
 			        hide: { 
 			        	event: false
 			        },
-			        
+			        position : {
+			        	at: 'center center'
+				    },
 				    content: {
 					    title: "Reservation",
 				        text: rModal,
 				        button: true
 				    },
 				    style: {
-				        classes: 'qtip-bootstrap'
-				    }
+				        classes: 'qtip-bootstrap',
+				        width: 'auto',
+					    height: 'auto'
+				        
+				    },
+				    events: {
+				    	visible: function (event, api) {
+							// get input texts in the qtip.
+					    	$(api.elements.content[0].children[0]).find("input[type='text']").each(function () {
+// 					    		console.log($(this).parent());
+						    	$(this).datetimepicker( { 
+							    	format : "HH:mm", 
+							    	stepping : 30,
+							    	widgetPositioning: {
+										horizontal: "left",
+										vertical: "top"
+								    },
+							    	widgetParent: $(this).parent().parent().parent().parent(),
+							    	//debug:true
+							    	});
+					    	});
+					    	
+				    	}
+					}  
 				});
-			}
+			} //eventAfterRender
 			
-		});
-	});
+		});//fullcalendar
+	});//$function
 
 </script>

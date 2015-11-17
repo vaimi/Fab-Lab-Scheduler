@@ -42,6 +42,8 @@ class Reservations extends CI_Controller
 		//Load available machines
 		$this->load->model("Admin_model"); //TODO things relying from this should use functions from Reservation_model
 		$machines = $this->Admin_model->get_machines();
+		//Load available quota.
+		$data['quota'] = $this->session->userdata('quota');
 		$data['machines'] = $machines->result();
 		$this->load->view('reservations/reserve',$data);
 		$this->load->view('partials/footer');
@@ -312,7 +314,8 @@ class Reservations extends CI_Controller
 					'QRCode' => "dunno about this",
 					'PassCode' => "dunno about this"
 			);
-			//Should check overlapping between other reservations
+			// TODO Should check overlapping between other reservations
+			// TODO Should check quota
 			$this->Reservations_model->set_new_reservation($data);
 			redirect("Reservations/reserve", "refresh");
 		}
