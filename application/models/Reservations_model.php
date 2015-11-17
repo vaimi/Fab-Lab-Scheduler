@@ -17,9 +17,9 @@ class Reservations_model extends CI_Model {
 
     public function reservations_get_reserved_slots($start_time, $end_time, $machine) 
     {
-        $sql = "SELECT * FROM Reservation WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
-                      EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? ORDER BY StartTime DESC";
-        $response = $this->db->query($sql, array($start_time, $end_time, $machine));
+        $sql = "SELECT * FROM Reservation WHERE StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
+                      EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? ORDER BY StartTime ASC";
+        $response = $this->db->query($sql, array($end_time, $start_time, $machine));
         return $response->result();
     }
 
@@ -32,22 +32,25 @@ class Reservations_model extends CI_Model {
         return $response->result();
     }
 
-    public function reservations_get_supervisor_levels($supervisor_id)
+    public function reservations_get_supervisor_levels($supervisor_id, $machine_id=false)
     {
         $this->db->select('*');
         $this->db->from('UserLevel');
         $this->db->where('Aauth_usersID', $supervisor_id);
         $this->db->where('Level > 3');
+        if ($machine_id) {$this->db->where('MachineID', $machine_id);};
         return $this->db->get();
     }
 
-    private function reservations_get_group_machines($group_id)
+    public function reservations_get_group_machines($group_id=false)
     {
         
-        $this->db->select('MachineID, Manufacturer, Model');
+        $this->db->select('MachineID, Manufacturer, Model, NeedSupervision');
         $this->db->from('Machine');
         $this->db->where('active', 1);
-        $this->db->where('MachineGroupID', $group_id);
+        if ($group_id) {
+            $this->db->where('MachineGroupID', $group_id);
+        }
         return $this->db->get();
     }
 

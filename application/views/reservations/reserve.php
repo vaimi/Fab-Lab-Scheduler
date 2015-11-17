@@ -80,6 +80,7 @@
 		});
 
 		$('#calendar').fullCalendar({
+			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			now: '2015-10-26',
 			editable: false, // enable draggable events
 			allDaySlot: false,

@@ -51,7 +51,7 @@ class Reservations extends CI_Controller
 
 	// TODO case of non-supervised machines
 	// TODO min session lenght
-	private function calculate_free_slots($start, $end) {
+	private function calculate_free_slots_old($start, $end) {
 		// Empty array for slots
 		$slot_array = array();
 		// Get supervision session between the time constraint
@@ -181,21 +181,114 @@ class Reservations extends CI_Controller
 		// return free slots as an array of objects. Note that these have to be still filtered based on user level.
 	}
 
+	// TODO case of non-supervised machines
+	// TODO min session lenght
+	private function calculate_free_slots($start, $end) {
+		$free_slots = array();
+		$machines = $this->Reservations_model->reservations_get_group_machines();
+		foreach($machines->result() as $machine)
+		{
+			if (true)
+			{
+				// Machines that require always supervison
+				$supervision_sessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
+				// Loop through all supervision sessions
+				foreach($supervision_sessions->result() as $supervision_session)
+				{
+					$supervision_session->date_StartTime = strtotime($supervision_session->StartTime);
+					$supervision_session->date_EndTime = strtotime($supervision_session->EndTime);
+					// Get supervisor machine level
+					$supervisor_level = $this->Reservations_model->reservations_get_supervisor_levels($supervision_session->aauth_usersID, $machine->MachineID);
+					$supervisor_level = $supervisor_level->row();
+					// Pass if we don't have sufficien level
+					if ($supervisor_level == null) {
+						continue 2;
+					}
+					// Get reservations
+					$reservations = $this->Reservations_model->reservations_get_reserved_slots($supervision_session->StartTime, $supervision_session->EndTime, $machine->MachineID);
+					// Make array for breakpoints
+					$breakpoints = array(); 
+					if (count($reservations) != 0) 
+					{
+						foreach($reservations as $reservation) 
+						{
+							$breakpoints[] = strtotime($reservation->StartTime);
+							$breakpoints[] = strtotime($reservation->EndTime);
+						}
+					}
+					// Cleanup breakpoints
+					if (count($breakpoints) > 0) 
+					{
+						// check whether the first breakpoint is somewhere later in the supervision session
+						if ($breakpoints[0] > $supervision_session->date_StartTime)
+						{
+							 array_unshift($breakpoints, $supervision_session->date_StartTime); 
+						}
+						else
+						{
+							array_shift($breakpoints);
+						}
+						// check whether the last fbreakpoint is before end of the supervision session
+						if (end($breakpoints) <= $supervision_session->date_EndTime)
+						{
+							 $breakpoints[] = $supervision_session->date_EndTime; 
+						}
+						else
+						{
+							array_pop($breakpoints);
+						}
+						// remove breakpoints without break between
+						$breakpoints_dub = array_diff_assoc($breakpoints, array_unique($breakpoints));
+						$breakpoints = array_diff($breakpoints, $breakpoints_dub);
+						$breakpoints = array_values($breakpoints);
+						$break_amount = count($breakpoints);
+						for($i=0; $i<=$break_amount-1; $i=$i+2)
+						{
+							$slot = new stdClass();
+							$slot->start = $breakpoints[$i];
+							$slot->end = $breakpoints[$i+1];
+							$slot->machine = $machine->MachineID;
+							$free_slots[] = $slot;
+						}
+					}
+					else
+					{
+							$slot = new stdClass();
+							$slot->start = $supervision_session->date_StartTime;
+							$slot->end = $supervision_session->date_EndTime;
+							$slot->machine = $machine->MachineID;
+							$free_slots[] = $slot;
+					}
+				}
+
+			} 
+			else 
+			{
+				// Machines that can be used without supervison
+
+			}
+		}
+		return $free_slots;	
+	}
+
 	public function reserve_get_free_slots() 
 	{
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
         $free_slots = $this->calculate_free_slots($start, $end); //TODO these need to be still filtered (e.g. if there is no break with supervision session/multiple supervisors) + user level
 	    $response = array();
-        foreach ($free_slots as $free_slot) 
-        {
-        	$response[] = array(
-        		"resourceId" => "mac_" . $free_slot->machine,
-        		"start" => date("Y-m-d H:i:s",$free_slot->start),
-        		"end" => date("Y-m-d H:i:s",$free_slot->end),
-        		"title" => "Free " . date("G \h i \m",$free_slot->end - $free_slot->start),
-        		"reserved" => 0
-        	);
+	    if (count($free_slots) > 0)
+	    {
+	        foreach ($free_slots as $free_slot) 
+	        {
+	        	$response[] = array(
+	        		"resourceId" => "mac_" . $free_slot->machine,
+	        		"start" => date("Y-m-d H:i:s",$free_slot->start),
+	        		"end" => date("Y-m-d H:i:s",$free_slot->end),
+	        		"title" => "Free " . date("G \h i \m",$free_slot->end - $free_slot->start),
+	        		"reserved" => 0
+	        	);
+	        }
         }
         $this->output->set_output(json_encode($response));
 
