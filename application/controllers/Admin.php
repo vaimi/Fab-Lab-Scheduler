@@ -150,7 +150,7 @@ class Admin extends CI_Controller
 		if ($this->input->method() == 'post')
 		{
 			//validate variables
-			$this->form_validation->set_rules('name', 'Machine group name', 'required|alpha');
+			$this->form_validation->set_rules('name', 'Machine group name', 'required');
 			$name = $this->input->post('name');
 			// TODO: $this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 			// TODO: xss_filtering?
@@ -185,7 +185,7 @@ class Admin extends CI_Controller
 				$need_supervision = $need_supervision==''?0:1;
 				$data = array("Name" => $name , "Description" => $description, "NeedSupervision" => $need_supervision);
 				$this->Admin_model->create_new_machine_group($data);
-				redirect('admin/machines', 'refresh');
+				redirect('admin/moderate_machines');
 			}
 		}
 		else
