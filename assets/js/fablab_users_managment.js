@@ -28,6 +28,7 @@ function disableForm (yes) {
 }
 
 function saveData(user) {
+
 	// Send form to controller 
 	var post_data = {
 		'user_id': user.id,
@@ -39,7 +40,7 @@ function saveData(user) {
 		'address_postal_code': $('#address_postal_code_input').val(),
 		'student_number': $('#student_number_input').val(),
 		'groups' : $('#group_form').serialize(),
-		'levels' : $('#level_form').serialize()
+		'levels' : $('.inner_rating :input').serialize()
 	};
 	disableForm(true);
 

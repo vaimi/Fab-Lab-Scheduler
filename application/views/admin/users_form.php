@@ -202,16 +202,18 @@
 												<td><?=$m_value['manufacturer']?> <?=$m_value['model']?></td>
 												<td>
 													<div class="machine_level_rating">
-														<a id="m_<?=$m_key?>_rating_reset">
-															<span class="rating-star glyphicon glyphicon-minus"/>
-														</a>
-														<input type="hidden" id="<?=$g_key?>_rating" class="rating g_<?=$g_key?>_rating m_rating" name="<?=$g_key?>" data-filled="glyphicon glyphicon-star rating-star rating-star-filled" data-empty="glyphicon glyphicon-star-empty rating-star rating-star-empty"/>
-														<script>
-															$('#<?=$m_key?>_rating').rating('rate', <?=$m_value['level']?>);
-															$('#m_<?=$m_key?>_rating_reset').click(function(){
-																$('#<?=$m_key?>_rating').rating('rate', 0);
-															});
-														</script>
+														<div class="inner_rating">
+															<a id="m_<?=$m_key?>_rating_reset">
+																<span class="rating-star glyphicon glyphicon-minus"/>
+															</a>
+															<input type="hidden" id="<?=$m_key?>_rating" class="rating g_<?=$g_key?>_rating m_rating" name="<?=$m_key?>" data-filled="glyphicon glyphicon-star rating-star rating-star-filled" data-empty="glyphicon glyphicon-star-empty rating-star rating-star-empty"/>
+															<script>
+																$('#<?=$m_key?>_rating').rating('rate', <?=$m_value['level']?>);
+																$('#m_<?=$m_key?>_rating_reset').click(function(){
+																	$('#<?=$m_key?>_rating').rating('rate', 0);
+																});
+															</script>
+														</div>
 													</div>
 												</td>
 											</tr>

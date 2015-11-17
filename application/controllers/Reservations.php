@@ -188,7 +188,7 @@ class Reservations extends CI_Controller
 		$machines = $this->Reservations_model->reservations_get_group_machines();
 		foreach($machines->result() as $machine)
 		{
-			if (true)
+			if ($machine->NeedSupervision)
 			{
 				// Machines that require always supervison
 				$supervision_sessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
