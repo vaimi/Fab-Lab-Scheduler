@@ -1,4 +1,3 @@
-<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
 <link rel="stylesheet" type="text/css"  href="<?php echo asset_url() . "css/jquery.qtip.min.css"; ?>" />
 <script src="<?php echo asset_url() . "js/jquery.qtip.min.js"; ?>"  ></script>
 <script>
@@ -46,6 +45,8 @@
 			editable: false, // enable draggable events
 			allDaySlot: false,
 			firstDay: 1,
+            timeFormat: 'HH:mm',
+            slotLabelFormat: 'HH:mm',
 			aspectRatio: 1.8,
 			scrollTime: '08:00', // undo default 6am scrollTime
 			header: {
@@ -172,7 +173,10 @@
 				    	},
 				    	visible: function (event, api) {
 							// get input texts in the qtip.
+
 							$('#startpicker').datetimepicker({
+								locale: 'en-gb',
+								format: 'DD/MM/YYYY HH:mm',
 				        		stepping : 30,
 						    	widgetPositioning: {
 									horizontal: "left",
@@ -183,6 +187,8 @@
 					        });
 
 					        $('#endpicker').datetimepicker({
+					        	locale: 'en-gb',
+					        	format: 'DD/MM/YYYY HH:mm',
 				        		stepping : 30,
 						    	widgetPositioning: {
 									horizontal: "left",

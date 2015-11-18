@@ -351,6 +351,7 @@ class Reservations extends CI_Controller
 	    {
 	        foreach ($free_slots as $free_slot) 
 	        {
+	        	
 	        	$response[] = array(
 	        		"resourceId" => "mac_" . $free_slot->machine,
 	        		"start" => date("Y-m-d H:i:s",$free_slot->start),

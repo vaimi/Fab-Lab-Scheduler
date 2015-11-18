@@ -226,7 +226,7 @@
 			defaultTimedEventDuration: '08:00:00',
             forceEventDuration: true,
             timeFormat: 'HH:mm',
-            axisFormat: 'HH:mm',
+            slotLabelFormat: 'HH:mm',
 			editable: true,
             firstDay: 1,
 			droppable: true, // this allows things to be dropped onto the calendar
@@ -462,6 +462,7 @@
                     <script type="text/javascript">
                         $(function () {
                             $('#startpicker').datetimepicker({
+                                locale: 'en-gb',
                                 ignoreReadonly:true
                             });
                         });
@@ -478,6 +479,7 @@
                     <script type="text/javascript">
                         $(function () {
                             $('#endpicker').datetimepicker({
+                                locale: 'en-gb',
                                 ignoreReadonly:true
                             });
                         });
