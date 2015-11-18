@@ -20,10 +20,14 @@ function disableForm (yes) {
 		$("#user_content :input").attr('disabled', true);
 		$("#tabs > li").addClass('disabled');
 		$("#user_content a").addClass('disabled');
+		$("#search_people").attr('disabled', true);
+		$("#search_results a").attr('style', "pointer-events: none; cursor: default;");
 	} else {
 		$('#user_content :input').removeAttr('disabled');
 		$('#tabs > li').removeClass('disabled');
 		$('#user_content a').removeClass('disabled');
+		$('#search_people').removeAttr('disabled');
+		$("#search_results a").removeAttr('style');
 	}
 }
 
