@@ -371,10 +371,16 @@ class Reservations extends CI_Controller
 	}
 	public function reserve_time() {
 		
-		$this->form_validation->set_rules('sDate', 'Start Date', 'required|regex_match[(\d{4}-\d{2}-\d{2})]');
-		$this->form_validation->set_rules('eDate', 'End Date', 'required|regex_match[(\d{4}-\d{2}-\d{2})]');
-		$this->form_validation->set_rules('rStartTime', 'Reserve Start Date', 'required|regex_match[(\d{2}:\d{2})]');
-		$this->form_validation->set_rules('rEndTime', 'Reserve End Date', 'required|regex_match[(\d{2}:\d{2})]');
+		$this->form_validation->set_rules('syear', 'Start year', 'required|regex_match[(\d{4})]');
+		$this->form_validation->set_rules('smonth', 'Start month', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('sday', 'Start day', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('shour', 'Start hour', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('smin', 'Start minute', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('eyear', 'End year', 'required|regex_match[(\d{4})]');
+		$this->form_validation->set_rules('emonth', 'End month', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('eday', 'End day', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('ehour', 'End hour', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('emin', 'End minute', 'required|regex_match[(\d{2})]');
 		
 		if ($this->form_validation->run() == FALSE)
 		{
@@ -386,13 +392,23 @@ class Reservations extends CI_Controller
 		{
 			$m_id = $this->input->post('mac_id');
 			$m_id = str_replace("mac_", "", $m_id);
-			$start_date = $this->input->post('sDate');
-			$end_date = $this->input->post('eDate');
-			$start_time = $this->input->post('rStartTime');
-			$end_time = $this->input->post('rEndTime');
-			echo $m_id . " " .  $start_time . " " . $end_time . " " . $start_date ." ". $end_date;
-			$start_time = new DateTime($start_date . " " . $start_time);
-			$end_time = new DateTime($end_date . " " . $end_time);
+
+			$start_year = $this->input->post('syear');
+			$start_month = $this->input->post('smonth');
+			$start_day = $this->input->post('sday');
+			$start_hour = $this->input->post('shour');
+			$start_min = $this->input->post('smin');
+
+			$end_year = $this->input->post('eyear');
+			$end_month = $this->input->post('emonth');
+			$end_day = $this->input->post('eday');
+			$end_hour = $this->input->post('ehour');
+			$end_min = $this->input->post('emin');
+
+			//echo $m_id . " " .  $start_time . " " . $end_time . " " . $start_date ." ". $end_date;
+
+			$start_time = new DateTime($start_year . "-" . $start_month . "-" . $start_day . " " . $start_hour . ":" . $start_min);
+			$end_time = new DateTime($end_year . "-" . $end_month . "-" . $end_day . " " . $end_hour . ":" . $end_min);
 			$start_modulo = $start_time->format('i') % 30;
 			$end_modulo = $end_time->format('i') % 30;
 			if ($start_time >= $end_time || $start_modulo != 0 || $end_modulo != 0) {
