@@ -48,6 +48,25 @@
 		}); 
 	}
 
+	
+    function costCalculation () {
+    	end = moment($("#endInput").val(), "DD.MM.YYYY HH:mm");
+    	start = moment($("#startInput").val(), "DD.MM.YYYY HH:mm");
+    	if (end != null && start != null) {
+        	var duration = moment.duration(end.diff(start));
+        	var hours = duration.asHours();
+        	$("#quotaCost").text(hours);
+        	var left = userQuota - hours; 
+        	if (left < 0) {
+        		$("#quotaLeft").css("color", "red");
+        		$("#quotaLeft").text(left);
+        	} else {
+        		$("#quotaLeft").removeAttr('style');
+				$("#quotaLeft").text(left);
+        	}
+    	}
+    }
+
 	$(function() { // document ready
 		getQuota();
 		$("#datepicker").datepicker();
@@ -106,7 +125,7 @@
 				rModal += "			        <div class=\"form-group col-md-12\">";
 				rModal += "			        	<label>From (" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "):<\/label>";
 				rModal += "			            <div class=\"input-group date text-center\">";
-				rModal += "			                <input id=\"startInput\" type=\"text\" class=\"form-control\" \/>";
+				rModal += "			                <input onkeyup=\"costCalculation();\" id=\"startInput\" type=\"text\" class=\"form-control\" value=\"" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
 				rModal += "			                <a id=\"startExp\" class=\"input-group-addon\">";
 				rModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
 				rModal += "			                <\/a>";		
@@ -122,7 +141,7 @@
 				rModal += "			        <div class=\"form-group col-md-12\">";
 				rModal += "			        	<label>To (" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "):<\/label>";	
 				rModal += "			            <div class=\"input-group date text-center\">";
-				rModal += "			                <input id=\"endInput\" type=\"text\" class=\"form-control\" \/>";
+				rModal += "			                <input onkeyup=\"costCalculation();\" id=\"endInput\" type=\"text\" class=\"form-control\" value=\"" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
 				rModal += "			                <a id=\"endExp\" class=\"input-group-addon\">";
 				rModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
 				rModal += "			                <\/a>";
@@ -190,12 +209,7 @@
 				    },
 				    events: {
 				    	render: function (event, api) {
-				    		
-				    	},
-				    	visible: function (event, api) {
-							// get input texts in the qtip.
-							getQuota();
-							$('#startpicker').datetimepicker({
+				    		$('#startpicker').datetimepicker({
 								locale: 'en-gb',
 								format: 'DD/MM/YYYY HH:mm',
 				        		stepping : 30,
@@ -226,24 +240,11 @@
 					        $("#endpicker").on("dp.change", function (e) {
 					            $('#startpicker').data("DateTimePicker").maxDate(e.date);
 					        });
-
-					        function costCalculation () {
-					        	end = $('#endpicker').data("DateTimePicker").date();
-					        	start = $('#startpicker').data("DateTimePicker").date();
-					        	if (end != null && start != null) {
-						        	var duration = moment.duration(end.diff(start));
-						        	var hours = duration.asHours();
-						        	$("#quotaCost").text(hours);
-						        	var left = userQuota - hours; 
-						        	if (left < 0) {
-						        		$("#quotaLeft").css("color", "red");
-						        		$("#quotaLeft").text(left);
-						        	} else {
-						        		$("#quotaLeft").removeAttr('style');
-										$("#quotaLeft").text(left);
-						        	}
-					        	}
-					        }
+				    	},
+				    	visible: function (event, api) {
+							$.when(getQuota()).done(function() {
+							    costCalculation()
+							});
 
 					        $('#startExp').click(function(){ 
 					        	$('#startpicker').collapse('toggle'); 
@@ -270,7 +271,6 @@
 					            $("#endInput").attr('value',mDate.format('DD.MM.YYYY HH:mm'));
 					            costCalculation();
 					        });
-
 					        /*$('#startInput').change(function(){
 							    $('#z').datetimepicker('setDate', $(this).val());
 							});*/
