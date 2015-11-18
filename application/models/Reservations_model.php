@@ -88,4 +88,18 @@ class Reservations_model extends CI_Model {
     public function set_new_reservation($data) {
     	$this->db->insert('Reservation', $data);
     }
+    public function get_user_level($user_id = false, $machine_id = false)
+    {
+    	$this->db->select('*');
+    	$this->db->from('UserLevel');
+    	if ($user_id != false)
+    	{
+    		$this->db->where('aauth_usersID', $user_id);
+    	}
+    	if ($machine_id != false)
+    	{
+    		$this->db->where('MachineID', $machine_id);
+    	}
+    	return $this->db->get();
+    }
 }

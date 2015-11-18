@@ -270,13 +270,40 @@ class Reservations extends CI_Controller
 		}
 		return $free_slots;	
 	}
-
+	/**
+	 * Deletes free slots if user has not suitable level for the machine.
+	 */
+	private function filter_free_slots($free_slots)
+	{
+		$results = $free_slots;
+		$user_id = $this->session->userdata('id');
+		//loop over free slots
+		foreach ($results as $key=>$free_slot)
+		{
+			$mid = $free_slot->machine;
+			$user_machine_level = $this->Reservations_model->get_user_level($user_id, $mid)->row();
+			//If user level is not found in db.
+			if ($user_machine_level == null) {
+				unset($results[$key]);
+				continue;
+			}
+			$user_machine_level = $user_machine_level->Level;
+			//If user level is lower than 4
+			if($user_machine_level < 4) // TODO Add constant
+			{
+				unset($results[$key]);
+				continue;
+			}
+		}
+		return $results;
+	}
 	public function reserve_get_free_slots() 
 	{
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
         $free_slots = $this->calculate_free_slots($start, $end); //TODO these need to be still filtered (e.g. if there is no break with supervision session/multiple supervisors) + user level
-	    $response = array();
+	    $free_slots = $this->filter_free_slots($free_slots);
+        $response = array();
 	    if (count($free_slots) > 0)
 	    {
 	        foreach ($free_slots as $free_slot) 
