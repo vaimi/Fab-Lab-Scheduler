@@ -502,3 +502,15 @@ $config['rewrite_short_tags'] = FALSE;
 | Array:		array('10.0.1.200', '192.168.5.0/24')
 */
 $config['proxy_ips'] = '';
+/*
+ |--------------------------------------------------------------------------
+ | FabLab constants
+ |--------------------------------------------------------------------------
+ |
+ */
+define('USER_UNSKILLED', 1);
+define('USER_NEEDS_SUPERVISOR', 2);
+define('USER_SKILLED', 3);
+define('SUPERVISOR_CAN_SUPERVISE', 4);
+define('SUPERVISOR_CAN_TEACH', 5);
+
