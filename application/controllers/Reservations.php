@@ -440,6 +440,11 @@ class Reservations extends CI_Controller
 		);*/
 		$this->output->set_output(json_encode($response));
 	}
+
+	public function reserve_get_quota() {
+		echo $this->Reservations_model->get_user_quota($this->session->userdata('id'));
+	}
+
 	public function reserve_time() {
 		
 		$this->form_validation->set_rules('syear', 'Start year', 'required|regex_match[(\d{4})]');

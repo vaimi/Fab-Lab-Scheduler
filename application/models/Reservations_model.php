@@ -102,4 +102,16 @@ class Reservations_model extends CI_Model {
     	}
     	return $this->db->get();
     }
+
+    public function get_user_quota($user_id) {
+        $this->db->select("quota");
+        $this->db->from("extended_users_information");
+        $this->db->where("id", $user_id);
+        $result = $this->db->get();
+        if ($result->num_rows() == 1)
+        {
+            return $result->row()->quota;
+        }
+        return 0;
+    }
 }

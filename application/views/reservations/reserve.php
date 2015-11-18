@@ -32,7 +32,24 @@
 		}); 
 	}
 
+	var userQuota = 0;
+
+	function getQuota() {
+		$.ajax({
+			type: "POST",
+			url: "reserve_get_quota",
+			success: function(data) {
+				if (data.length > 0) {
+					userQuota = data;
+					$("#quotaMain").text(userQuota);
+					$("#quotaReserve").text(userQuota);
+				}
+			}
+		}); 
+	}
+
 	$(function() { // document ready
+		getQuota();
 		$("#datepicker").datepicker();
         
 		$("#dp_btn").click( function() {
@@ -100,7 +117,6 @@
 				rModal += "			        <\/div>";
 				rModal += "			    <\/div>";
 				rModal += "			    <div class=\"row text-center col-md-12\">";
-				rModal += "		    		-";
 				rModal += "		    	<\/div>";
 				rModal += "			    <div class=\"row\">";
 				rModal += "			        <div class=\"form-group col-md-12\">";
@@ -116,6 +132,11 @@
 				rModal += "			            <\/div>";
 				rModal += "			        <\/div>";
 				rModal += "			    <\/div>";
+				rModal += "				<br>";
+				rModal += "				<p>Quota: <span id=\"quotaReserve\"></span> hours</p>";
+				rModal += "				<p>Cost: <span id=\"quotaCost\"></span> hours</p>";
+				rModal += "				<p>After: <span id=\"quotaLeft\"></span> hours</p>";    
+				rModal += "				<br>";
 				rModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
 				rModal += "			    	<a id=\"reserveButton\" class=\"btn btn-primary\" >Reserve</a>";
 				rModal += "			    <\/div>";
@@ -173,7 +194,7 @@
 				    	},
 				    	visible: function (event, api) {
 							// get input texts in the qtip.
-
+							getQuota();
 							$('#startpicker').datetimepicker({
 								locale: 'en-gb',
 								format: 'DD/MM/YYYY HH:mm',
@@ -206,6 +227,24 @@
 					            $('#startpicker').data("DateTimePicker").maxDate(e.date);
 					        });
 
+					        function costCalculation () {
+					        	end = $('#endpicker').data("DateTimePicker").date();
+					        	start = $('#startpicker').data("DateTimePicker").date();
+					        	if (end != null && start != null) {
+						        	var duration = moment.duration(end.diff(start));
+						        	var hours = duration.asHours();
+						        	$("#quotaCost").text(hours);
+						        	var left = userQuota - hours; 
+						        	if (left < 0) {
+						        		$("#quotaLeft").css("color", "red");
+						        		$("#quotaLeft").text(left);
+						        	} else {
+						        		$("#quotaLeft").removeAttr('style');
+										$("#quotaLeft").text(left);
+						        	}
+					        	}
+					        }
+
 					        $('#startExp').click(function(){ 
 					        	$('#startpicker').collapse('toggle'); 
 					        	return false; 
@@ -223,11 +262,13 @@
 					        $('#startpicker').on('dp.change', function (e) {
 					            var mDate = new moment(e.date);
 					            $("#startInput").attr('value',mDate.format('DD.MM.YYYY HH:mm'));
+					            costCalculation();
 					        });
 
 					        $('#endpicker').on('dp.change', function (e) {
 					            var mDate = new moment(e.date);
 					            $("#endInput").attr('value',mDate.format('DD.MM.YYYY HH:mm'));
+					            costCalculation();
 					        });
 
 					        /*$('#startInput').change(function(){
@@ -250,7 +291,7 @@
     }
 </style>
 <div class="container">
-	<h4>Available quota: <?php echo $quota;?></h4>
+	<h4>Available quota: <span id="quotaMain"><?php echo $quota ?></span></h4>
 	<article>
 		<legend>Search by form</legend>
 		<form class="form-horizontal">
