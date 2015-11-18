@@ -248,6 +248,7 @@ class Reservations extends CI_Controller
 							$slot->start = $breakpoints[$i];
 							$slot->end = $breakpoints[$i+1];
 							$slot->machine = $machine->MachineID;
+							$slot->svLevel = $supervisor_level->Level;
 							$free_slots[] = $slot;
 						}
 					}
@@ -257,6 +258,7 @@ class Reservations extends CI_Controller
 							$slot->start = $supervision_session->date_StartTime;
 							$slot->end = $supervision_session->date_EndTime;
 							$slot->machine = $machine->MachineID;
+							$slot->svLevel = $supervisor_level->Level;
 							$free_slots[] = $slot;
 					}
 				}
@@ -265,6 +267,7 @@ class Reservations extends CI_Controller
 			else 
 			{
 				// Machines that can be used without supervison
+				// lvl 3 and above can reserve these. 
 
 			}
 		}
@@ -272,28 +275,68 @@ class Reservations extends CI_Controller
 	}
 	/**
 	 * Deletes free slots if user has not suitable level for the machine.
+	 * It combines free slots if supervisors have slots in same time.
 	 */
 	private function filter_free_slots($free_slots)
 	{
-		$results = $free_slots;
+		$tmp = $free_slots;
 		$user_id = $this->session->userdata('id');
-		//loop over free slots
-		foreach ($results as $key=>$free_slot)
+
+		//loop over free slots to delete unnecessary ones.
+		foreach ($tmp as $key=>$free_slot)
 		{
 			$mid = $free_slot->machine;
 			$user_machine_level = $this->Reservations_model->get_user_level($user_id, $mid)->row();
-			//If user level is not found in db.
+			//If user level is not found in db. 1-4 cant reserve 2-4 cant machine if 4 supervisor 3 can reserve
+			//if 5 supervisor all can reserve
 			if ($user_machine_level == null) {
-				unset($results[$key]);
-				continue;
+				//unset($tmp[$key]);
+				$user_machine_level->Level = 1;
+				//continue;
 			}
 			$user_machine_level = $user_machine_level->Level;
-			//If user level is lower than 4
-			if($user_machine_level < 4) // TODO Add constant
+			//If supervisor lvl is 4, delete slot if user lvl is 2 or below 
+			if($free_slot->svLevel == SUPERVISOR_CAN_SUPERVISE && $user_machine_level < USER_SKILLED) 
 			{
-				unset($results[$key]);
+				unset($tmp[$key]);
 				continue;
 			}
+		}
+		
+		$results = array();
+		//reindex slots just in case.
+		$tmp = array_values($tmp);
+		//Sort array by start time. Next while loop needs it.
+		usort($tmp, function($a, $b)
+		{
+			return $a->start > $b->start;
+		});
+		//Combine free slots if necessary
+		while(list($key, $free_slot) = each($tmp))
+		{
+			$end_slot = $free_slot;
+			unset($tmp[$key]);
+			while(list($key2, $possible_start_slot) = each($tmp))
+			{
+				//if slots are not from same machine
+				if ($end_slot->machine != $possible_start_slot->machine) {
+					continue;
+				}
+				
+				$start_p = (int) $possible_start_slot->start;
+				$end_p = (int) $possible_start_slot->end;
+				$start = (int) $end_slot->start;
+				$end = (int) $end_slot->end;
+				//if slots are connected
+				if ( $end >= $start_p && $start <= $start_p) {
+					$end_slot = $possible_start_slot;
+					unset($tmp[$key2]);
+				}
+			}
+			$free_slot->end = $end_slot->end;
+			//create a combined slot
+			array_push($results, $free_slot);
+			reset($tmp);
 		}
 		return $results;
 	}
