@@ -48,7 +48,7 @@
 		}); 
 	}
 
-	
+
     function costCalculation () {
     	end = moment($("#endInput").val(), "DD.MM.YYYY HH:mm");
     	start = moment($("#startInput").val(), "DD.MM.YYYY HH:mm");
@@ -115,8 +115,8 @@
 // 				console.log(e);
 				if (e.reserved == 1) return; 
 // 				console.log(view);
-				var sTime = moment(e.start._i).format("HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-				var eTime = moment(e.end._i).format("HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eStart = moment(e.start._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eEnd = moment(e.end._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				var url = '<?php echo base_url(); ?>';	
 				var rModal="";
 				rModal += "			<form id=reservation_form class=\"\" method=\"post\">";
@@ -160,29 +160,6 @@
 				rModal += "			    	<a id=\"reserveButton\" class=\"btn btn-primary\" >Reserve</a>";
 				rModal += "			    <\/div>";
 				rModal += "			</form>";
-
-
-
-				var rModale = '<div>'+
-				//	'<h4>'+ e.resourceId +'Available time: '+ sTime +' - '+ eTime +'</h4>'+
-				'<h4>Available time: '+ sTime +' - '+ eTime +'</h4>'+
-				'<h4>Available quota: ' + <?php echo $quota ?> + '</h4>'+
-				'<p>Reserve time between (HH:MM):</p>' +
-				'<form class="" method="post" action="' + url + 'reservations/reserve_time">' +
-					'<div>' + 
-						'<input type="hidden" name="mac_id" value="' + e.resourceId + '" />' +
-						//'<input type="hidden" name="sDate" value="' + moment(e.start._i).format("YYYY-MM-DD") + '" />' +
-						//'<input type="hidden" name="eDate" value="' + moment(e.start._i).format("YYYY-MM-DD") + '" />' +
-						//'<input type="text" class="form-control" name="rStartTime" id=\'' + e.resourceId + '_start\' /> -' +
-						//'<input type="text" class="form-control" name="rEndTime" id=\'' + e.resourceId + '_end\' />' +
-					//	'<h4>Left quota after reservation: ' + <?php //echo $quota ?> + '</h4>' +
-					'</div>' +
-					'<br>' +
-					'<div class="btn-group" role="group" aria-label="...">' +
-						'<a type="submit" id="reserveButton" action="" class="btn btn-primary" >Reserve</a>' +
-					//	'<button type="button" class="btn btn-default">Cancel</button>' +
-					'</div>'
-				'</form>';
 
 				$(element).qtip({ // Grab some elements to apply the tooltip to
 					show: { 
@@ -233,9 +210,16 @@
                 				sideBySide: false,
 					            useCurrent: false //Important! See issue #1075
 					        });
+					        $('#startpicker').data("DateTimePicker").minDate(eStart);
+					        $('#startpicker').data("DateTimePicker").maxDate(eEnd);
+					        $('#endpicker').data("DateTimePicker").minDate(eStart);
+					        $('#endpicker').data("DateTimePicker").maxDate(eEnd);
+					   		$('#startpicker').data("DateTimePicker").date(eStart);
+					        $('#endpicker').data("DateTimePicker").date(eEnd);
 
 					        $("#startpicker").on("dp.change", function (e) {
 					            $('#endpicker').data("DateTimePicker").minDate(e.date);
+
 					        });
 					        $("#endpicker").on("dp.change", function (e) {
 					            $('#startpicker').data("DateTimePicker").maxDate(e.date);
@@ -262,13 +246,13 @@
 
 					        $('#startpicker').on('dp.change', function (e) {
 					            var mDate = new moment(e.date);
-					            $("#startInput").attr('value',mDate.format('DD.MM.YYYY HH:mm'));
+					            $("#startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
 					            costCalculation();
 					        });
 
 					        $('#endpicker').on('dp.change', function (e) {
 					            var mDate = new moment(e.date);
-					            $("#endInput").attr('value',mDate.format('DD.MM.YYYY HH:mm'));
+					            $("#endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
 					            costCalculation();
 					        });
 					        /*$('#startInput').change(function(){
