@@ -19,16 +19,10 @@ class Reservations extends CI_Controller
 	public function active() {
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Need for reservation?";
-		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$jdata['title'] = "Active reservations";
+		$jdata['message'] = "List of all your active reservations. Please note that you can't cancel already running session.";
 		$this->load->view('partials/jumbotron', $jdata);
-		$rdata = array (
-			# TODO: These need to be of course loaded from the db
-			array("id"=>"1", "machine"=>"no_image.png","reserved"=>"123-34234-12321"),
-			array("id"=>"2", "machine"=>"no_image.png","reserved"=>"123-34234-12321"),
-			array("id"=>"3", "machine"=>"no_image.png","reserved"=>"123-34234-12321"),
-			array("id"=>"4", "machine"=>"no_image.png","reserved"=>"123-34234-12321")
-		);
+		$rdata = $this->Reservations_model->get_active_reservations($this->session->userdata('id'));
 		$this->load->view('reservations/active', array("rdata"=>$rdata));
 		$this->load->view('partials/footer');
 	}
@@ -340,6 +334,8 @@ class Reservations extends CI_Controller
 		}
 		return $results;
 	}
+
+	//TODO, maybe we should disable finding free slots from history
 	public function reserve_get_free_slots() 
 	{
 		$start = $this->input->get('start');

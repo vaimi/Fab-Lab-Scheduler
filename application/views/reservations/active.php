@@ -1,3 +1,4 @@
+<script src="<?php echo asset_url();?>js/sortable.min.js"></script>
 <div class="container">
 	<table class="sortable-theme-bootstrap table table-striped" data-sortable>
 		<thead>
@@ -5,7 +6,7 @@
 				<th data-sorted="true" data-sorted-direction="ascending">ID</th>
 				<th>Machine</th>
 				<th>Reserved for</th>
-				<th>Actions</th>
+				<th data-sortable="false">Actions</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -15,7 +16,7 @@
 					echo '<td>'.$row['id'].'</td>';
 					echo '<td>'.$row['machine'].'</td>';
 					echo '<td>'.$row['reserved'].'</td>';
-					echo '<td><a href="#cancelModal" data-toggle="modal" data-reservation-id='.$row['id'].'>Cancel</a></td>';
+					echo '<td><a type="button" class="btn btn-warning" href="#cancelModal" data-toggle="modal" data-reservation-id='.$row['id'].'><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</a>';
 					echo '</tr>';
 				}
 				?>

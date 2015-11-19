@@ -34,7 +34,6 @@
 	
 	
 	<link href="<?php echo asset_url();?>css/sortable-theme-bootstrap.css" rel="stylesheet" type="text/css">
-	<script src="<?php echo asset_url();?>js/sortable.min.js"></script>
 	
 	<!-- summernote editor -->
 	<link href="<?php echo asset_url();?>css/summernote.css" rel="stylesheet">
