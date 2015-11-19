@@ -194,7 +194,10 @@
 			        	event: false
 			        },
 			        position : {
-			        	at: 'center center'
+			        	target: 'mouse',
+			        	adjust : {
+				    		mouse: false
+				    	}
 				    },
 				    content: {
 					    title: "Reservation",
