@@ -447,22 +447,24 @@ class Reservations extends CI_Controller
 
 	public function reserve_time() {
 		
-		$this->form_validation->set_rules('syear', 'Start year', 'required|regex_match[(\d{4})]');
-		$this->form_validation->set_rules('smonth', 'Start month', 'required|regex_match[(\d{2})]');
-		$this->form_validation->set_rules('sday', 'Start day', 'required|regex_match[(\d{2})]');
-		$this->form_validation->set_rules('shour', 'Start hour', 'required|regex_match[(\d{2})]');
-		$this->form_validation->set_rules('smin', 'Start minute', 'required|regex_match[(\d{2})]');
-		$this->form_validation->set_rules('eyear', 'End year', 'required|regex_match[(\d{4})]');
-		$this->form_validation->set_rules('emonth', 'End month', 'required|regex_match[(\d{2})]');
-		$this->form_validation->set_rules('eday', 'End day', 'required|regex_match[(\d{2})]');
-		$this->form_validation->set_rules('ehour', 'End hour', 'required|regex_match[(\d{2})]');
-		$this->form_validation->set_rules('emin', 'End minute', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('syear', 'start year', 'required|regex_match[(\d{4})]');
+		$this->form_validation->set_rules('smonth', 'start month', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('sday', 'start day', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('shour', 'start hour', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('smin', 'start minute', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('eyear', 'end year', 'required|regex_match[(\d{4})]');
+		$this->form_validation->set_rules('emonth', 'end month', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('eday', 'end day', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('ehour', 'end hour', 'required|regex_match[(\d{2})]');
+		$this->form_validation->set_rules('emin', 'end minute', 'required|regex_match[(\d{2})]');
 		
+		$response = array();
 		if ($this->form_validation->run() == FALSE)
 		{
 			//echo errors.
-			echo validation_errors();
-			die();
+			//echo validation_errors();
+			$response['success'] = 0;
+			$response['errors'] =  $this->form_validation->error_array();
 		}
 		else
 		{
@@ -487,23 +489,27 @@ class Reservations extends CI_Controller
 			$end_time = new DateTime($end_year . "-" . $end_month . "-" . $end_day . " " . $end_hour . ":" . $end_min);
 			$start_modulo = $start_time->format('i') % 30;
 			$end_modulo = $end_time->format('i') % 30;
-			if ($start_time >= $end_time || $start_modulo != 0 || $end_modulo != 0) {
-				echo "Error (time does not match or start time bigger than end time)";
-				die();
+			if ($start_time >= $end_time || $start_modulo != 0 || $end_modulo != 0) 
+			{
+				$response['success'] = 0;
+				$response['errors'] =  "Time does not match or start time bigger than end time";
 			}
-			$data = array(
-					'MachineID' => $m_id,
-					'aauth_usersID' => $this->session->userdata('id'),
-					'StartTime' => $start_time->format('Y-m-d H:i:s'),
-					'EndTime' => $end_time->format('Y-m-d H:i:s'),
-					'QRCode' => "dunno about this",
-					'PassCode' => "dunno about this"
-			);
-			// TODO Should check overlapping between other reservations
-			// TODO Should check quota
-			$this->Reservations_model->set_new_reservation($data);
-			redirect("Reservations/reserve", "refresh");
+			else
+			{
+				$data = array(
+						'MachineID' => $m_id,
+						'aauth_usersID' => $this->session->userdata('id'),
+						'StartTime' => $start_time->format('Y-m-d H:i:s'),
+						'EndTime' => $end_time->format('Y-m-d H:i:s'),
+						'QRCode' => "dunno about this",
+						'PassCode' => "dunno about this"
+				);
+				// TODO Should check overlapping between other reservations
+				// TODO Should check quota
+				$this->Reservations_model->set_new_reservation($data);
+				$response['success'] = 1;
+			}
 		}
-
+		$this->output->set_output(json_encode($response));
 	}
 }

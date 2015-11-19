@@ -1,6 +1,23 @@
 <link rel="stylesheet" type="text/css"  href="<?php echo asset_url() . "css/jquery.qtip.min.css"; ?>" />
 <script src="<?php echo asset_url() . "js/jquery.qtip.min.js"; ?>"  ></script>
+<script type="text/javascript" src="<?=asset_url()?>js/bootstrap-notify.min.js"></script>
+<link rel="stylesheet" type="text/css" href="<?=asset_url()?>css/animate.css"/>
+
 <script>
+	function alerter(alert_type, alert_message) {
+		// alerter function for on-screen alerts
+		$.notify({
+		// options
+		message: alert_message 
+		},{
+			// settings
+			type: alert_type,
+			animate: {
+				enter: 'animated fadeInDown',
+				exit: 'animated fadeOutUp'
+			}
+		});
+	}
 
 	function reserve() {
 		var start = moment($("#startInput").val(), "DD.MM.YYYY HH:mm");
@@ -26,7 +43,15 @@
 			data: post_data,
 			success: function(data) {
 				if (data.length > 0) {
-					//It would be nice to inform user
+				var message = $.parseJSON(data);
+					if (message.success == 1) {
+						alerter("success", "Reservation successful");
+						$('#calendar').fullCalendar('refetchEvents');
+					} else {
+						for(var error in message.errors) {
+							alerter("warning", message.errors[error]); 
+						}
+					}
 				}
 			}
 		}); 
