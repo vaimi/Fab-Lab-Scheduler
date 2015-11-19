@@ -264,8 +264,14 @@ class User extends CI_Controller
 			$this->load->view('page_not_found_404');
 			return;
 		}
-		//Contains info about machines and levels.
-		$data['results'] = $this->User_model->get_reservations($this->session->userdata('id'));
+		//Contains info about reservations
+		$reservations = $this->User_model->get_reservations($this->session->userdata('id'));
+		//Sort array by start time.
+		usort($reservations, function($a, $b)
+		{
+			return $a['StartTime'] < $b['StartTime'];
+		});
+		$data['results'] = $reservations; 
 		$this->load->view('user/reservations_list', $data);
 	}
 	// Helpers 
