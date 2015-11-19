@@ -496,18 +496,28 @@ class Reservations extends CI_Controller
 			}
 			else
 			{
-				$data = array(
-						'MachineID' => $m_id,
-						'aauth_usersID' => $this->session->userdata('id'),
-						'StartTime' => $start_time->format('Y-m-d H:i:s'),
-						'EndTime' => $end_time->format('Y-m-d H:i:s'),
-						'QRCode' => "dunno about this",
-						'PassCode' => "dunno about this"
-				);
-				// TODO Should check overlapping between other reservations
-				// TODO Should check quota
-				$this->Reservations_model->set_new_reservation($data);
-				$response['success'] = 1;
+				$start = $start_time->format('Y-m-d H:i:s');
+				$end = $end_time->format('Y-m-d H:i:s');
+				$is_overlapping = $this->Reservations_model->is_reserved($start, $end, $m_id);
+				if ($is_overlapping) 
+				{
+					$response['success'] = 0;
+					$response['errors'] =  array("Overlapping with other reservation");
+				}
+				else
+				{
+					$data = array(
+							'MachineID' => $m_id,
+							'aauth_usersID' => $this->session->userdata('id'),
+							'StartTime' => $start,
+							'EndTime' => $end,
+							'QRCode' => "dunno about this",
+							'PassCode' => "dunno about this"
+					);
+					// TODO Should check quota
+					$this->Reservations_model->set_new_reservation($data);
+					$response['success'] = 1;
+				}
 			}
 		}
 		$this->output->set_output(json_encode($response));

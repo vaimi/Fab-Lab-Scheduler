@@ -114,4 +114,19 @@ class Reservations_model extends CI_Model {
         }
         return 0;
     }
+
+    public function is_reserved($start, $end, $machine)
+    {
+        $this->db->select("ReservationID");
+        $this->db->from("Reservation");
+        $this->db->where("MachineID", $machine);
+        $this->db->where("StartTime <", $end);
+        $this->db->where("EndTime >", $start);
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            return true;
+        }
+        return false;
+    }
 }
