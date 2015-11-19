@@ -46,6 +46,7 @@
 				var message = $.parseJSON(data);
 					if (message.success == 1) {
 						alerter("success", "Reservation successful");
+						$(".qtip").qtip('hide');
 						$('#calendar').fullCalendar('refetchEvents');
 					} else {
 						for(var error in message.errors) {
