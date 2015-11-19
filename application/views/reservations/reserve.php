@@ -123,6 +123,13 @@
 					$('#script-warning').show();
 				}
 			},
+	        loading: function( isLoading, view ) {
+	            if(isLoading) {
+	                 $("#loader").show()
+	            } else {
+	                $("#loader").hide()
+	            }
+	        },
 
             eventSources: [
             // your event source
@@ -364,6 +371,6 @@
 	</article>
 	<article>
 		<legend>Search by calendar</legend>
-		<div id="calendar"></div>
+		<div id="calendar" style="position:relative"><div id="loader" class="loader" style='position:absolute;display:none;margin:auto;left: 0;top: 0;right: 0;bottom: 0;'></div></div>
 	</article>	
 </div>
