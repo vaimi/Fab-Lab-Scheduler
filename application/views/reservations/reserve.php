@@ -277,7 +277,7 @@
 					        	return false; 
 					        });
 
-					        $('.reserveButton').click(function(){ 
+					        $('.reserveButton').unbind("click").click(function(){ 
 					        	reserve();
 					        });
 
