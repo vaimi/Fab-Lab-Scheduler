@@ -20,11 +20,11 @@
 	}
 
 	function reserve() {
-		var start = moment($("#startInput").val(), "DD.MM.YYYY HH:mm");
-		var end = moment($("#endInput").val(), "DD.MM.YYYY HH:mm");
+		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
+		var end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
 		// Send form to controller 
 		var post_data = {
-			'mac_id': $("#reservation_form input[name='mac_id']").val(),
+			'mac_id': $(".reservation_form input[name='mac_id']").val(),
 			'syear': start.format('YYYY'),
 			'smonth': start.format('MM'),
 			'sday': start.format('DD'),
@@ -67,7 +67,7 @@
 				if (data.length > 0) {
 					userQuota = data;
 					$("#quotaMain").text(userQuota);
-					$("#quotaReserve").text(userQuota);
+					$(".quotaReserve").text(userQuota);
 				}
 			}
 		}); 
@@ -75,19 +75,19 @@
 
 
     function costCalculation () {
-    	end = moment($("#endInput").val(), "DD.MM.YYYY HH:mm");
-    	start = moment($("#startInput").val(), "DD.MM.YYYY HH:mm");
+    	end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
+    	start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
     	if (end != null && start != null) {
         	var duration = moment.duration(end.diff(start));
         	var hours = duration.asHours();
-        	$("#quotaCost").text(hours);
+        	$(".quotaCost").text(hours);
         	var left = userQuota - hours; 
         	if (left < 0) {
-        		$("#quotaLeft").css("color", "red");
-        		$("#quotaLeft").text(left);
+        		$(".quotaLeft").css("color", "red");
+        		$(".quotaLeft").text(left);
         	} else {
-        		$("#quotaLeft").removeAttr('style');
-				$("#quotaLeft").text(left);
+        		$(".quotaLeft").removeAttr('style');
+				$(".quotaLeft").text(left);
         	}
     	}
     }
@@ -140,23 +140,21 @@
 // 				console.log(e);
 				if (e.reserved == 1) return; 
 // 				console.log(view);
-				var eStart = moment(e.start._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-				var eEnd = moment(e.end._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				var url = '<?php echo base_url(); ?>';	
 				var rModal="";
-				rModal += "			<form id=reservation_form class=\"\" method=\"post\">";
+				rModal += "			<form class=\"reservation_form\" method=\"post\">";
 				rModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + e.resourceId + "\" />";
 				rModal += "				<div class=\"row\">";
 				rModal += "			        <div class=\"form-group col-md-12\">";
 				rModal += "			        	<label>From (" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "):<\/label>";
 				rModal += "			            <div class=\"input-group date text-center\">";
-				rModal += "			                <input onkeyup=\"costCalculation();\" id=\"startInput\" type=\"text\" class=\"form-control\" value=\"" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
-				rModal += "			                <a id=\"startExp\" class=\"input-group-addon\">";
+				rModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control startInput\" value=\"" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
+				rModal += "			                <a class=\"input-group-addon startExp\">";
 				rModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
 				rModal += "			                <\/a>";		
 				rModal += "			            <\/div>";
 				rModal += "						<div class=\"row\">";
-				rModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse\" id=\"startpicker\"></div>";
+				rModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse startpicker\"></div>";
 				rModal += "			            <\/div>";
 				rModal += "			        <\/div>";
 				rModal += "			    <\/div>";
@@ -166,23 +164,23 @@
 				rModal += "			        <div class=\"form-group col-md-12\">";
 				rModal += "			        	<label>To (" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "):<\/label>";	
 				rModal += "			            <div class=\"input-group date text-center\">";
-				rModal += "			                <input onkeyup=\"costCalculation();\" id=\"endInput\" type=\"text\" class=\"form-control\" value=\"" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
-				rModal += "			                <a id=\"endExp\" class=\"input-group-addon\">";
+				rModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
+				rModal += "			                <a class=\"input-group-addon endExp\">";
 				rModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
 				rModal += "			                <\/a>";
 				rModal += "			            <\/div>";
 				rModal += "						<div class=\"row\">";
-				rModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse\" id=\"endpicker\"></div>";
+				rModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
 				rModal += "			            <\/div>";
 				rModal += "			        <\/div>";
 				rModal += "			    <\/div>";
 				rModal += "				<br>";
-				rModal += "				<p>Quota: <span id=\"quotaReserve\"></span> hours</p>";
-				rModal += "				<p>Cost: <span id=\"quotaCost\"></span> hours</p>";
-				rModal += "				<p>After: <span id=\"quotaLeft\"></span> hours</p>";    
+				rModal += "				<p>Quota: <span class=\"quotaReserve\"></span> hours</p>";
+				rModal += "				<p>Cost: <span class=\"quotaCost\"></span> hours</p>";
+				rModal += "				<p>After: <span class=\"quotaLeft\"></span> hours</p>";    
 				rModal += "				<br>";
 				rModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-				rModal += "			    	<a id=\"reserveButton\" class=\"btn btn-primary\" >Reserve</a>";
+				rModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
 				rModal += "			    <\/div>";
 				rModal += "			</form>";
 
@@ -211,7 +209,13 @@
 				    },
 				    events: {
 				    	render: function (event, api) {
-				    		$('#startpicker').datetimepicker({
+				    	},
+				    	visible: function (event, api) {
+							$.when(getQuota()).done(function() {
+							    costCalculation()
+							});
+
+							$('.startpicker').datetimepicker({
 								locale: 'en-gb',
 								format: 'DD/MM/YYYY HH:mm',
 				        		stepping : 30,
@@ -223,7 +227,7 @@
                 				sideBySide: false
 					        });
 
-					        $('#endpicker').datetimepicker({
+					        $('.endpicker').datetimepicker({
 					        	locale: 'en-gb',
 					        	format: 'DD/MM/YYYY HH:mm',
 				        		stepping : 30,
@@ -235,49 +239,47 @@
                 				sideBySide: false,
 					            useCurrent: false //Important! See issue #1075
 					        });
-					        $('#startpicker').data("DateTimePicker").minDate(eStart);
-					        $('#startpicker').data("DateTimePicker").maxDate(eEnd);
-					        $('#endpicker').data("DateTimePicker").minDate(eStart);
-					        $('#endpicker').data("DateTimePicker").maxDate(eEnd);
-					   		$('#startpicker').data("DateTimePicker").date(eStart);
-					        $('#endpicker').data("DateTimePicker").date(eEnd);
 
-					        $("#startpicker").on("dp.change", function (e) {
-					            $('#endpicker').data("DateTimePicker").minDate(e.date);
+	        				var eStart = moment(e.start._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+							var eEnd = moment(e.end._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+					        $('.startpicker').data("DateTimePicker").minDate(eStart);
+					        $('.startpicker').data("DateTimePicker").maxDate(eEnd);
+					        $('.endpicker').data("DateTimePicker").minDate(eStart);
+					        $('.endpicker').data("DateTimePicker").maxDate(eEnd);
+					   		$('.startpicker').data("DateTimePicker").date(eStart);
+					        $('.endpicker').data("DateTimePicker").date(eEnd);
+
+					        $(".startpicker").on("dp.change", function (e) {
+					            $('.endpicker').data("DateTimePicker").minDate(e.date);
 
 					        });
-					        $("#endpicker").on("dp.change", function (e) {
-					            $('#startpicker').data("DateTimePicker").maxDate(e.date);
+					        $(".endpicker").on("dp.change", function (e) {
+					            $('.startpicker').data("DateTimePicker").maxDate(e.date);
 					        });
-				    	},
-				    	visible: function (event, api) {
-							$.when(getQuota()).done(function() {
-							    costCalculation()
-							});
 
-					        $('#startExp').click(function(){ 
-					        	$('#startpicker').collapse('toggle'); 
+					        $('.startExp').click(function(){ 
+					        	$('.startpicker').collapse('toggle'); 
 					        	return false; 
 					        });
 
-					        $('#endExp').click(function(){ 
-					        	$('#endpicker').collapse('toggle'); 
+					        $('.endExp').click(function(){ 
+					        	$('.endpicker').collapse('toggle'); 
 					        	return false; 
 					        });
 
-					        $('#reserveButton').click(function(){ 
+					        $('.reserveButton').click(function(){ 
 					        	reserve();
 					        });
 
-					        $('#startpicker').on('dp.change', function (e) {
+					        $('.startpicker').on('dp.change', function (e) {
 					            var mDate = new moment(e.date);
-					            $("#startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+					            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
 					            costCalculation();
 					        });
 
-					        $('#endpicker').on('dp.change', function (e) {
+					        $('.endpicker').on('dp.change', function (e) {
 					            var mDate = new moment(e.date);
-					            $("#endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+					            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
 					            costCalculation();
 					        });
 					        /*$('#startInput').change(function(){

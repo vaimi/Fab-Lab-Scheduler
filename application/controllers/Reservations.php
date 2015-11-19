@@ -492,7 +492,7 @@ class Reservations extends CI_Controller
 			if ($start_time >= $end_time || $start_modulo != 0 || $end_modulo != 0) 
 			{
 				$response['success'] = 0;
-				$response['errors'] =  "Time does not match or start time bigger than end time";
+				$response['errors'] =  array("Time does not match or start time bigger than end time");
 			}
 			else
 			{
