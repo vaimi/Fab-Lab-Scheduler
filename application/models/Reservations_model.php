@@ -135,7 +135,7 @@ class Reservations_model extends CI_Model {
         $this->db->from("Reservation as r");
         $this->db->join("Machine as m", "m.MachineID = r.MachineID");
         $this->db->where("Aauth_usersID", $user);
-        $this->db->where("EndTime >", "NOW()");
+        $this->db->where("EndTime >", date("Y-m-d H:i:s"));
         $result = $this->db->get();
         $response = array();
         if ($result->num_rows() > 0)
