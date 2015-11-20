@@ -19,6 +19,18 @@
 		});
 	}
 
+	function disableForm(disable_bool) {
+		if (disable_bool) {
+			$(".startInput").attr('disabled', true);
+			$(".endInput").attr('disabled', true);
+			$(".reserveButton").addClass('disabled');
+		} else {
+			$(".startInput").removeAttr('disabled');
+			$(".endInput").removeAttr('disabled');
+			$('.reserveButton').removeClass('disabled');
+		}
+	}
+
 	function reserve() {
 		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
 		var end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
@@ -37,11 +49,14 @@
 			'emin': end.format('mm'),
 		};
 
+		disableForm(true);
+
 		$.ajax({
 			type: "POST",
 			url: "reserve_time",
 			data: post_data,
 			success: function(data) {
+				disableForm(false);
 				if (data.length > 0) {
 				var message = $.parseJSON(data);
 					if (message.success == 1) {
