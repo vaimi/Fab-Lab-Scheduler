@@ -542,6 +542,7 @@ class Admin extends CI_Controller
      * @access admin
      */
     public function schedule_copy() {
+    	// TODO what if slot are at the midnight??? should we copy it also
     	if ($this->input->server('REQUEST_METHOD') == 'POST') 
     	{
     		//If slots are modified or deleted.
@@ -552,9 +553,9 @@ class Admin extends CI_Controller
     			echo json_encode(array("Error" => "Save timetable first."));
     			return;
     		}
-    		$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-    		$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-    		$this->form_validation->set_rules('copyStartDate', 'Copy Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+    		$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+    		$this->form_validation->set_rules('copyStartDate', 'Copy Start Date', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
 
     		if ($this->form_validation->run() == FALSE)
     		{
@@ -564,11 +565,13 @@ class Admin extends CI_Controller
     		}
     		else 
     		{
-    			$startDate = $this->input->post("startDate");
-    			$endDate = $this->input->post("endDate");
-    			$copyStartDate = $this->input->post("copyStartDate");
-    			$info = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
-    			echo json_encode(array("affected rows" => count($info), "info" => $info ));
+    			$startDate = new DateTime($this->input->post("startDate"));
+    			$endDate = new DateTime($this->input->post("endDate"));
+    			$copyStartDate  = new DateTime($this->input->post("copyStartDate"));
+    			//Set time to 23:59:59
+    			$endDate->setTime(23,59,59);
+    			$count_affected_rows = $this->Admin_model->schedule_copy($startDate, $endDate, $copyStartDate);
+    			echo json_encode(array("affected" => $count_affected_rows));
     		}
     	}
     	else {

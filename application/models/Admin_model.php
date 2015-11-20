@@ -163,13 +163,10 @@ class Admin_model extends CI_Model {
 		return $this->db->get();
     }
     public function schedule_copy($startDate, $endDate, $copyStartDate) {
-    	$r = $this->timetable_get_supervision_slots($startDate, $endDate);
-    	//Make DateTime objects.
-    	$copyStartDateObj =  new DateTime($copyStartDate);
-    	$startDateObj =  new DateTime($startDate);
+    	$r = $this->timetable_get_supervision_slots($startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s'));
     	//This offset is added to replicated schedules
-    	$offset = date_diff($startDateObj, $copyStartDateObj);
-    	$info = array();
+    	$offset = date_diff($startDate, $copyStartDate);
+    	$count = 0;
     	foreach ($r->result() as $row) {
     		$tmp = array();
     		$new_start_time =  new DateTime($row->StartTime);
@@ -181,14 +178,8 @@ class Admin_model extends CI_Model {
     		$slot->end = $new_end_time->format('Y-m-d H:i:s');
     		$slot->assigned = $row->aauth_usersID;
     		$this->timetable_save_new($slot);
-    		
-    		$tmp['startTime_old'] = $row->StartTime;
-    		$tmp['EndTime_old'] = $row->EndTime;
-    		$tmp['startTime_new'] = $slot->start;
-    		$tmp['EndTime_new'] = $slot->end;
-    		$tmp['id'] = $slot->assigned;
-    		array_push($info, $tmp);
+    		$count++;
     	}
-    	return $info;
+    	return $count;
     }
 }

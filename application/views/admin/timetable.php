@@ -1,3 +1,4 @@
+<script type="text/javascript" src="<?=asset_url()?>js/bootstrap-notify.min.js"></script>
 <div class="container">
 	<div class="btn-toolbar">
 		<a id="save_button" type="button" class="btn btn-success">
@@ -104,7 +105,7 @@
             alert("Dates cannot be empty.");
             return;
         }
-        if ( sDate >= eDate ) {
+        if ( sDate > eDate ) {
             alert("Start date must be earlier than end date");
             return;
         }
@@ -125,11 +126,18 @@
             url: "schedule_copy",
             data: post_data,
             success: function(data) {
-                alert(data);
-                if (!JSON.parse(data).hasOwnProperty('Error') )
+				var d = JSON.parse(data);
+				$("#copyModal").modal("hide");
+                if (!d.hasOwnProperty('Error') )
                 {
+                	alerter("success", "Schedule is <strong>copied! " + d.affected + "</strong> schedules were created.");
                 	$('#calendar').fullCalendar('refetchEvents');
                 }
+                else 
+                {
+					alerter("warning");
+                }
+                
             }
     	});
     }
@@ -168,6 +176,20 @@
     	});
     }
     
+    function alerter(alert_type, alert_message) {
+    	// alerter function for on-screen alerts
+    	$.notify({
+    	// options
+    	message: alert_message 
+    	},{
+    		// settings
+    		type: alert_type,
+    		animate: {
+    			enter: 'animated fadeInDown',
+    			exit: 'animated fadeOutUp'
+    		}
+    	});
+    }
     
 	$(document).ready(function() {
 
