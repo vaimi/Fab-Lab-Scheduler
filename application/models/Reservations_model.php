@@ -151,4 +151,11 @@ class Reservations_model extends CI_Model {
         }
         return $response;
     }
+
+    public function reduce_quota($user_id, $amount) {
+        $quota = $this->get_user_quota($user_id);
+        $quota = $quota - $amount;
+        $this->db->update('extended_users_information', array('Quota' => $quota), array('id' => $user_id));
+        return True;
+    }
 }

@@ -495,10 +495,22 @@ class Reservations extends CI_Controller
 				$start = $start_time->format('Y-m-d H:i:s');
 				$end = $end_time->format('Y-m-d H:i:s');
 				$is_overlapping = $this->Reservations_model->is_reserved($start, $end, $m_id);
+
+				$diff = $start_time->diff($end_time);
+				$hours = $diff->h;
+				$hours = $hours + ($diff->format('%d')*24);
+				$hours = $hours + ($diff->format('%i')/60);
+				$cost = number_format($hours,2);
+
 				if ($is_overlapping) 
 				{
 					$response['success'] = 0;
 					$response['errors'] =  array("Overlapping with other reservation");
+				}
+				else if ($cost > $this->Reservations_model->get_user_quota($this->session->userdata('id'))) //TODO this check should be done also on client side, this is just to double check it.
+				{
+					$response['success'] = 0;
+					$response['errors'] =  array("Required quota " . $cost);
 				}
 				else
 				{
@@ -510,8 +522,8 @@ class Reservations extends CI_Controller
 							'QRCode' => "dunno about this",
 							'PassCode' => "dunno about this"
 					);
-					// TODO Should check quota
 					$this->Reservations_model->set_new_reservation($data);
+					$this->Reservations_model->reduce_quota($this->session->userdata('id'), $cost);
 					$response['success'] = 1;
 				}
 			}
