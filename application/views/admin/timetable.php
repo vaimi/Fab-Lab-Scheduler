@@ -135,7 +135,7 @@
                 }
                 else 
                 {
-					alerter("warning");
+					alerter("warning",d.Error);
                 }
                 
             }
@@ -148,7 +148,7 @@
             alert("Dates cannot be empty.");
             return;
         }
-        if ( sDate >= eDate ) {
+        if ( sDate > eDate ) {
             alert("Start date must be earlier than end date");
             return;
         }
@@ -164,7 +164,7 @@
             data: post_data,
             success: function(data) 
             {
-                alert(data);
+                $("#removeModal").modal("hide");
                 var json = JSON.parse(data);
                 var deleted_ids = json['deleted_ids'];
                 for (var id in deleted_ids) {
