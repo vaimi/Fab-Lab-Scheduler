@@ -347,18 +347,31 @@ class Reservations extends CI_Controller
 	    {
 	        foreach ($free_slots as $free_slot) 
 	        {
-	        	
+	        	$start_time = DateTime::createFromFormat('U', $free_slot->start);
+	        	$end_time = DateTime::createFromFormat('U', $free_slot->end);
+	        	$free = $end_time->diff($start_time);
 	        	$response[] = array(
 	        		"resourceId" => "mac_" . $free_slot->machine,
-	        		"start" => date("Y-m-d H:i:s",$free_slot->start),
-	        		"end" => date("Y-m-d H:i:s",$free_slot->end),
-	        		"title" => "Free " . date("G \h i \m",$free_slot->end - $free_slot->start),
+	        		"start" => $start_time->format('Y-m-d H:i:s'),
+	        		"end" => $end_time->format('Y-m-d H:i:s'),
+	        		"title" => "Free " . $this->format_interval($free),
 	        		"reserved" => 0
 	        	);
 	        }
         }
         $this->output->set_output(json_encode($response));
 
+	}
+
+	private function format_interval($interval) 
+	{
+	    $result = "";
+	    if ($interval->y) { $result .= $interval->format("%y y "); }
+	    if ($interval->m) { $result .= $interval->format("%m m "); }
+	    if ($interval->d) { $result .= $interval->format("%d d "); }
+	    if ($interval->h) { $result .= $interval->format("%h h "); }
+	    if ($interval->i) { $result .= $interval->format("%i m "); }
+	    return $result;
 	}
 	
 	public function reserve_get_reserved_slots() 
