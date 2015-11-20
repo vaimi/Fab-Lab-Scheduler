@@ -254,6 +254,7 @@
 			droppable: true, // this allows things to be dropped onto the calendar
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			eventClick: function(event, element) {
+				//console.log(event);
                 $('#modalTitle').html(event.title);
                 $('#modalBody').html(event.description);
                 $('#event_remove_button').attr('href',"javascript:removeEvent(" + event.id + ")");
@@ -261,6 +262,10 @@
                 $('#eventModal').modal();
 				//open modal/tooltip for deletion and manual data entry
 				$('#calendar').fullCalendar('updateEvent', event);
+				//Place event's times
+				$('#startpicker').data("DateTimePicker").date(event.start);
+				$('#endpicker').data("DateTimePicker").date(event.end);
+				$("#supervisionpicker").val(event.assigned);
 			},
 			editable: true,
             eventRender: function(event, element){
@@ -510,7 +515,7 @@
                         <label for="supervisionpicker">Select supervisor:</label>
                         <select class="form-control" id="supervisionpicker">
                             <?php foreach ($admins as $row ) {?>
-                                <option id="<?=$row->id ?>"><?=$row->name; ?></option>
+                                <option value="<?=$row->id ?>"><?=$row->name; ?></option>
                             <?php }?>
                         </select>
                     </div>
