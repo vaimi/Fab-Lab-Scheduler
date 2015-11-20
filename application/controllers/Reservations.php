@@ -352,8 +352,8 @@ class Reservations extends CI_Controller
 	        	$free = $end_time->diff($start_time);
 	        	$response[] = array(
 	        		"resourceId" => "mac_" . $free_slot->machine,
-	        		"start" => $start_time->format('Y-m-d H:i:s'),
-	        		"end" => $end_time->format('Y-m-d H:i:s'),
+	        		"start" => date('Y-m-d H:i:s', $free_slot->start),
+	        		"end" => date('Y-m-d H:i:s', $free_slot->end),
 	        		"title" => "Free " . $this->format_interval($free),
 	        		"reserved" => 0
 	        	);
