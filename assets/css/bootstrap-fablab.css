@@ -136,3 +136,8 @@
         -moz-box-shadow:inset 0px 0px 0px 2px #5cb85c;
         box-shadow:inset 0px 0px 0px 2px #5cb85c;
     }
+
+	.form-group.required .control-label:after { 
+	   content:"*";
+	   color:red;
+	}

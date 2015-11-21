@@ -177,11 +177,14 @@ class Reservations extends CI_Controller
 
 	// TODO case of non-supervised machines
 	// TODO min session lenght
-	private function calculate_free_slots($start, $end) {
+	private function calculate_free_slots($start, $end, $predefined_machine=false) {
 		$free_slots = array();
 		$machines = $this->Reservations_model->reservations_get_group_machines();
 		foreach($machines->result() as $machine)
 		{
+			if($predefined_machine != false) {
+				if ($predefined_machine != $machine->MachineID) continue;
+			}
 			// Machines that require always supervison
 			$supervision_sessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
 			$session_ends = array();
@@ -266,7 +269,7 @@ class Reservations extends CI_Controller
 						$free_slots[] = $slot;
 				}
 			}
-			if (!$machine->NeedSupervision)
+			if ($machine->NeedSupervision == 0)
 			{
 				// Machines that can be used without supervison
 				// lvl 3 and above can reserve these. 
@@ -345,18 +348,28 @@ class Reservations extends CI_Controller
 							$slot->start = $breakpoints[$j];
 							$slot->end = $breakpoints[$j+1];
 							$slot->machine = $machine->MachineID;
-							$slot->svLevel = 0;
+							$slot->svLevel = "0";
 							$free_slots[] = $slot;
 						}
 					}
 					else
 					{
-							$slot = new stdClass();
-							$slot->start = $session_ends[$j];
-							$slot->end = $session_ends[$j+1];
-							$slot->machine = $machine->MachineID;
-							$slot->svLevel = 0;
-							$free_slots[] = $slot;
+						$slot = new stdClass();
+						$slot->start = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i]));;
+						$slot->end = $this->Reservations_model->get_next_reservation_start($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i+1]));
+						$slot->machine = $machine->MachineID;
+						$slot->svLevel = "0";
+						$flag = false;
+						foreach($free_slots as $free)
+						{
+							if ($free->machine == $slot->machine and $free->start == $slot->start and $free->end == $slot->end)
+							{
+								$flag = true;
+								continue;
+							}
+
+						}
+						if(!$flag) $free_slots[] = $slot;
 					}
 				}
 				/*
@@ -377,7 +390,7 @@ class Reservations extends CI_Controller
 	 * Deletes free slots if user has not suitable level for the machine.
 	 * It combines free slots if supervisors have slots in same time.
 	 */
-	private function filter_free_slots($free_slots)
+	private function filter_free_slots($free_slots, $length=false)
 	{
 		$tmp = $free_slots;
 		$user_id = $this->session->userdata('id');
@@ -398,7 +411,7 @@ class Reservations extends CI_Controller
 			//If supervisor lvl is 4, delete slot if user lvl is 2 or below 
 			if($free_slot->svLevel == SUPERVISOR_CAN_SUPERVISE && $user_machine_level < USER_SKILLED) 
 			{
-				if(!$free_slot->svLevel == 0 && USER_SKILLED) continue;
+				if(!$free_slot->svLevel == "0" && USER_SKILLED) continue;
 				unset($tmp[$key]);
 				continue;
 			}
@@ -436,12 +449,70 @@ class Reservations extends CI_Controller
 			}
 			$free_slot->end = $end_slot->end;
 			//create a combined slot
-			array_push($results, $free_slot);
+			if ($length == false)
+			{
+				array_push($results, $free_slot);
+			}
+			else
+			{
+				$diff = $free_slot->end - $free_slot->start;
+				$slot_length = $diff / ( 60 * 60 );
+				if ($slot_length >= $length)
+				{
+					array_push($results, $free_slot);
+				}
+			}
 			reset($tmp);
 		}
 		return $results;
 	}
 
+	//TODO inputs should be checked
+	public function reserve_search_free_slots()
+	{
+		$machine = $this->input->post('mid');
+		$length = $this->input->post('length');
+		$day = $this->input->post('day');
+		if ($day == null)
+		{
+			$now = new DateTime();
+			$start = $now->format('Y-m-d H:i:s');
+			$now->add(new DateInterval('P2M'));
+			$end = $now->format('Y-m-d H:i:s');
+		}
+		else
+		{
+			$start = $day . " 00:00:00";
+			$end = $day . " 23:59:59";
+		}
+		$free_slots = $this->calculate_free_slots($start, $end, $machine);
+		if ($length == null)
+		{
+			$free_slots = $this->filter_free_slots($free_slots);
+		}
+		else
+		{
+			$free_slots = $this->filter_free_slots($free_slots, $length);
+		}
+		$response = array();
+		if (count($free_slots) > 0)
+	    {
+	        foreach ($free_slots as $free_slot) 
+	        {
+	        	$start_time = DateTime::createFromFormat('U', $free_slot->start);
+	        	$end_time = DateTime::createFromFormat('U', $free_slot->end);
+	        	$free = $end_time->diff($start_time);
+	        	$response[] = array(
+	        		"mid" => $free_slot->machine,
+	        		"start" => date('d.m.Y-m-d H:i', $free_slot->start),
+	        		"end" => date('d.m.Y H:i', $free_slot->end),
+	        		"title" => "Free " . $this->format_interval($free)
+	        	);
+	        }
+        }
+        $this->output->set_output(json_encode($response));
+
+	}
 	//TODO, maybe we should disable finding free slots from history
 	public function reserve_get_free_slots() 
 	{
@@ -458,7 +529,7 @@ class Reservations extends CI_Controller
 	        	$end_time = DateTime::createFromFormat('U', $free_slot->end);
 	        	$free = $end_time->diff($start_time);
 	        	$response[] = array(
-	        		"resourceId" => "mac_" . $free_slot->machine,
+	        		"resourceId" => $free_slot->machine,
 	        		"start" => date('Y-m-d H:i:s', $free_slot->start),
 	        		"end" => date('Y-m-d H:i:s', $free_slot->end),
 	        		"title" => "Free " . $this->format_interval($free),

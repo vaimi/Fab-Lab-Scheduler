@@ -2,6 +2,8 @@
 <script src="<?php echo asset_url() . "js/jquery.qtip.min.js"; ?>"  ></script>
 <script type="text/javascript" src="<?=asset_url()?>js/bootstrap-notify.min.js"></script>
 <link rel="stylesheet" type="text/css" href="<?=asset_url()?>css/animate.css"/>
+<script type="text/javascript" src="<?=asset_url()?>js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" type="text/css" href="<?=asset_url()?>css/bootstrap-select.min.css"/>
 
 <script>
 	function alerter(alert_type, alert_message) {
@@ -29,6 +31,36 @@
 			$(".endInput").removeAttr('disabled');
 			$('.reserveButton').removeClass('disabled');
 		}
+	}
+
+	function searchSlot() {
+		var day = $("#searchInput").val();
+		if (day != "") {
+			day = moment(day, "DD.MM.YYYY");
+			var day_string = day.format("YYYY/MM/DD");
+		} else {
+			var day_string = "";
+		}
+		var post_data = {
+			'mid': $("#selectMachine").val(),
+			'day': day_string,
+			'length': $("#selectLength").val()
+		};
+		$.ajax({
+			type: "POST",
+			url: "reserve_search_free_slots",
+			data: post_data,
+			success: function(data) {
+				if (data.length > 0) {
+					var message = $.parseJSON(data);
+					var resultText = "";
+					for (var result in message) {
+						resultText += "<a data-machine=" + message[result].mid + " href=\"#\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a><br>";
+					}
+					$("#results").html(resultText);
+				}
+			}
+		}); 
 	}
 
 	function reserve() {
@@ -109,16 +141,29 @@
     }
 
 	$(function() { // document ready
+		$('.selectpicker').selectpicker();
+		$('#searchPicker').datetimepicker({
+			locale: 'en-gb',
+			format: 'DD.MM.YYYY',
+            inline: false,
+			sideBySide: false
+        });
+
+        $('#searchButton').unbind("click").click(function(){ 
+        	searchSlot();
+        });
+
 		getQuota();
-		$("#datepicker").datepicker();
+
+		/*$("#datepicker").datepicker();
         
 		$("#dp_btn").click( function() {
 			$( "#datepicker" ).datepicker( "show" );
-		});
+		});*/
 
 		$('#calendar').fullCalendar({
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
-			now: '2015-10-26',
+			now: '2015-11-06',
 			editable: false, // enable draggable events
 			allDaySlot: false,
 			firstDay: 1,
@@ -333,22 +378,10 @@
 		<legend>Search by form</legend>
 		<form class="form-horizontal">
 		<fieldset>
-		<!-- Select Basic -->
-		<div class="form-group">
-		  <label class="col-md-4 control-label" for="selectday">Day</label>
-		  <div class="col-md-4">
-			<div class="input-group">
-			<input type="text" class="form-control" placeholder="Select...">
-			<span class="input-group-btn">
-				<button class="btn btn-default glyphicon glyphicon-calendar" type="button"></button>
-			</span>
-			</div><!-- /input-group -->
-		</div>
-		</div>
-		<div class="form-group">
+		<div class="form-group required">
 		  <label class="col-md-4 control-label" for="selectmachine">Machine</label>
 		  <div class="col-md-4">
-			<select id="selectmachine" name="selectmachine" class="form-control">
+			<select id="selectMachine" class="form-control selectpicker">
 			<?php foreach ($machines as $machine): ?>
 			<option value="<?php echo $machine->MachineID?>"><?php echo $machine->MachineID . " " . $machine->MachineName
 			. " " . $machine->Manufacturer . " " . $machine->Model ?></option>
@@ -356,13 +389,32 @@
 			</select>
 		  </div>
 		</div>
-
+		<div class="form-group">
+		  <label class="col-md-4 control-label" for="selectday">Day</label>
+		  <div class="col-md-4">
+            <div class='input-group date' id='searchPicker'>
+                <input id="searchInput" type='text' placeholder="Select day" class="form-control" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+		  </div>
+		</div>
 		<div class="form-group">
 		  <label class="col-md-4 control-label" for="selectlenght">Reservation lenght</label>
 		  <div class="col-md-4">
-			<select id="selectlenght" name="selectlenght" class="form-control">
-			  <option value="1">Option one</option>
-			  <option value="2">Option two</option>
+			<select id="selectLength" class="form-control selectpicker">
+			  <option value="0">Not defined</option>
+			  <option value="1">1 hour</option>
+			  <option value="2">2 hours</option>
+			  <option value="3">3 hours</option>
+			  <option value="4">4 hours</option>
+			  <option value="5">5 hours</option>
+			  <option value="6">6 hours</option>
+			  <option value="7">7 hours</option>
+			  <option value="8">8 hours</option>
+			  <option value="9">9 hours</option>
+			  <option value="10">10 hours</option>
 			</select>
 		  </div>
 		</div>
@@ -370,14 +422,16 @@
 		<div class="form-group">
 		  <label class="col-md-4 control-label" for="searchbutton"></label>
 		  <div class="col-md-4">
-			<button id="searchbutton" name="searchbutton" class="btn btn-primary">Search</button>
+			<a id="searchButton" class="btn btn-primary">
+				<span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
+			</a>
 		  </div>
 		</div>
 		
 		<div class="form-group">
 		  <label class="col-md-4 control-label" for="results"></label>
 		  <div class="col-md-4">
-			<div class="well" id="results" name="results">results</div>
+			<div class="well" id="results"></div>
 		  </div>
 		</div>
 
