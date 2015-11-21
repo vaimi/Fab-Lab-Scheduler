@@ -26,8 +26,8 @@ class Reservations_model extends CI_Model {
 
     public function reservations_get_all_reserved_slots($start_time, $end_time) 
     {
-        $sql = "SELECT * FROM Reservation WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
-                      EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
+        $sql = "SELECT * FROM Reservation WHERE EndTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
+                      StartTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
         $response = $this->db->query($sql, array($start_time, $end_time));
         return $response->result();
     }
@@ -157,5 +157,40 @@ class Reservations_model extends CI_Model {
         $quota = $quota - $amount;
         $this->db->update('extended_users_information', array('Quota' => $quota), array('id' => $user_id));
         return True;
+    }
+
+    public function get_previous_reservation_end($machine_id, $time) 
+    {
+        $this->db->select("EndTime");
+        $this->db->from("Reservation");
+        $this->db->where("MachineID", $machine_id);
+        $this->db->where("EndTime <=", $time);
+        $this->db->order_by("EndTime", "desc");
+        $this->db->limit(1);
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            return strtotime($result->row()->EndTime);
+        }
+        $now = new DateTime();
+        return $now->getTimestamp();
+    }
+
+    public function get_next_reservation_start($machine_id, $time) 
+    {
+        $this->db->select("StartTime");
+        $this->db->from("Reservation");
+        $this->db->where("MachineID", $machine_id);
+        $this->db->where("StartTime >=", $time);
+        $this->db->order_by("StartTime", "asc");
+        $this->db->limit(1);
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            return strtotime($result->row()->StartTime);
+        }
+        $now = new DateTime();
+        $now->add(new DateInterval('P2M'));
+        return $now->getTimestamp();
     }
 }

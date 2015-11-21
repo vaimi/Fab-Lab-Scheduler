@@ -182,27 +182,130 @@ class Reservations extends CI_Controller
 		$machines = $this->Reservations_model->reservations_get_group_machines();
 		foreach($machines->result() as $machine)
 		{
-			if ($machine->NeedSupervision)
+			// Machines that require always supervison
+			$supervision_sessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
+			$session_ends = array();
+			// Loop through all supervision sessions
+			foreach($supervision_sessions->result() as $supervision_session)
 			{
-				// Machines that require always supervison
-				$supervision_sessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
-				// Loop through all supervision sessions
-				foreach($supervision_sessions->result() as $supervision_session)
-				{
-					$supervision_session->date_StartTime = strtotime($supervision_session->StartTime);
-					$supervision_session->date_EndTime = strtotime($supervision_session->EndTime);
-					// Get supervisor machine level
-					$supervisor_level = $this->Reservations_model->reservations_get_supervisor_levels($supervision_session->aauth_usersID, $machine->MachineID);
-					$supervisor_level = $supervisor_level->row();
-					// Pass if we don't have sufficien level
-					if ($supervisor_level == null) {
+
+				$supervision_session->date_StartTime = strtotime($supervision_session->StartTime);
+				$supervision_session->date_EndTime = strtotime($supervision_session->EndTime);
+
+				$session_ends[] = $supervision_session->date_StartTime;
+				$session_ends[] = $supervision_session->date_EndTime;
+
+				// Get supervisor machine level
+				$supervisor_level = $this->Reservations_model->reservations_get_supervisor_levels($supervision_session->aauth_usersID, $machine->MachineID);
+				$supervisor_level = $supervisor_level->row();
+				// Pass if we don't have sufficien level
+				if ($supervisor_level == null) {
+					if ($machine->NeedSupervision)
+					{
 						continue;
 					}
+					$supervisor_level = new stdClass();
+					$supervisor_level->Level = 0;
+				}
+
+				// Get reservations
+				$reservations = $this->Reservations_model->reservations_get_reserved_slots($supervision_session->StartTime, $supervision_session->EndTime, $machine->MachineID);
+				// Make array for breakpoints
+				$breakpoints = array(); 
+				if (count($reservations) != 0) 
+				{
+					foreach($reservations as $reservation) 
+					{
+						$breakpoints[] = strtotime($reservation->StartTime);
+						$breakpoints[] = strtotime($reservation->EndTime);
+					}
+				}
+				// Cleanup breakpoints
+				if (count($breakpoints) > 0) 
+				{
+					// check whether the first breakpoint is somewhere later in the supervision session
+					if ($breakpoints[0] > $supervision_session->date_StartTime)
+					{
+						 array_unshift($breakpoints, $supervision_session->date_StartTime); 
+					}
+					else
+					{
+						array_shift($breakpoints);
+					}
+					// check whether the last fbreakpoint is before end of the supervision session
+					if (end($breakpoints) <= $supervision_session->date_EndTime)
+					{
+						 $breakpoints[] = $supervision_session->date_EndTime; 
+					}
+					else
+					{
+						array_pop($breakpoints);
+					}
+					// remove breakpoints without break between
+					$breakpoints_dub = array_diff_assoc($breakpoints, array_unique($breakpoints));
+					$breakpoints = array_diff($breakpoints, $breakpoints_dub);
+					$breakpoints = array_values($breakpoints);
+					$break_amount = count($breakpoints);
+					for($i=0; $i<$break_amount; $i=$i+2)
+					{
+						$slot = new stdClass();
+						$slot->start = $breakpoints[$i];
+						$slot->end = $breakpoints[$i+1];
+						$slot->machine = $machine->MachineID;
+						$slot->svLevel = $supervisor_level->Level;
+						$free_slots[] = $slot;
+					}
+				}
+				else
+				{
+						$slot = new stdClass();
+						$slot->start = $supervision_session->date_StartTime;
+						$slot->end = $supervision_session->date_EndTime;
+						$slot->machine = $machine->MachineID;
+						$slot->svLevel = $supervisor_level->Level;
+						$free_slots[] = $slot;
+				}
+			}
+			if (!$machine->NeedSupervision)
+			{
+				// Machines that can be used without supervison
+				// lvl 3 and above can reserve these. 
+				if (count($session_ends) > 0) 
+				{
+					if ($session_ends[0] > strtotime($start))
+					{
+						 array_unshift($session_ends, strtotime($start)); 
+					}
+					else
+					{
+						array_shift($session_ends);
+					}
+					if (end($session_ends) <= strtotime($end))
+					{
+						 $session_ends[] = $this->Reservations_model->get_next_reservation_start($machine->MachineID, $end);
+					}
+					else
+					{
+						array_pop($session_ends);
+					}
+				}
+				else 
+				{
+					$session_ends[] = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, $start);
+					$session_ends[] = $this->Reservations_model->get_next_reservation_start($machine->MachineID, $end);
+				}
+				// remove breakpoints without break between
+				$session_ends_dub = array_diff_assoc($session_ends, array_unique($session_ends));
+				$session_ends = array_diff($session_ends, $session_ends_dub);
+				$session_ends = array_values($session_ends);
+				$session_amount = count($session_ends);
+				for($i=0; $i<$session_amount; $i=$i+2)
+				{
 					// Get reservations
-					$reservations = $this->Reservations_model->reservations_get_reserved_slots($supervision_session->StartTime, $supervision_session->EndTime, $machine->MachineID);
+					$reservations = $this->Reservations_model->reservations_get_reserved_slots(date('Y-m-d H:i:s', $session_ends[$i]), date('Y-m-d H:i:s', $session_ends[$i+1]), $machine->MachineID);
 					// Make array for breakpoints
 					$breakpoints = array(); 
-					if (count($reservations) != 0) 
+					if (count($reservations) != 0)
 					{
 						foreach($reservations as $reservation) 
 						{
@@ -214,18 +317,18 @@ class Reservations extends CI_Controller
 					if (count($breakpoints) > 0) 
 					{
 						// check whether the first breakpoint is somewhere later in the supervision session
-						if ($breakpoints[0] > $supervision_session->date_StartTime)
+						if ($breakpoints[0] > $session_ends[$i])
 						{
-							 array_unshift($breakpoints, $supervision_session->date_StartTime); 
+							 array_unshift($breakpoints, $session_ends[$i]); 
 						}
 						else
 						{
 							array_shift($breakpoints);
 						}
 						// check whether the last fbreakpoint is before end of the supervision session
-						if (end($breakpoints) <= $supervision_session->date_EndTime)
+						if (end($breakpoints) <= $session_ends[$i+1])
 						{
-							 $breakpoints[] = $supervision_session->date_EndTime; 
+							 $breakpoints[] = $session_ends[$i+1]; 
 						}
 						else
 						{
@@ -236,33 +339,36 @@ class Reservations extends CI_Controller
 						$breakpoints = array_diff($breakpoints, $breakpoints_dub);
 						$breakpoints = array_values($breakpoints);
 						$break_amount = count($breakpoints);
-						for($i=0; $i<=$break_amount-1; $i=$i+2)
+						for($j=0; $j<$break_amount; $j=$j+2)
 						{
 							$slot = new stdClass();
-							$slot->start = $breakpoints[$i];
-							$slot->end = $breakpoints[$i+1];
+							$slot->start = $breakpoints[$j];
+							$slot->end = $breakpoints[$j+1];
 							$slot->machine = $machine->MachineID;
-							$slot->svLevel = $supervisor_level->Level;
+							$slot->svLevel = 0;
 							$free_slots[] = $slot;
 						}
 					}
 					else
 					{
 							$slot = new stdClass();
-							$slot->start = $supervision_session->date_StartTime;
-							$slot->end = $supervision_session->date_EndTime;
+							$slot->start = $session_ends[$j];
+							$slot->end = $session_ends[$j+1];
 							$slot->machine = $machine->MachineID;
-							$slot->svLevel = $supervisor_level->Level;
+							$slot->svLevel = 0;
 							$free_slots[] = $slot;
 					}
 				}
-
-			} 
-			else 
-			{
-				// Machines that can be used without supervison
-				// lvl 3 and above can reserve these. 
-
+				/*
+				else
+				{
+					$slot = new stdClass();
+					$slot->start = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, $start);
+					$slot->end = $this->Reservations_model->get_next_reservation_start($machine->MachineID, $end);
+					$slot->machine = $machine->MachineID;
+					$slot->svLevel = 0;
+					$free_slots[] = $slot;
+				}*/
 			}
 		}
 		return $free_slots;	
@@ -292,6 +398,7 @@ class Reservations extends CI_Controller
 			//If supervisor lvl is 4, delete slot if user lvl is 2 or below 
 			if($free_slot->svLevel == SUPERVISOR_CAN_SUPERVISE && $user_machine_level < USER_SKILLED) 
 			{
+				if(!$free_slot->svLevel == 0 && USER_SKILLED) continue;
 				unset($tmp[$key]);
 				continue;
 			}
@@ -454,6 +561,7 @@ class Reservations extends CI_Controller
 		echo $this->Reservations_model->get_user_quota($this->session->userdata('id'));
 	}
 
+	//TODO this should check that user has right levels to do the reservation
 	public function reserve_time() {
 		
 		$this->form_validation->set_rules('syear', 'start year', 'required|regex_match[(\d{4})]');
