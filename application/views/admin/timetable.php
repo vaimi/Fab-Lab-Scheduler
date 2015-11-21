@@ -72,23 +72,24 @@
     
     function restoreEvent(id) {
     	var event = $("#calendar").fullCalendar( 'clientEvents', id)[0];
-    	//TODO not implemented yet.
-    	return;
         var post_data = {
-            "id": event.id,
-            "assigned": event.assigned,
-            "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
-            "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss")
-        }
+            "id": event.id
+        };
         $.ajax({
             type: "POST",
             url: "timetable_restore_slot",
             data: post_data,
             success: function(data) {
                 alert(data);
+                var json = JSON.parse(data);
+//                 console.log(json);
                 // return success
-                if (data.length > 0) {
-                    event.color = ttColors.modified;
+                if (json.success) {
+                    event.assigned = json.assigned;
+                    event.start = json.start;
+                    event.end = json.end;
+                    event.title = "uid: " + event.assigned + " sid: " + event.id;
+                    event.color = json.color;
                     $('#calendar').fullCalendar('updateEvent', event);
                 }
             }
@@ -285,7 +286,7 @@
 			droppable: true, // this allows things to be dropped onto the calendar
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			eventClick: function(event, element) {
-				console.log(event);
+// 				console.log(event);
                 $('#modalTitle').html(event.title);
                 $('#modalBody').html(event.description);
                 $('#event_remove_button').attr('href',"javascript:removeEvent(" + event.id + ")");
@@ -348,7 +349,7 @@
 			},
             eventReceive: function(event){
                 //external event drop callback
-                console.log(event);
+//                 console.log(event);
                 var post_data = {
                     "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
                     "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss"),
