@@ -529,7 +529,7 @@ class Reservations extends CI_Controller
 	        	$end_time = DateTime::createFromFormat('U', $free_slot->end);
 	        	$free = $end_time->diff($start_time);
 	        	$response[] = array(
-	        		"resourceId" => $free_slot->machine,
+	        		"resourceId" => "mac_" . $free_slot->machine,
 	        		"start" => date('Y-m-d H:i:s', $free_slot->start),
 	        		"end" => date('Y-m-d H:i:s', $free_slot->end),
 	        		"title" => "Free " . $this->format_interval($free),
