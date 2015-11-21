@@ -534,6 +534,65 @@ class Admin extends CI_Controller
         }
         echo json_encode(array("success" => 1));
     }
+    public function timetable_confirm_slot() {
+    	//TODO validation
+    	$id = $this->input->post("id");
+    	$assigned = $this->input->post("assigned");
+    	$start = $this->input->post("start");
+    	$end = $this->input->post("end");
+    	$color = "#000000";
+    	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
+    	//Delete if in sv_unsaved_modified_items
+    	if (in_array($id, $modIDs))
+    	{
+    		$tmp = $this->session->userdata('sv_unsaved_modified_items');
+    		$tmp[$id]->assigned = $assigned;
+    		$tmp[$id]->start = $start;
+    		$tmp[$id]->end = $end;
+    		$this->session->set_userdata('sv_unsaved_modified_items', $tmp);
+    		$color = "#5bc0de";
+    	}
+    	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_new_items'));
+    	//Delete if in sv_unsaved_new_items
+    	if (in_array($id, $modIDs))
+    	{
+    		$tmp = $this->session->userdata('sv_unsaved_new_items');
+    		$tmp[$id]->assigned = $assigned;
+    		$tmp[$id]->start = $start;
+    		$tmp[$id]->end = $end;
+    		$this->session->set_userdata('sv_unsaved_new_items', $tmp);
+    		$color = "#5bc0de";
+    	}
+    	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items'));
+    	//Delete if in sv_unsaved_deleted_items
+    	if (in_array($id, $modIDs))
+    	{
+    		$tmp = $this->session->userdata('sv_unsaved_deleted_items');
+    		$tmp[$id]->assigned = $assigned;
+    		$tmp[$id]->start = $start;
+    		$tmp[$id]->end = $end;
+    		$this->session->set_userdata('sv_unsaved_deleted_items', $tmp);
+    		$color = "#d9534f";
+    	}
+    	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
+    	//Delete if in sv_saved_items
+    	if (in_array($id, $modIDs))
+    	{
+    		$tmp = $this->session->userdata('sv_saved_items');
+    		//$event = array_filter($tmp, function ($e) use (&$id) { return $e->id === $id; } );
+    		$tmp[$id]->assigned = $assigned;
+    		$tmp[$id]->start = $start;
+    		$tmp[$id]->end = $end;
+    		
+    		$tmp2 = $this->session->userdata('sv_unsaved_modified_items');
+    		$tmp2[$id] = $tmp[$id];
+    		unset($tmp[$id]);
+    		$this->session->set_userdata('sv_saved_items', $tmp);
+    		$this->session->set_userdata('sv_unsaved_modified_items', $tmp2);
+    		$color = "#5bc0de";
+    	}
+    	echo json_encode(array("success" => 1 , "assigned" => $assigned, "start" => $start, "end" => $end, "color" => $color));
+    }
 	//Schedules 
 	
     /**

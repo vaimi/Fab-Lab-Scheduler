@@ -71,6 +71,9 @@
     }
     
     function restoreEvent(id) {
+    	var event = $("#calendar").fullCalendar( 'clientEvents', id)[0];
+    	//TODO not implemented yet.
+    	return;
         var post_data = {
             "id": event.id,
             "assigned": event.assigned,
@@ -82,6 +85,7 @@
             url: "timetable_restore_slot",
             data: post_data,
             success: function(data) {
+                alert(data);
                 // return success
                 if (data.length > 0) {
                     event.color = ttColors.modified;
@@ -190,7 +194,34 @@
     		}
     	});
     }
-    
+    function confirmEvent(id) 
+    {
+    	var event = $("#calendar").fullCalendar( 'clientEvents', id)[0];
+        var post_data = {
+            "id": event.id,
+            "assigned": $("#supervisionpicker").val(),
+            "start": $('#startpicker').data("DateTimePicker").date().format("YYYY-MM-DD HH:mm:ss"),
+            "end": $('#endpicker').data("DateTimePicker").date().format("YYYY-MM-DD HH:mm:ss")
+        };
+        $.ajax({
+            type: "POST",
+            url: "timetable_confirm_slot",
+            data: post_data,
+            success: function(data) {
+                alert(data);
+                var json = JSON.parse(data);
+                // return success
+                if (json.success) {
+                    event.assigned = json.assigned;
+                    event.start = json.start;
+                    event.end = json.end;
+                    event.title = "uid: " + event.assigned + " sid: " + event.id;
+                    event.color = json.color;
+                    $('#calendar').fullCalendar('updateEvent', event);
+                }
+            }
+        });
+    }
 	$(document).ready(function() {
 
 		/* initialize the Datepickers
@@ -254,13 +285,20 @@
 			droppable: true, // this allows things to be dropped onto the calendar
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			eventClick: function(event, element) {
+				console.log(event);
                 $('#modalTitle').html(event.title);
                 $('#modalBody').html(event.description);
                 $('#event_remove_button').attr('href',"javascript:removeEvent(" + event.id + ")");
+                $('#event_discard_changes').attr('onclick',"javascript:restoreEvent(" + event.id + ")");
+                $('#event_confirm_changes').attr('onclick',"javascript:confirmEvent(" + event.id + ")");
                 $('#eventUrl').attr('href',event.url);
                 $('#eventModal').modal();
 				//open modal/tooltip for deletion and manual data entry
 				$('#calendar').fullCalendar('updateEvent', event);
+				//Place event's data to modal.
+				$('#startpicker').data("DateTimePicker").date(event.start);
+				$('#endpicker').data("DateTimePicker").date(event.end);
+				$("#supervisionpicker").val(event.assigned);
 			},
 			editable: true,
             eventRender: function(event, element){
@@ -453,7 +491,7 @@
 	      	<a type="button" class="btn btn-danger" onclick="removeSchedules();">
             	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
             </a>
-	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
 	
@@ -510,7 +548,7 @@
                         <label for="supervisionpicker">Select supervisor:</label>
                         <select class="form-control" id="supervisionpicker">
                             <?php foreach ($admins as $row ) {?>
-                                <option id="<?=$row->id ?>"><?=$row->name; ?></option>
+                                <option value="<?=$row->id ?>"><?=$row->name; ?></option>
                             <?php }?>
                         </select>
                     </div>
@@ -519,11 +557,12 @@
 
           </div>
           <div class="modal-footer">
-                <a id="event_remove_button" type="button" class="btn btn-danger">
-                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
-                    <!-- Modal with selectable days -->
-                </a>
-                <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
+          	<button id="event_confirm_changes" type="button" class="btn btn-success" data-dismiss="modal">Confirm changes</button>
+          	<button id="event_discard_changes" type="button" class="btn btn-info" data-dismiss="modal">Discard unsaved changes</button>
+            <a id="event_remove_button" type="button" class="btn btn-danger">
+            	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
+            </a>
+            <a type="button" class="btn btn-default" data-dismiss="modal">Close</a>
           </div>
         </div>
 
