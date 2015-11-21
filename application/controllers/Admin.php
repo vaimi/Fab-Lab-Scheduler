@@ -298,13 +298,17 @@ class Admin extends CI_Controller
                 array_push($response, $slot_array);
                 if (!in_array($slot->SupervisionID, $modIDsSaved))
                 {
-                //create saved slot
+	                //create saved slot
 	                $current_saved_slots = $this->session->userdata('sv_saved_items');
 	                $s = new stdClass();
 	                $s->assigned = $slot->aauth_usersID;
 	                $s->start = $slot->StartTime;
 	                $s->end = $slot->EndTime;
 	                $s->id = $slot->SupervisionID;
+	                //Save another copy for discard changes.
+	                $s->original = clone $s;
+	                $s->original->list = "sv_saved_items";
+	                $s->original->color = "#5cb85c";
 	                $current_saved_slots[$s->id] = $s;
 	                $this->session->set_userdata('sv_saved_items', $current_saved_slots);
                 }
@@ -402,6 +406,10 @@ class Admin extends CI_Controller
         $slot->start = $start;
         $slot->end = $end;
         $slot->id = -1 - count($this->session->userdata('sv_unsaved_new_items'));
+        //Add original to slots for discarding changes.
+        $slot->original = clone $slot;
+        $slot->original->list = 'sv_unsaved_new_items';
+        $slot->original->color = "#5bc0de";
         $unsaved = $this->session->userdata('sv_unsaved_new_items');
         $unsaved[$slot->id] = $slot;
         $this->session->set_userdata('sv_unsaved_new_items', $unsaved);
@@ -454,7 +462,9 @@ class Admin extends CI_Controller
                 $new_slot->assigned = $slot->aauth_usersID;
                 $new_slot->start = $slot->StartTime;
                 $new_slot->end = $slot->EndTime;
-                            
+                $new_slot->original = clone $new_slot;
+                $new_slot->original->list = "sv_saved_items";
+                $new_slot->original->color = "#5cb85c";
                 $deleted = $this->session->userdata('sv_unsaved_deleted_items');
                 $deleted[$id] = $new_slot;
                 $this->session->set_userdata('sv_unsaved_deleted_items', $deleted);
@@ -463,7 +473,7 @@ class Admin extends CI_Controller
         echo json_encode(array("success" => 1 ,$this->session->userdata('sv_unsaved_deleted_items')));
     }
                     
-    public function timetable_restore_slot() {
+    public function timetable_restore_slot_old() {
     	//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
@@ -495,16 +505,141 @@ class Admin extends CI_Controller
         }
     }
     
+    public function timetable_restore_slot() {
+    	//TODO validation
+    	$id = $this->input->post("id");
+
+        $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
+    	//Discard changes if in sv_unsaved_modified_items
+    	if (in_array($id, $modIDs))
+    	{
+    		$tmp = $this->session->userdata('sv_unsaved_modified_items');
+    		//get first slot list
+    		$new_list = $tmp[$id]->original->list;
+    		$tmp2 = $this->session->userdata($new_list);
+    		$tmp2[$id] = $tmp[$id];
+    		//Assign old values
+    		$tmp2[$id]->assigned = $tmp[$id]->original->assigned;
+    		$tmp2[$id]->start = $tmp[$id]->original->start;
+    		$tmp2[$id]->end = $tmp[$id]->original->end;
+    		//Delete slot in previous list
+    		unset($tmp[$id]);
+    		$this->session->set_userdata($new_list, $tmp2);
+    		$this->session->set_userdata('sv_unsaved_modified_items', $tmp);
+    		echo json_encode(array("success" => true, 
+    				"assigned" => $tmp2[$id]->assigned, 
+    				"start" => $tmp2[$id]->start, 
+    				"end" => $tmp2[$id]->end, 
+    				"color" => $tmp2[$id]->original->color));
+    		return;
+    	}
+    	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_new_items'));
+    	//Discard changes if in sv_unsaved_new_items
+    	if (in_array($id, $modIDs))
+    	{
+    		$tmp = $this->session->userdata('sv_unsaved_new_items');
+    		//get first slot list
+    		$new_list = $tmp[$id]->original->list;
+    		$tmp2 = $this->session->userdata($new_list);
+    		$tmp2[$id] = $tmp[$id];
+    		//Assign old values
+    		$tmp2[$id]->assigned = $tmp[$id]->original->assigned;
+    		$tmp2[$id]->start = $tmp[$id]->original->start;
+    		$tmp2[$id]->end = $tmp[$id]->original->end;
+    		$color = "#5bc0de";
+    		//Delete slot in previous list
+    		unset($tmp[$id]);
+    		$this->session->set_userdata($new_list, $tmp2);
+    		$this->session->set_userdata('sv_unsaved_new_items', $tmp);
+    		echo json_encode(array("success" => true,
+    				"assigned" => $tmp2[$id]->assigned,
+    				"start" => $tmp2[$id]->start,
+    				"end" => $tmp2[$id]->end,
+    				"color" => $tmp2[$id]->original->color));
+    		return;
+    	}
+    	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items'));
+    	//Discard changes if in sv_unsaved_deleted_items
+    	if (in_array($id, $modIDs))
+    	{
+    		$tmp = $this->session->userdata('sv_unsaved_deleted_items');
+    		//get first slot list
+    		$new_list = $tmp[$id]->original->list;
+    		$tmp2 = $this->session->userdata($new_list);
+    		$tmp2[$id] = $tmp[$id];
+    		//Assign old values
+    		$tmp2[$id]->assigned = $tmp[$id]->original->assigned;
+    		$tmp2[$id]->start = $tmp[$id]->original->start;
+    		$tmp2[$id]->end = $tmp[$id]->original->end;
+    		$color = "#5bc0de";
+    		//Delete slot in previous list
+    		unset($tmp[$id]);
+    		$this->session->set_userdata($new_list, $tmp2);
+    		$this->session->set_userdata('sv_unsaved_deleted_items', $tmp);
+    		echo json_encode(array("success" => true, 
+    				"assigned" => $tmp2[$id]->assigned, 
+    				"start" => $tmp2[$id]->start, 
+    				"end" => $tmp2[$id]->end, 
+    				"color" => $tmp2[$id]->original->color));
+    		return;
+    	}
+    	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
+    	//Discard changes if in sv_saved_items
+    	if (in_array($id, $modIDs))
+    	{
+    		echo json_encode(array("success" => false,
+    				"Error" => "Nothing to discard."));
+    		return;
+    	}
+    }
+    
     public function timetable_modify_slot() {
     	//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
         $end = $this->input->post("end");    
+        $event = array();
+        $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
+        //Modify if in sv_unsaved_modified_items
+        if (in_array($id, $modIDs))
+        {
+        	$tmp = $this->session->userdata('sv_unsaved_modified_items');
+        	$event = $tmp[$id];
+        	unset($tmp[$id]);
+        	$this->session->set_userdata('sv_unsaved_modified_items', $tmp);
+        }
+        $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_new_items'));
+        //Modify if in sv_unsaved_new_items
+        if (in_array($id, $modIDs))
+        {
+        	$tmp = $this->session->userdata('sv_unsaved_new_items');
+        	$event = $tmp[$id];
+        	unset($tmp[$id]);
+        	$this->session->set_userdata('sv_unsaved_new_items', $tmp);
+        }
+        $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items'));
+        //Modify if in sv_unsaved_deleted_items
+        if (in_array($id, $modIDs))
+        {
+        	$tmp = $this->session->userdata('sv_unsaved_deleted_items');
+        	$event = $tmp[$id];
+        	unset($tmp[$id]);
+        	$this->session->set_userdata('sv_unsaved_deleted_items', $tmp);
+        }
+        $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
+        //Modify if in sv_saved_items
+        if (in_array($id, $modIDs))
+        {
+        	$tmp = $this->session->userdata('sv_saved_items');
+        	$event = $tmp[$id];
+        	unset($tmp[$id]);
+        	$this->session->set_userdata('sv_saved_items', $tmp);
+        }
         
         if($id > 0)
         {
-            $slot = new stdClass();
+            $slot = $event;
             $slot->assigned = $assigned;
             $slot->start = $start;
             $slot->end = $end;
@@ -515,7 +650,7 @@ class Admin extends CI_Controller
         } 
         else
         {
-            $slot = new stdClass();
+            $slot = $event;
             $slot->assigned = $assigned;
             $slot->start = $start;
             $slot->end = $end;
@@ -523,14 +658,6 @@ class Admin extends CI_Controller
             $slots = $this->session->userdata('sv_unsaved_new_items');
             $slots[$id] = $slot;
             $this->session->set_userdata('sv_unsaved_new_items', $slots);
-        }
-        $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
-        //Delete if in saved array.
-        if (in_array($id, $modIDs))
-        {
-        	$tmp = $this->session->userdata('sv_saved_items');
-        	unset($tmp[$id]);
-        	$this->session->set_userdata('sv_saved_items', $tmp);
         }
         echo json_encode(array("success" => 1));
     }
@@ -542,7 +669,7 @@ class Admin extends CI_Controller
     	$end = $this->input->post("end");
     	$color = "#000000";
     	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
-    	//Delete if in sv_unsaved_modified_items
+    	//Modify if in sv_unsaved_modified_items
     	if (in_array($id, $modIDs))
     	{
     		$tmp = $this->session->userdata('sv_unsaved_modified_items');
@@ -553,7 +680,7 @@ class Admin extends CI_Controller
     		$color = "#5bc0de";
     	}
     	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_new_items'));
-    	//Delete if in sv_unsaved_new_items
+    	//Modify if in sv_unsaved_new_items
     	if (in_array($id, $modIDs))
     	{
     		$tmp = $this->session->userdata('sv_unsaved_new_items');
@@ -564,7 +691,7 @@ class Admin extends CI_Controller
     		$color = "#5bc0de";
     	}
     	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items'));
-    	//Delete if in sv_unsaved_deleted_items
+    	//Modify if in sv_unsaved_deleted_items
     	if (in_array($id, $modIDs))
     	{
     		$tmp = $this->session->userdata('sv_unsaved_deleted_items');
@@ -575,7 +702,7 @@ class Admin extends CI_Controller
     		$color = "#d9534f";
     	}
     	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
-    	//Delete if in sv_saved_items
+    	//Modify if in sv_saved_items
     	if (in_array($id, $modIDs))
     	{
     		$tmp = $this->session->userdata('sv_saved_items');
