@@ -87,6 +87,7 @@ class Reservations_model extends CI_Model {
     }
     public function set_new_reservation($data) {
     	$this->db->insert('Reservation', $data);
+        return $this->db->insert_id();
     }
     public function get_user_level($user_id = false, $machine_id = false)
     {
@@ -192,5 +193,20 @@ class Reservations_model extends CI_Model {
         $now = new DateTime();
         $now->add(new DateInterval('P2M'));
         return $now->getTimestamp();
+    }
+
+    public function get_reservation_email_info($reservation)
+    {
+        $this->db->select("r.ReservationID, r.StartTime, r.EndTime, m.Manufacturer, m.Model, u.email");
+        $this->db->from("Reservation as r");
+        $this->db->join("Machine as m", "r.MachineID = m.MachineID");
+        $this->db->join("aauth_users as u", "r.aauth_usersID = u.id");
+        $this->db->where("ReservationID", $reservation);
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            return $result->row();
+        }
+        return null;
     }
 }

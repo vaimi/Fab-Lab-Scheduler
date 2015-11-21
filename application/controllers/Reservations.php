@@ -561,6 +561,28 @@ class Reservations extends CI_Controller
 		echo $this->Reservations_model->get_user_quota($this->session->userdata('id'));
 	}
 
+	//TODO possibly add the qr and pass
+	private function reserve_send_confirm_email($reservation_id) {
+		$reservation = $this->Reservations_model->get_reservation_email_info($reservation_id);
+		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+		$this->email->to($reservation->email);
+		$this->email->subject("You succefully reserved Fab Lab session");
+		$email_content = "Dear fabricator,<br>
+		<br>
+		You succesfully reserved new session to our Fab Lab. Remember that if you miss the end of your reservation, we can't assure that you can finish the work. Here is your reservation details: <br>
+		<br>
+		Reservation id: " . $reservation->ReservationID . "<br>
+		Machine: " . $reservation->Manufacturer . " " . $reservation->Model . "<br>
+		Reservation starts: " . $reservation->StartTime . "<br>
+		Reservation ends: " . $reservation->EndTime . "<br>
+		<br>
+		Sincerely,<br>" .
+		$this->aauth->config_vars['name'];
+
+		$this->email->message($email_content);
+		$this->email->send();
+	}
+
 	//TODO this should check that user has right levels to do the reservation
 	public function reserve_time() {
 		
@@ -643,9 +665,10 @@ class Reservations extends CI_Controller
 							'QRCode' => "dunno about this",
 							'PassCode' => "dunno about this"
 					);
-					$this->Reservations_model->set_new_reservation($data);
+					$reservation_id = $this->Reservations_model->set_new_reservation($data);
 					$this->Reservations_model->reduce_quota($this->session->userdata('id'), $cost);
 					$response['success'] = 1;
+					$this->reserve_send_confirm_email($reservation_id);
 				}
 			}
 		}
