@@ -163,7 +163,6 @@
 
 		$('#calendar').fullCalendar({
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
-			now: '2015-11-06',
 			editable: false, // enable draggable events
 			allDaySlot: false,
 			firstDay: 1,

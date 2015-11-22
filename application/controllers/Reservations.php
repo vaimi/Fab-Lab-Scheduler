@@ -177,7 +177,7 @@ class Reservations extends CI_Controller
 
 	// TODO case of non-supervised machines
 	// TODO min session lenght
-	private function calculate_free_slots($start, $end, $predefined_machine=false) {
+	private function calculate_free_slots($start, $end, $predefined_machine=false, $now) {
 		$free_slots = array();
 		$machines = $this->Reservations_model->reservations_get_group_machines();
 		foreach($machines->result() as $machine)
@@ -193,10 +193,16 @@ class Reservations extends CI_Controller
 			{
 
 				$supervision_session->date_StartTime = strtotime($supervision_session->StartTime);
+				if ($supervision_session->date_StartTime < $now)
+				{
+
+				}
 				$supervision_session->date_EndTime = strtotime($supervision_session->EndTime);
 
-				$session_ends[] = $supervision_session->date_StartTime;
-				$session_ends[] = $supervision_session->date_EndTime;
+				$ending = new stdClass();
+				$ending->start = $supervision_session->date_StartTime;
+				$ending->end = $supervision_session->date_EndTime;
+				$session_ends[] = $ending;
 
 				// Get supervisor machine level
 				$supervisor_level = $this->Reservations_model->reservations_get_supervisor_levels($supervision_session->aauth_usersID, $machine->MachineID);
@@ -235,7 +241,7 @@ class Reservations extends CI_Controller
 					{
 						array_shift($breakpoints);
 					}
-					// check whether the last fbreakpoint is before end of the supervision session
+					// check whether the last breakpoint is before end of the supervision session
 					if (end($breakpoints) <= $supervision_session->date_EndTime)
 					{
 						 $breakpoints[] = $supervision_session->date_EndTime; 
@@ -252,33 +258,68 @@ class Reservations extends CI_Controller
 					for($i=0; $i<$break_amount; $i=$i+2)
 					{
 						$slot = new stdClass();
-						$slot->start = $breakpoints[$i];
 						$slot->end = $breakpoints[$i+1];
 						$slot->machine = $machine->MachineID;
 						$slot->svLevel = $supervisor_level->Level;
+						$slot->start = $breakpoints[$i];
 						$free_slots[] = $slot;
 					}
 				}
 				else
 				{
 						$slot = new stdClass();
-						$slot->start = $supervision_session->date_StartTime;
 						$slot->end = $supervision_session->date_EndTime;
 						$slot->machine = $machine->MachineID;
 						$slot->svLevel = $supervisor_level->Level;
+						$slot->start = $supervision_session->date_StartTime;
 						$free_slots[] = $slot;
 				}
 			}
 			//var_dump($session_ends2);
+
+			//$session_ends = $this->Reservations_model->
 			if ($machine->NeedSupervision == 0)
 			{
 				// Machines that can be used without supervison
-				// lvl 3 and above can reserve these. 
+				// lvl 3 and above can reserve these.
 				if (count($session_ends) > 0) 
 				{
-					if ($session_ends[0] > strtotime($start))
+					$mergearray = array();
+				    foreach($session_ends as $ending_start) {
+				        foreach ($session_ends as $ending_end) {
+				            $merge_start = min($ending_start->start, $ending_end->start);
+				            $merge_end = max($ending_start->end, $ending_end->end);
+
+				            $merged = new stdClass();
+				            $merged->start = $merge_start;
+				            $merged->end = $merge_end;
+				            $mergearray[] = $merged;
+				        }
+				    }
+				    $session_ends = array();
+				    foreach($mergearray as $ending)
+				    {
+				    	if($ending->start == strtotime($start))
+				    	{
+				    		$session_ends[] = $ending->end;
+				    		continue;
+				    	}
+				    	else
+				    	{
+				    		$session_ends[] = $ending->start;
+				    		$session_ends[] = $ending->end;
+				    	}
+				    }
+				    if ($session_ends[0] > strtotime($start))
 					{
-						 array_unshift($session_ends, strtotime($start)); 
+					if ($start < $now)
+						{
+							array_unshift($session_ends, $now);
+						}
+						else
+						{
+							array_unshift($session_ends, strtotime($start));
+						}
 					}
 					else
 					{
@@ -295,13 +336,16 @@ class Reservations extends CI_Controller
 				}
 				else 
 				{
-					$session_ends[] = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, $start);
+					$previous = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, $start);
+					if ($previous < $now) $previous = $now;
+					$session_ends[] = $previous;
 					$session_ends[] = $this->Reservations_model->get_next_reservation_start($machine->MachineID, $end);
 				}
-				// remove breakpoints without break between
+				/*// remove breakpoints without break between
 				$session_ends_dub = array_diff_assoc($session_ends, array_unique($session_ends));
 				$session_ends = array_diff($session_ends, $session_ends_dub);
-				$session_ends = array_values($session_ends);
+				$session_ends = array_values($session_ends);*/
+				//var_dump($session_ends);
 				$session_amount = count($session_ends);
 				for($i=0; $i<$session_amount; $i=$i+2)
 				{
@@ -389,6 +433,19 @@ class Reservations extends CI_Controller
 					$slot->svLevel = 0;
 					$free_slots[] = $slot;
 				}*/
+			}
+		}
+		$free_slots = array_values($free_slots);
+		foreach($free_slots as $key => $slot)
+		{
+			if ($slot->end < $now)
+			{
+				unset($free_slots[$key]);
+				continue;
+			}
+			if ($slot->start < $now)
+			{
+				$slot->start = $now;
 			}
 		}
 		return $free_slots;	
@@ -480,9 +537,10 @@ class Reservations extends CI_Controller
 		$machine = $this->input->post('mid');
 		$length = $this->input->post('length');
 		$day = $this->input->post('day');
+		$now = new DateTime();
+		$now_u = $now->getTimestamp();
 		if ($day == null)
 		{
-			$now = new DateTime();
 			$start = $now->format('Y-m-d H:i:s');
 			$now->add(new DateInterval('P2M'));
 			$end = $now->format('Y-m-d H:i:s');
@@ -492,7 +550,7 @@ class Reservations extends CI_Controller
 			$start = $day . " 00:00:00";
 			$end = $day . " 23:59:59";
 		}
-		$free_slots = $this->calculate_free_slots($start, $end, $machine);
+		$free_slots = $this->calculate_free_slots($start, $end, $machine, $now_u);
 		if ($length == null)
 		{
 			$free_slots = $this->filter_free_slots($free_slots);
@@ -525,7 +583,13 @@ class Reservations extends CI_Controller
 	{
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
-        $free_slots = $this->calculate_free_slots($start, $end); //TODO these need to be still filtered (e.g. if there is no break with supervision session/multiple supervisors) + user level
+
+        $now = new DateTime();
+        $now->modify('+15 minutes');
+        $now_u = $now->getTimestamp();
+        if ($now_u > strtotime($end)) return [];
+
+        $free_slots = $this->calculate_free_slots($start, $end, null,$now_u); //TODO these need to be still filtered (e.g. if there is no break with supervision session/multiple supervisors) + user level
 	    $free_slots = $this->filter_free_slots($free_slots);
         $response = array();
 	    if (count($free_slots) > 0)
