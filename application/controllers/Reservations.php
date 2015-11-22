@@ -269,6 +269,7 @@ class Reservations extends CI_Controller
 						$free_slots[] = $slot;
 				}
 			}
+			//var_dump($session_ends2);
 			if ($machine->NeedSupervision == 0)
 			{
 				// Machines that can be used without supervison
@@ -285,7 +286,7 @@ class Reservations extends CI_Controller
 					}
 					if (end($session_ends) <= strtotime($end))
 					{
-						 $session_ends[] = $this->Reservations_model->get_next_reservation_start($machine->MachineID, $end);
+						 $session_ends[] = strtotime($end);
 					}
 					else
 					{
@@ -355,8 +356,14 @@ class Reservations extends CI_Controller
 					else
 					{
 						$slot = new stdClass();
-						$slot->start = $session_ends[$i];
-						$slot->end = $session_ends[$i+1];
+						if (date("H:i:s", $session_ends[$i]) == "00:00:00") {
+							$slot->start = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i]));
+						}
+						else
+						{
+							$slot->start = $session_ends[$i];
+						}
+						$slot->end = $this->Reservations_model->get_next_reservation_start($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i+1]));
 						$slot->machine = $machine->MachineID;
 						$slot->svLevel = "0";
 						$flag = false;
@@ -504,7 +511,7 @@ class Reservations extends CI_Controller
 	        	$free = $end_time->diff($start_time);
 	        	$response[] = array(
 	        		"mid" => $free_slot->machine,
-	        		"start" => date('d.m.Y-m-d H:i', $free_slot->start),
+	        		"start" => date('d.m.Y H:i', $free_slot->start),
 	        		"end" => date('d.m.Y H:i', $free_slot->end),
 	        		"title" => "Free " . $this->format_interval($free)
 	        	);
