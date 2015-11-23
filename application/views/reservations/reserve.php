@@ -54,10 +54,165 @@
 				if (data.length > 0) {
 					var message = $.parseJSON(data);
 					var resultText = "";
+					resultText += "<ul class=\"list-group\">";
 					for (var result in message) {
-						resultText += "<a data-machine=" + message[result].mid + " href=\"#\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a><br>";
+						resultText += "<li class=\"list-group-item search_result\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\" href=\"#\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</li>";
 					}
 					$("#results").html(resultText);
+					resultText += "</ul>";
+
+					$(".search_result").each(function(index) {
+						var sModal="";
+						sModal += "			<form class=\"reservation_form\" method=\"post\">";
+						sModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + $(this).data("machine") + "\" />";
+						sModal += "				<div class=\"row\">";
+						sModal += "			        <div class=\"form-group col-md-12\">";
+						sModal += "			        	<label>From (" + $(this).data("start") + "):<\/label>";
+						sModal += "			            <div class=\"input-group date text-center\">";
+						sModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control startInput\" value=\"" + $(this).data("start") + "\" \/>";
+						sModal += "			                <a class=\"input-group-addon startExp\">";
+						sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
+						sModal += "			                <\/a>";		
+						sModal += "			            <\/div>";
+						sModal += "						<div class=\"row\">";
+						sModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse startpicker\"></div>";
+						sModal += "			            <\/div>";
+						sModal += "			        <\/div>";
+						sModal += "			    <\/div>";
+						sModal += "			    <div class=\"row text-center col-md-12\">";
+						sModal += "		    	<\/div>";
+						sModal += "			    <div class=\"row\">";
+						sModal += "			        <div class=\"form-group col-md-12\">";
+						sModal += "			        	<label>To (" + $(this).data("end") + "):<\/label>";	
+						sModal += "			            <div class=\"input-group date text-center\">";
+						sModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + $(this).data("end") + "\" \/>";
+						sModal += "			                <a class=\"input-group-addon endExp\">";
+						sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
+						sModal += "			                <\/a>";
+						sModal += "			            <\/div>";
+						sModal += "						<div class=\"row\">";
+						sModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
+						sModal += "			            <\/div>";
+						sModal += "			        <\/div>";
+						sModal += "			    <\/div>";
+						sModal += "				<br>";
+						sModal += "				<p>Quota: <span class=\"quotaReserve\"></span> hours</p>";
+						sModal += "				<p>Cost: <span class=\"quotaCost\"></span> hours</p>";
+						sModal += "				<p>After: <span class=\"quotaLeft\"></span> hours</p>";    
+						sModal += "				<br>";
+						sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+						sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
+						sModal += "			    <\/div>";
+						sModal += "			</form>";
+        				var eStart = $(this).data("start");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						var eEnd = $(this).data("end");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+
+						$(this).qtip({ // Grab some elements to apply the tooltip to
+							show: { 
+								effect: function() { $(this).slideDown(); },
+								solo: true,
+								event: 'click'
+					        },
+					        hide: { 
+					        	event: false
+					        },
+					        position : {
+						        my: 'top center', 
+						        at: 'bottom center',
+						        target: $(this)
+						    },
+						    content: {
+							    title: "Reservation",
+						        text: sModal,
+						        button: true
+						    },
+						    style: {
+						        classes: 'qtip-bootstrap qtip_width'
+						        //width: 'auto',
+							    //height: 'auto'
+						        
+						    },
+						    events: {
+						    	render: function (event, api) {
+						    	},
+						    	visible: function (event, api) {
+									$.when(getQuota()).done(function() {
+									    costCalculation()
+									});
+
+									$('.startpicker').datetimepicker({
+										locale: 'en-gb',
+										format: 'DD/MM/YYYY HH:mm',
+						        		stepping : 30,
+								    	widgetPositioning: {
+											horizontal: "left",
+											vertical: "top"
+									    },
+					                    inline: true,
+		                				sideBySide: false
+							        });
+
+							        $('.endpicker').datetimepicker({
+							        	locale: 'en-gb',
+							        	format: 'DD/MM/YYYY HH:mm',
+						        		stepping : 30,
+								    	widgetPositioning: {
+											horizontal: "left",
+											vertical: "top"
+									    },
+									    inline: true,
+		                				sideBySide: false,
+							            useCurrent: false //Important! See issue #1075
+							        });
+
+							        $('.startpicker').data("DateTimePicker").minDate(eStart);
+							        $('.startpicker').data("DateTimePicker").maxDate(eEnd);
+							        $('.endpicker').data("DateTimePicker").minDate(eStart);
+							        $('.endpicker').data("DateTimePicker").maxDate(eEnd);
+							   		$('.startpicker').data("DateTimePicker").date(eStart);
+							        $('.endpicker').data("DateTimePicker").date(eEnd);
+
+							        $(".startpicker").on("dp.change", function (e) {
+							            $('.endpicker').data("DateTimePicker").minDate(e.date);
+
+							        });
+							        $(".endpicker").on("dp.change", function (e) {
+							            $('.startpicker').data("DateTimePicker").maxDate(e.date);
+							        });
+
+							        $('.startExp').click(function(){ 
+							        	$('.startpicker').collapse('toggle'); 
+							        	return false; 
+							        });
+
+							        $('.endExp').click(function(){ 
+							        	$('.endpicker').collapse('toggle'); 
+							        	return false; 
+							        });
+
+							        $('.reserveButton').unbind("click").click(function(){ 
+							        	reserve();
+							        });
+
+							        $('.startpicker').on('dp.change', function (e) {
+							            var mDate = new moment(e.date);
+							            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+							            costCalculation();
+							        });
+
+							        $('.endpicker').on('dp.change', function (e) {
+							            var mDate = new moment(e.date);
+							            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+							            costCalculation();
+							        });
+							        /*$('#startInput').change(function(){
+									    $('#z').datetimepicker('setDate', $(this).val());
+									});*/
+							    	
+						    	}
+							}  
+						});
+					});
 				}
 			}
 		}); 
@@ -428,8 +583,8 @@
 		</div>
 		
 		<div class="form-group">
-		  <label class="col-md-4 control-label" for="results"></label>
-		  <div class="col-md-4">
+		  <label class="col-md-2 control-label" for="results"></label>
+		  <div class="col-md-6">
 			<div class="well" id="results"></div>
 		  </div>
 		</div>
