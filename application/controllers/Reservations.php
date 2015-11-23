@@ -391,7 +391,7 @@ class Reservations extends CI_Controller
 						{
 							$slot = new stdClass();
 							$slot->start = $breakpoints[$j];
-							$slot->end = $breakpoints[$j+1];
+							$slot->end = $this->Reservations_model->get_next_reservation_start($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i+1]));
 							$slot->machine = $machine->MachineID;
 							$slot->svLevel = "0";
 							$free_slots[] = $slot;
@@ -768,12 +768,14 @@ class Reservations extends CI_Controller
 
 			$start_time = new DateTime($start_year . "-" . $start_month . "-" . $start_day . " " . $start_hour . ":" . $start_min);
 			$end_time = new DateTime($end_year . "-" . $end_month . "-" . $end_day . " " . $end_hour . ":" . $end_min);
-			$start_modulo = $start_time->format('i') % 30;
-			$end_modulo = $end_time->format('i') % 30;
-			if ($start_time >= $end_time || $start_modulo != 0 || $end_modulo != 0) 
+
+			// TODO we should check the lenght
+			//$start_modulo = $start_time->format('i') % 30;
+			//$end_modulo = $end_time->format('i') % 30;
+			if ($start_time >= $end_time) 
 			{
 				$response['success'] = 0;
-				$response['errors'] =  array("Time does not match or start time bigger than end time");
+				$response['errors'] =  array("Start time bigger than end time");
 			}
 			else
 			{

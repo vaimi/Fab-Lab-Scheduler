@@ -54,12 +54,12 @@
 				if (data.length > 0) {
 					var message = $.parseJSON(data);
 					var resultText = "";
-					resultText += "<ul class=\"list-group\">";
+					resultText += "<div class=\"list-group\">";
 					for (var result in message) {
-						resultText += "<li class=\"list-group-item search_result\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\" href=\"#\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</li>";
+						resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a>";
 					}
 					$("#results").html(resultText);
-					resultText += "</ul>";
+					resultText += "</div>";
 
 					$(".search_result").each(function(index) {
 						var sModal="";
@@ -104,8 +104,9 @@
 						sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
 						sModal += "			    <\/div>";
 						sModal += "			</form>";
-        				var eStart = $(this).data("start");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-						var eEnd = $(this).data("end");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+
+        				var eStart = moment($(this).data("start"), "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						var eEnd = moment($(this).data("end"), "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 
 						$(this).qtip({ // Grab some elements to apply the tooltip to
 							show: { 
@@ -146,35 +147,32 @@
 
 									$('.startpicker').datetimepicker({
 										locale: 'en-gb',
-										format: 'DD/MM/YYYY HH:mm',
-						        		stepping : 30,
+										format: 'YYYY/MM/DD, HH:mm',
 								    	widgetPositioning: {
 											horizontal: "left",
 											vertical: "top"
 									    },
 					                    inline: true,
-		                				sideBySide: false
+		                				sideBySide: false,
+		                				minDate: eStart,
+		                				maxDate: eEnd,
+		                				defaultDate: eStart
 							        });
 
 							        $('.endpicker').datetimepicker({
 							        	locale: 'en-gb',
-							        	format: 'DD/MM/YYYY HH:mm',
-						        		stepping : 30,
+							        	format: 'YYYY/MM/DD, HH:mm',
 								    	widgetPositioning: {
 											horizontal: "left",
 											vertical: "top"
 									    },
 									    inline: true,
 		                				sideBySide: false,
-							            useCurrent: false //Important! See issue #1075
+							            useCurrent: false, //Important! See issue #1075
+                        				minDate: eStart,
+		                				maxDate: eEnd,
+		                				defaultDate: eEnd
 							        });
-
-							        $('.startpicker').data("DateTimePicker").minDate(eStart);
-							        $('.startpicker').data("DateTimePicker").maxDate(eEnd);
-							        $('.endpicker').data("DateTimePicker").minDate(eStart);
-							        $('.endpicker').data("DateTimePicker").maxDate(eEnd);
-							   		$('.startpicker').data("DateTimePicker").date(eStart);
-							        $('.endpicker').data("DateTimePicker").date(eEnd);
 
 							        $(".startpicker").on("dp.change", function (e) {
 							            $('.endpicker').data("DateTimePicker").minDate(e.date);
@@ -443,44 +441,50 @@
 					        $('.endpicker').data("DateTimePicker").minDate(false);
 					        $('.endpicker').data("DateTimePicker").maxDate(false);
 				    	},
-				    	visible: function (event, api) {
+				    	show: function (event, api) {
 							$.when(getQuota()).done(function() {
 							    costCalculation()
 							});
 
+
+	        				var eStart = moment(e.start._i).format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+							var eEnd = moment(e.end._i).format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+
 							$('.startpicker').datetimepicker({
 								locale: 'en-gb',
-								format: 'DD/MM/YYYY HH:mm',
-				        		stepping : 30,
+								format: 'YYYY/MM/DD, HH:mm',
 						    	widgetPositioning: {
 									horizontal: "left",
 									vertical: "top"
 							    },
 			                    inline: true,
-                				sideBySide: false
+                				sideBySide: false,
+                				minDate: eStart,
+                				maxDate: eEnd,
+                				defaultDate: eStart
 					        });
 
 					        $('.endpicker').datetimepicker({
 					        	locale: 'en-gb',
-					        	format: 'DD/MM/YYYY HH:mm',
-				        		stepping : 30,
+					        	format: 'YYYY/MM/DD, HH:mm',
 						    	widgetPositioning: {
 									horizontal: "left",
 									vertical: "top"
 							    },
 							    inline: true,
                 				sideBySide: false,
-					            useCurrent: false //Important! See issue #1075
+					            useCurrent: false, //Important! See issue #1075
+					            minDate: eStart,
+                				maxDate: eEnd,
+                				defaultDate: eEnd
 					        });
 
-	        				var eStart = moment(e.start._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-							var eEnd = moment(e.end._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-					        $('.startpicker').data("DateTimePicker").minDate(eStart);
-					        $('.startpicker').data("DateTimePicker").maxDate(eEnd);
-					        $('.endpicker').data("DateTimePicker").minDate(eStart);
-					        $('.endpicker').data("DateTimePicker").maxDate(eEnd);
-					   		$('.startpicker').data("DateTimePicker").date(eStart);
-					        $('.endpicker').data("DateTimePicker").date(eEnd);
+								//$('.startpicker').data("DateTimePicker").minDate(eStart);
+						        //$('.startpicker').data("DateTimePicker").maxDate(eEnd);
+						        //$('.endpicker').data("DateTimePicker").minDate(eStart);
+						        //$('.endpicker').data("DateTimePicker").maxDate(eEnd);
+						   		//$('.startpicker').data("DateTimePicker").date(eStart);
+						        //$('.endpicker').data("DateTimePicker").date(eEnd);
 
 					        $(".startpicker").on("dp.change", function (e) {
 					            $('.endpicker').data("DateTimePicker").minDate(e.date);
@@ -506,13 +510,13 @@
 
 					        $('.startpicker').on('dp.change', function (e) {
 					            var mDate = new moment(e.date);
-					            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+					            $(".startInput").val(mDate.format('DD.MM.YYYY, HH:mm'));
 					            costCalculation();
 					        });
 
 					        $('.endpicker').on('dp.change', function (e) {
 					            var mDate = new moment(e.date);
-					            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+					            $(".endInput").val(mDate.format('DD.MM.YYYY, HH:mm'));
 					            costCalculation();
 					        });
 					        /*$('#startInput').change(function(){
