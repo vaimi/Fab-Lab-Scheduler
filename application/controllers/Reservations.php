@@ -179,7 +179,7 @@ class Reservations extends CI_Controller
 	// TODO min session lenght
 	private function calculate_free_slots($start, $end, $predefined_machine=false, $now) {
 		$free_slots = array();
-		$machines = $this->Reservations_model->reservations_get_group_machines();
+		$machines = $this->Reservations_model->reservations_get_active_machines_as_db_object();
 		foreach($machines->result() as $machine)
 		{
 			if($predefined_machine != false) {

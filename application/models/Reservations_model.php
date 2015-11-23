@@ -85,6 +85,17 @@ class Reservations_model extends CI_Model {
         }
         return $response;
     }
+
+    public function reservations_get_active_machines_as_db_object() {
+        $this->db->select('m.MachineID, m.Manufacturer, m.Model, m.NeedSupervision');
+        $this->db->from('Machine as m');
+        $this->db->join('MachineGroup as g', "m.MachineGroupID = g.MachineGroupID");
+        $this->db->where('g.active', 1);
+        $this->db->where('m.active', 1);
+        return $this->db->get();
+    }
+
+
     public function set_new_reservation($data) {
     	$this->db->insert('Reservation', $data);
         return $this->db->insert_id();
