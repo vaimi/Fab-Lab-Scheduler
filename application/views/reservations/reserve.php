@@ -133,7 +133,11 @@
 						        
 						    },
 						    events: {
-						    	render: function (event, api) {
+						    	hide: function (event, api) {
+							        $('.startpicker').data("DateTimePicker").minDate(false);
+							        $('.startpicker').data("DateTimePicker").maxDate(false);
+							        $('.endpicker').data("DateTimePicker").minDate(false);
+							        $('.endpicker').data("DateTimePicker").maxDate(false);
 						    	},
 						    	visible: function (event, api) {
 									$.when(getQuota()).done(function() {
@@ -433,7 +437,11 @@
 				        
 				    },
 				    events: {
-				    	render: function (event, api) {
+				    	hide: function (event, api) {
+					        $('.startpicker').data("DateTimePicker").minDate(false);
+					        $('.startpicker').data("DateTimePicker").maxDate(false);
+					        $('.endpicker').data("DateTimePicker").minDate(false);
+					        $('.endpicker').data("DateTimePicker").maxDate(false);
 				    	},
 				    	visible: function (event, api) {
 							$.when(getQuota()).done(function() {
