@@ -62,162 +62,162 @@
 					resultText += "</div>";
 
 					$(".search_result").each(function(index) {
-						var sModal="";
-						sModal += "			<form class=\"reservation_form\" method=\"post\">";
-						sModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + $(this).data("machine") + "\" />";
-						sModal += "				<div class=\"row\">";
-						sModal += "			        <div class=\"form-group col-md-12\">";
-						sModal += "			        	<label>From (" + $(this).data("start") + "):<\/label>";
-						sModal += "			            <div class=\"input-group date text-center\">";
-						sModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control startInput\" value=\"" + $(this).data("start") + "\" \/>";
-						sModal += "			                <a class=\"input-group-addon startExp\">";
-						sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
-						sModal += "			                <\/a>";		
-						sModal += "			            <\/div>";
-						sModal += "						<div class=\"row\">";
-						sModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse startpicker\"></div>";
-						sModal += "			            <\/div>";
-						sModal += "			        <\/div>";
-						sModal += "			    <\/div>";
-						sModal += "			    <div class=\"row text-center col-md-12\">";
-						sModal += "		    	<\/div>";
-						sModal += "			    <div class=\"row\">";
-						sModal += "			        <div class=\"form-group col-md-12\">";
-						sModal += "			        	<label>To (" + $(this).data("end") + "):<\/label>";	
-						sModal += "			            <div class=\"input-group date text-center\">";
-						sModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + $(this).data("end") + "\" \/>";
-						sModal += "			                <a class=\"input-group-addon endExp\">";
-						sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
-						sModal += "			                <\/a>";
-						sModal += "			            <\/div>";
-						sModal += "						<div class=\"row\">";
-						sModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
-						sModal += "			            <\/div>";
-						sModal += "			        <\/div>";
-						sModal += "			    <\/div>";
-						sModal += "				<br>";
-						sModal += "				<p>Quota: <span class=\"quotaReserve\"></span> hours</p>";
-						sModal += "				<p>Cost: <span class=\"quotaCost\"></span> hours</p>";
-						sModal += "				<p>After: <span class=\"quotaLeft\"></span> hours</p>";    
-						sModal += "				<br>";
-						sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-						sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
-						sModal += "			    <\/div>";
-						sModal += "			</form>";
 
-        				var eStart = moment($(this).data("start"), "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-						var eEnd = moment($(this).data("end"), "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-
-						$(this).qtip({ // Grab some elements to apply the tooltip to
-							show: { 
-								effect: function() { $(this).slideDown(); },
-								solo: true,
-								event: 'click'
-					        },
-					        hide: { 
-					        	event: false
-					        },
-					        position : {
-						        my: 'top center', 
-						        at: 'bottom center',
-						        target: $(this)
-						    },
-						    content: {
-							    title: "Reservation",
-						        text: sModal,
-						        button: true
-						    },
-						    style: {
-						        classes: 'qtip-bootstrap qtip_width'
-						        //width: 'auto',
-							    //height: 'auto'
-						        
-						    },
-						    events: {
-						    	hide: function (event, api) {
-							        $('.startpicker').data("DateTimePicker").minDate(false);
-							        $('.startpicker').data("DateTimePicker").maxDate(false);
-							        $('.endpicker').data("DateTimePicker").minDate(false);
-							        $('.endpicker').data("DateTimePicker").maxDate(false);
-						    	},
-						    	visible: function (event, api) {
-									$.when(getQuota()).done(function() {
-									    costCalculation()
-									});
-
-									$('.startpicker').datetimepicker({
-										locale: 'en-gb',
-										format: 'YYYY/MM/DD, HH:mm',
-								    	widgetPositioning: {
-											horizontal: "left",
-											vertical: "top"
-									    },
-					                    inline: true,
-		                				sideBySide: false,
-		                				minDate: eStart,
-		                				maxDate: eEnd,
-		                				defaultDate: eStart
-							        });
-
-							        $('.endpicker').datetimepicker({
-							        	locale: 'en-gb',
-							        	format: 'YYYY/MM/DD, HH:mm',
-								    	widgetPositioning: {
-											horizontal: "left",
-											vertical: "top"
-									    },
-									    inline: true,
-		                				sideBySide: false,
-							            useCurrent: false, //Important! See issue #1075
-                        				minDate: eStart,
-		                				maxDate: eEnd,
-		                				defaultDate: eEnd
-							        });
-
-							        $(".startpicker").on("dp.change", function (e) {
-							            $('.endpicker').data("DateTimePicker").minDate(e.date);
-
-							        });
-							        $(".endpicker").on("dp.change", function (e) {
-							            $('.startpicker').data("DateTimePicker").maxDate(e.date);
-							        });
-
-							        $('.startExp').click(function(){ 
-							        	$('.startpicker').collapse('toggle'); 
-							        	return false; 
-							        });
-
-							        $('.endExp').click(function(){ 
-							        	$('.endpicker').collapse('toggle'); 
-							        	return false; 
-							        });
-
-							        $('.reserveButton').unbind("click").click(function(){ 
-							        	reserve();
-							        });
-
-							        $('.startpicker').on('dp.change', function (e) {
-							            var mDate = new moment(e.date);
-							            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
-							            costCalculation();
-							        });
-
-							        $('.endpicker').on('dp.change', function (e) {
-							            var mDate = new moment(e.date);
-							            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
-							            costCalculation();
-							        });
-							        /*$('#startInput').change(function(){
-									    $('#z').datetimepicker('setDate', $(this).val());
-									});*/
-							    	
-						    	}
-							}  
-						});
+						var machine = $(this).data("machine");
+        				var eStart = $(this).data("start");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						var eEnd = $(this).data("end");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						$(this).click(function(){ 
+			        		makeQtip($(this), machine, eStart, eEnd);
+			        	});
 					});
 				}
 			}
 		}); 
+	}
+
+	function makeQtip(elementId, machine, e_Start, e_End) {
+		var sModal="";
+		sModal += "			<form class=\"reservation_form\" method=\"post\">";
+		sModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + machine + "\" />";
+		sModal += "				<div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";
+		sModal += "			        	<label>From (" + e_Start + "):<\/label>";
+		sModal += "			            <div class=\"input-group date text-center\">";
+		sModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control startInput\" value=\"" + e_Start + "\" \/>";
+		sModal += "			                <a class=\"input-group-addon startExp\">";
+		sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
+		sModal += "			                <\/a>";		
+		sModal += "			            <\/div>";
+		sModal += "						<div class=\"row\">";
+		sModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse startpicker\"></div>";
+		sModal += "			            <\/div>";
+		sModal += "			        <\/div>";
+		sModal += "			    <\/div>";
+		sModal += "			    <div class=\"row text-center col-md-12\">";
+		sModal += "		    	<\/div>";
+		sModal += "			    <div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";
+		sModal += "			        	<label>To (" + e_End + "):<\/label>";	
+		sModal += "			            <div class=\"input-group date text-center\">";
+		sModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
+		sModal += "			                <a class=\"input-group-addon endExp\">";
+		sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
+		sModal += "			                <\/a>";
+		sModal += "			            <\/div>";
+		sModal += "						<div class=\"row\">";
+		sModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
+		sModal += "			            <\/div>";
+		sModal += "			        <\/div>";
+		sModal += "			    <\/div>";
+		sModal += "				<br>";
+		sModal += "				<p>Quota: <span class=\"quotaReserve\"></span> hours</p>";
+		sModal += "				<p>Cost: <span class=\"quotaCost\"></span> hours</p>";
+		sModal += "				<p>After: <span class=\"quotaLeft\"></span> hours</p>";    
+		sModal += "				<br>";
+		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
+		sModal += "			    <\/div>";
+		sModal += "			</form>";
+		$(elementId).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: true,
+            	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Reservation",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+		        //width: 'auto',
+			    //height: 'auto'
+		        
+		    },
+	        position: {
+        		viewport: $(window)
+    		},
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	},
+		    	show: function (event, api) {
+					$.when(getQuota()).done(function() {
+					    costCalculation()
+					});
+
+    				var eStart = moment(e_Start, "DD.MM.YYYY, HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+					var eEnd = moment(e_End, "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+
+					$('.startpicker').datetimepicker({
+						locale: 'en-gb',
+						format: 'YYYY/MM/DD, HH:mm',
+				    	widgetPositioning: {
+							horizontal: "left",
+							vertical: "top"
+					    },
+	                    inline: true,
+        				sideBySide: false,
+        				minDate: eStart,
+        				maxDate: eEnd,
+        				defaultDate: eStart
+			        });
+
+			        $('.endpicker').datetimepicker({
+			        	locale: 'en-gb',
+			        	format: 'YYYY/MM/DD, HH:mm',
+				    	widgetPositioning: {
+							horizontal: "left",
+							vertical: "top"
+					    },
+					    inline: true,
+        				sideBySide: false,
+			            useCurrent: false, //Important! See issue #1075
+        				minDate: eStart,
+        				maxDate: eEnd,
+        				defaultDate: eEnd
+			        });
+
+			        $(".startpicker").on("dp.change", function (e) {
+			            $('.endpicker').data("DateTimePicker").minDate(e.date);
+
+			        });
+			        $(".endpicker").on("dp.change", function (e) {
+			            $('.startpicker').data("DateTimePicker").maxDate(e.date);
+			        });
+
+			        $('.startExp').click(function(){ 
+			        	$('.startpicker').collapse('toggle'); 
+			        	return false; 
+			        });
+
+			        $('.endExp').click(function(){ 
+			        	$('.endpicker').collapse('toggle'); 
+			        	return false; 
+			        });
+
+			        $('.reserveButton').unbind("click").click(function(){ 
+			        	reserve();
+			        });
+
+			        $('.startpicker').on('dp.change', function (e) {
+			            var mDate = new moment(e.date);
+			            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+			            costCalculation();
+			        });
+
+			        $('.endpicker').on('dp.change', function (e) {
+			            var mDate = new moment(e.date);
+			            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+			            costCalculation();
+			        });
+		    	}
+			}  
+		});
 	}
 
 	function reserve() {
@@ -280,19 +280,24 @@
 
 
     function costCalculation () {
-    	end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
-    	start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
+    	end = moment($(".endInput").val(), "DD.MM.YYYY, HH:mm");
+    	start = moment($(".startInput").val(), "DD.MM.YYYY, HH:mm");
     	if (end != null && start != null) {
         	var duration = moment.duration(end.diff(start));
         	var hours = duration.asHours();
-        	$(".quotaCost").text(hours);
         	var left = userQuota - hours; 
         	if (left < 0) {
         		$(".quotaLeft").css("color", "red");
-        		$(".quotaLeft").text(left);
+        		$(".quotaLeft").text(left.toFixed(2));
         	} else {
         		$(".quotaLeft").removeAttr('style');
-				$(".quotaLeft").text(left);
+				$(".quotaLeft").text(left.toFixed(2));
+        	}
+        	if (hours < 0) {
+        		$(".quotaLeft").text("-");
+        		$(".quotaCost").text("-");
+        	} else {
+        		$(".quotaCost").text(hours.toFixed(2));
         	}
     	}
     }
@@ -364,15 +369,21 @@
 // 				console.log(e);
 				if (e.reserved == 1) return; 
 // 				console.log(view);
-				var url = '<?php echo base_url(); ?>';	
-				var rModal="";
+				var machine = e.resourceId;
+				var eStart = moment(e.start._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eEnd = moment(e.end._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				$(element).click(function(){ 
+			        makeQtip($(element), machine, eStart, eEnd);
+			    });
+
+				/*var rModal="";
 				rModal += "			<form class=\"reservation_form\" method=\"post\">";
 				rModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + e.resourceId + "\" />";
 				rModal += "				<div class=\"row\">";
 				rModal += "			        <div class=\"form-group col-md-12\">";
 				rModal += "			        	<label>From (" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "):<\/label>";
 				rModal += "			            <div class=\"input-group date text-center\">";
-				rModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control startInput\" value=\"" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
+				rModal += "			                <input onkeydown=\"costCalculation();\" type=\"text\" class=\"form-control startInput\" value=\"" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
 				rModal += "			                <a class=\"input-group-addon startExp\">";
 				rModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
 				rModal += "			                <\/a>";		
@@ -388,7 +399,7 @@
 				rModal += "			        <div class=\"form-group col-md-12\">";
 				rModal += "			        	<label>To (" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "):<\/label>";	
 				rModal += "			            <div class=\"input-group date text-center\">";
-				rModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
+				rModal += "			                <input onkeydown=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
 				rModal += "			                <a class=\"input-group-addon endExp\">";
 				rModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
 				rModal += "			                <\/a>";
@@ -440,6 +451,7 @@
 					        $('.startpicker').data("DateTimePicker").maxDate(false);
 					        $('.endpicker').data("DateTimePicker").minDate(false);
 					        $('.endpicker').data("DateTimePicker").maxDate(false);
+					        $(this).qtip('destroy')
 				    	},
 				    	show: function (event, api) {
 							$.when(getQuota()).done(function() {
@@ -518,14 +530,10 @@
 					            var mDate = new moment(e.date);
 					            $(".endInput").val(mDate.format('DD.MM.YYYY, HH:mm'));
 					            costCalculation();
-					        });
-					        /*$('#startInput').change(function(){
-							    $('#z').datetimepicker('setDate', $(this).val());
-							});*/
-					    	
+					        });					    	
 				    	}
 					}  
-				});
+				});*/
 			} //eventAfterRender
 			
 		});//fullcalendar
