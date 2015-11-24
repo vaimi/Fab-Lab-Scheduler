@@ -23,8 +23,8 @@
 
 	function disableForm(disable_bool) {
 		if (disable_bool) {
-			$(".selectpicker").attr('disabled', true);
-			$("#selectInput").attr('disabled', true);
+			$(".startInput").attr('disabled', true);
+			$(".endInput").attr('disabled', true);
 			$(".reserveButton").addClass('disabled');
 		} else {
 			$(".startInput").removeAttr('disabled');

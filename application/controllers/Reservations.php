@@ -538,7 +538,6 @@ class Reservations extends CI_Controller
 		$length = $this->input->post('length');
 		$day = $this->input->post('day');
 		$now = new DateTime();
-		$now_u = $now->getTimestamp();
 		if ($day == null)
 		{
 			$start = $now->format('Y-m-d H:i:s');
@@ -550,7 +549,10 @@ class Reservations extends CI_Controller
 			$start = $day . " 00:00:00";
 			$end = $day . " 23:59:59";
 		}
-		$free_slots = $this->calculate_free_slots($start, $end, $machine, $now_u);
+		$limit = new DateTime();
+        $limit->modify('+1 hour 15 minutes');
+        $limit_u = $limit->getTimestamp();
+		$free_slots = $this->calculate_free_slots($start, $end, $machine, $limit_u);
 		if ($length == null)
 		{
 			$free_slots = $this->filter_free_slots($free_slots);
@@ -585,7 +587,7 @@ class Reservations extends CI_Controller
         $end = $this->input->get('end');
 
         $now = new DateTime();
-        $now->modify('+15 minutes');
+        $now->modify('+1 hour 15 minutes');
         $now_u = $now->getTimestamp();
         if ($now_u > strtotime($end)) return [];
 
