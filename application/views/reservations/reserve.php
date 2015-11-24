@@ -23,8 +23,8 @@
 
 	function disableForm(disable_bool) {
 		if (disable_bool) {
-			$(".startInput").attr('disabled', true);
-			$(".endInput").attr('disabled', true);
+			$(".selectpicker").attr('disabled', true);
+			$("#selectInput").attr('disabled', true);
 			$(".reserveButton").addClass('disabled');
 		} else {
 			$(".startInput").removeAttr('disabled');
@@ -46,30 +46,38 @@
 			'day': day_string,
 			'length': $("#selectLength").val()
 		};
+		$("#results").html("<div class=\"loader\"></div>");
+		$("#searchButton").addClass('disabled');
 		$.ajax({
 			type: "POST",
 			url: "reserve_search_free_slots",
 			data: post_data,
 			success: function(data) {
+				$("#searchButton").removeClass('disabled');
 				if (data.length > 0) {
 					var message = $.parseJSON(data);
-					var resultText = "";
-					resultText += "<div class=\"list-group\">";
-					for (var result in message) {
-						resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a>";
+					if (message.length > 0) {
+						var resultText = "";
+						resultText += "<div class=\"list-group\">";
+						for (var result in message) {
+							resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a>";
+						}
+						$("#results").html(resultText);
+						resultText += "</div>";
+
+						$(".search_result").each(function(index) {
+
+							var machine = $(this).data("machine");
+	        				var eStart = $(this).data("start");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+							var eEnd = $(this).data("end");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+							$(this).click(function(){ 
+				        		makeQtip($(this), machine, eStart, eEnd);
+				        	});
+						});
+					} else {
+						$("#results").html("No results.");
 					}
-					$("#results").html(resultText);
-					resultText += "</div>";
 
-					$(".search_result").each(function(index) {
-
-						var machine = $(this).data("machine");
-        				var eStart = $(this).data("start");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-						var eEnd = $(this).data("end");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-						$(this).click(function(){ 
-			        		makeQtip($(this), machine, eStart, eEnd);
-			        	});
-					});
 				}
 			}
 		}); 
@@ -307,9 +315,9 @@
 		$('#searchPicker').datetimepicker({
 			locale: 'en-gb',
 			format: 'DD.MM.YYYY',
-            inline: false,
-			sideBySide: false
+			minDate: moment().format('MM/DD/YYYY'),
         });
+        $('#searchPicker').data("DateTimePicker").clear()
 
         $('#searchButton').unbind("click").click(function(){ 
         	searchSlot();
@@ -541,7 +549,6 @@
 
 </script>
 <style>
-    .bootstrap-datetimepicker-widget{ z-index:100151 !important; position: inherit; }
     .collapse {
         position: inherit;
     }
@@ -564,10 +571,10 @@
 		  </div>
 		</div>
 		<div class="form-group">
-		  <label class="col-md-4 control-label" for="selectday">Day</label>
+		  <label class="col-md-4 control-label" for="searchInput">Day</label>
 		  <div class="col-md-4">
             <div class='input-group date' id='searchPicker'>
-                <input id="searchInput" type='text' placeholder="Select day" class="form-control" />
+                <input id="searchInput" type='text' placeholder="Select day" class="form-control">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
@@ -605,7 +612,7 @@
 		<div class="form-group">
 		  <label class="col-md-2 control-label" for="results"></label>
 		  <div class="col-md-6">
-			<div class="well" id="results"></div>
+			<div class="well" id="results">Search something first!</div>
 		  </div>
 		</div>
 
