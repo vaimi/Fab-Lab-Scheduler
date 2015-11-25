@@ -255,12 +255,14 @@ class Reservations extends CI_Controller
 					$breakpoints = array_diff($breakpoints, $breakpoints_dub);
 					$breakpoints = array_values($breakpoints);
 					$break_amount = count($breakpoints);
+					
 					for($i=0; $i<$break_amount; $i=$i+2)
 					{
 						$slot = new stdClass();
 						$slot->end = $breakpoints[$i+1];
 						$slot->machine = $machine->MachineID;
 						$slot->svLevel = $supervisor_level->Level;
+						$slot->group = $supervision_session->aauth_groupsID;
 						$slot->start = $breakpoints[$i];
 						$free_slots[] = $slot;
 					}
@@ -271,6 +273,7 @@ class Reservations extends CI_Controller
 						$slot->end = $supervision_session->date_EndTime;
 						$slot->machine = $machine->MachineID;
 						$slot->svLevel = $supervisor_level->Level;
+						$slot->group = $supervision_session->aauth_groupsID;
 						$slot->start = $supervision_session->date_StartTime;
 						$free_slots[] = $slot;
 				}
@@ -347,6 +350,7 @@ class Reservations extends CI_Controller
 				$session_ends = array_values($session_ends);*/
 				//var_dump($session_ends);
 				$session_amount = count($session_ends);
+				if ($session_amount % 2 != 0) $session_amount -= 1;
 				for($i=0; $i<$session_amount; $i=$i+2)
 				{
 					// Get reservations
@@ -394,6 +398,7 @@ class Reservations extends CI_Controller
 							$slot->end = $this->Reservations_model->get_next_reservation_start($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i+1]));
 							$slot->machine = $machine->MachineID;
 							$slot->svLevel = "0";
+							$slot->group = 3;
 							$free_slots[] = $slot;
 						}
 					}
@@ -410,6 +415,7 @@ class Reservations extends CI_Controller
 						$slot->end = $this->Reservations_model->get_next_reservation_start($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i+1]));
 						$slot->machine = $machine->MachineID;
 						$slot->svLevel = "0";
+						$slot->group = 3;
 						$flag = false;
 						foreach($free_slots as $free)
 						{
@@ -476,6 +482,12 @@ class Reservations extends CI_Controller
 			if($free_slot->svLevel == SUPERVISOR_CAN_SUPERVISE && $user_machine_level < USER_SKILLED) 
 			{
 				if(!$free_slot->svLevel == "0" && USER_SKILLED) continue;
+				unset($tmp[$key]);
+				continue;
+			}
+
+			if (!$this->aauth->is_member((int)$free_slot->group))
+			{
 				unset($tmp[$key]);
 				continue;
 			}
