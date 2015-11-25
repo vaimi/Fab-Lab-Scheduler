@@ -118,6 +118,7 @@ class Admin extends CI_Controller
 		$this->load->view('partials/jumbotron', $jdata);
 		//Get admins (Supervisors) from db
 		$data['admins'] = $this->Admin_model->get_admins()->result();
+		$data['groups'] = $this->aauth->list_groups();
 		$this->load->view('admin/timetable', $data);
 		$this->load->view('partials/footer');
 	}
@@ -291,6 +292,7 @@ class Admin extends CI_Controller
                 $slot_array = array (
                     'id' => $slot->SupervisionID,
                     'title' => "uid: ". $slot->aauth_usersID. " sid: ". $slot->SupervisionID,
+                    'group' => $slot->aauth_groupsID,
                     'assigned' => $slot->aauth_usersID,
                     'start' => $slot->StartTime,
                     'end' => $slot->EndTime
@@ -302,6 +304,7 @@ class Admin extends CI_Controller
 	                $current_saved_slots = $this->session->userdata('sv_saved_items');
 	                $s = new stdClass();
 	                $s->assigned = $slot->aauth_usersID;
+	                $s->group = $slot->aauth_groupsID;
 	                $s->start = $slot->StartTime;
 	                $s->end = $slot->EndTime;
 	                $s->id = $slot->SupervisionID;
@@ -403,6 +406,7 @@ class Admin extends CI_Controller
         
         $slot = new stdClass();
         $slot->assigned = $assigned;
+        $slot->group = 3;
         $slot->start = $start;
         $slot->end = $end;
         $slot->id = -1 - count($this->session->userdata('sv_unsaved_new_items'));
@@ -420,6 +424,7 @@ class Admin extends CI_Controller
     	//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
+        $group = $this->input->post("group");
         $start = $this->input->post("start");
         $end = $this->input->post("end");  
         
@@ -460,6 +465,7 @@ class Admin extends CI_Controller
                 $new_slot = new stdClass();
                 $new_slot->id = $slot->SupervisionID;
                 $new_slot->assigned = $slot->aauth_usersID;
+                $new_slot->group = $slot->aauth_groupsID;
                 $new_slot->start = $slot->StartTime;
                 $new_slot->end = $slot->EndTime;
                 $new_slot->original = clone $new_slot;
@@ -520,6 +526,7 @@ class Admin extends CI_Controller
     		$tmp2[$id] = $tmp[$id];
     		//Assign old values
     		$tmp2[$id]->assigned = $tmp[$id]->original->assigned;
+    		$tmp2[$id]->group = $tmp[$id]->original->group;
     		$tmp2[$id]->start = $tmp[$id]->original->start;
     		$tmp2[$id]->end = $tmp[$id]->original->end;
     		//Delete slot in previous list
@@ -527,7 +534,8 @@ class Admin extends CI_Controller
     		$this->session->set_userdata($new_list, $tmp2);
     		$this->session->set_userdata('sv_unsaved_modified_items', $tmp);
     		echo json_encode(array("success" => true, 
-    				"assigned" => $tmp2[$id]->assigned, 
+    				"assigned" => $tmp2[$id]->assigned,
+    				"group" => $tmp2[$id]->group,
     				"start" => $tmp2[$id]->start, 
     				"end" => $tmp2[$id]->end, 
     				"color" => $tmp2[$id]->original->color));
@@ -544,6 +552,7 @@ class Admin extends CI_Controller
     		$tmp2[$id] = $tmp[$id];
     		//Assign old values
     		$tmp2[$id]->assigned = $tmp[$id]->original->assigned;
+    		$tmp2[$id]->group = $tmp[$id]->original->group;
     		$tmp2[$id]->start = $tmp[$id]->original->start;
     		$tmp2[$id]->end = $tmp[$id]->original->end;
     		$color = "#5bc0de";
@@ -553,6 +562,7 @@ class Admin extends CI_Controller
     		$this->session->set_userdata('sv_unsaved_new_items', $tmp);
     		echo json_encode(array("success" => true,
     				"assigned" => $tmp2[$id]->assigned,
+    				"group" => $tmp2[$id]->group,
     				"start" => $tmp2[$id]->start,
     				"end" => $tmp2[$id]->end,
     				"color" => $tmp2[$id]->original->color));
@@ -569,6 +579,7 @@ class Admin extends CI_Controller
     		$tmp2[$id] = $tmp[$id];
     		//Assign old values
     		$tmp2[$id]->assigned = $tmp[$id]->original->assigned;
+    		$tmp2[$id]->group = $tmp[$id]->original->group;
     		$tmp2[$id]->start = $tmp[$id]->original->start;
     		$tmp2[$id]->end = $tmp[$id]->original->end;
     		$color = "#5bc0de";
@@ -578,6 +589,7 @@ class Admin extends CI_Controller
     		$this->session->set_userdata('sv_unsaved_deleted_items', $tmp);
     		echo json_encode(array("success" => true, 
     				"assigned" => $tmp2[$id]->assigned, 
+    				"group" => $tmp2[$id]->group,
     				"start" => $tmp2[$id]->start, 
     				"end" => $tmp2[$id]->end, 
     				"color" => $tmp2[$id]->original->color));
@@ -597,6 +609,7 @@ class Admin extends CI_Controller
     	//TODO validation
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
+        $group = $this->input->post("group");
         $start = $this->input->post("start");
         $end = $this->input->post("end");    
         $event = array();
@@ -641,6 +654,7 @@ class Admin extends CI_Controller
         {
             $slot = $event;
             $slot->assigned = $assigned;
+            $slot->group = $group;
             $slot->start = $start;
             $slot->end = $end;
             $slot->id = $id;
@@ -652,6 +666,7 @@ class Admin extends CI_Controller
         {
             $slot = $event;
             $slot->assigned = $assigned;
+            $slot->group = $group;
             $slot->start = $start;
             $slot->end = $end;
             $slot->id = $id;
@@ -665,6 +680,7 @@ class Admin extends CI_Controller
     	//TODO validation
     	$id = $this->input->post("id");
     	$assigned = $this->input->post("assigned");
+    	$group = $this->input->post("group");
     	$start = $this->input->post("start");
     	$end = $this->input->post("end");
     	$color = "#000000";
@@ -674,6 +690,7 @@ class Admin extends CI_Controller
     	{
     		$tmp = $this->session->userdata('sv_unsaved_modified_items');
     		$tmp[$id]->assigned = $assigned;
+    		$tmp[$id]->group = $group;
     		$tmp[$id]->start = $start;
     		$tmp[$id]->end = $end;
     		$this->session->set_userdata('sv_unsaved_modified_items', $tmp);
@@ -685,6 +702,7 @@ class Admin extends CI_Controller
     	{
     		$tmp = $this->session->userdata('sv_unsaved_new_items');
     		$tmp[$id]->assigned = $assigned;
+    		$tmp[$id]->group = $group;
     		$tmp[$id]->start = $start;
     		$tmp[$id]->end = $end;
     		$this->session->set_userdata('sv_unsaved_new_items', $tmp);
@@ -696,6 +714,7 @@ class Admin extends CI_Controller
     	{
     		$tmp = $this->session->userdata('sv_unsaved_deleted_items');
     		$tmp[$id]->assigned = $assigned;
+    	    $tmp[$id]->group = $group;
     		$tmp[$id]->start = $start;
     		$tmp[$id]->end = $end;
     		$this->session->set_userdata('sv_unsaved_deleted_items', $tmp);
@@ -708,6 +727,7 @@ class Admin extends CI_Controller
     		$tmp = $this->session->userdata('sv_saved_items');
     		//$event = array_filter($tmp, function ($e) use (&$id) { return $e->id === $id; } );
     		$tmp[$id]->assigned = $assigned;
+    		$tmp[$id]->group = $group;
     		$tmp[$id]->start = $start;
     		$tmp[$id]->end = $end;
     		
@@ -718,7 +738,7 @@ class Admin extends CI_Controller
     		$this->session->set_userdata('sv_unsaved_modified_items', $tmp2);
     		$color = "#5bc0de";
     	}
-    	echo json_encode(array("success" => 1 , "assigned" => $assigned, "start" => $start, "end" => $end, "color" => $color));
+    	echo json_encode(array("success" => 1 , "assigned" => $assigned, "group" => $group,"start" => $start, "end" => $end, "color" => $color));
     }
 	//Schedules 
 	

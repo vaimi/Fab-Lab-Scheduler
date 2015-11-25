@@ -135,7 +135,8 @@ class Admin_model extends CI_Model {
             "SupervisionID" => (int)$slot->id,
             "StartTime" => date("Y-m-d H:i:s", strtotime($slot->start)),
             "EndTime" => date("Y-m-d H:i:s", strtotime($slot->end)),
-            "Aauth_usersID" => (int)$slot->assigned
+            "Aauth_usersID" => (int)$slot->assigned,
+            "Aauth_groupsID" => (int)$slot->group
         );
         $this->db->replace('Supervision', $data);
     }
@@ -145,7 +146,8 @@ class Admin_model extends CI_Model {
         $data = array(
             "StartTime" => date("Y-m-d H:i:s", strtotime($slot->start)),
             "EndTime" => date("Y-m-d H:i:s", strtotime($slot->end)),
-            "Aauth_usersID" => (int)$slot->assigned
+            "Aauth_usersID" => (int)$slot->assigned,
+            "Aauth_groupsID" => (int)$slot->group
         );
         $this->db->insert('Supervision', $data);
     }
@@ -177,6 +179,7 @@ class Admin_model extends CI_Model {
     		$slot->start = $new_start_time->format('Y-m-d H:i:s');
     		$slot->end = $new_end_time->format('Y-m-d H:i:s');
     		$slot->assigned = $row->aauth_usersID;
+    		$slot->group = $row->aauth_groupID;
     		$this->timetable_save_new($slot);
     		$count++;
     	}

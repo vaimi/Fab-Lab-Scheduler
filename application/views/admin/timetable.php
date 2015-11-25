@@ -1,4 +1,6 @@
 <script type="text/javascript" src="<?=asset_url()?>js/bootstrap-notify.min.js"></script>
+<script type="text/javascript" src="<?=asset_url()?>js/bootstrap-select.min.js"></script>
+<link rel="stylesheet" type="text/css" href="<?=asset_url()?>css/bootstrap-select.min.css"/>
 <div class="container">
 	<div class="btn-toolbar">
 		<a id="save_button" type="button" class="btn btn-success">
@@ -53,6 +55,7 @@
         var post_data = {
             "id": event.id,
             "assigned": event.assigned,
+            "group": event.group,
             "start": moment(event._start).format("YYYY-MM-DD HH:mm:ss"),
             "end": moment(event._end).format("YYYY-MM-DD HH:mm:ss")
         }
@@ -86,6 +89,7 @@
                 // return success
                 if (json.success) {
                     event.assigned = json.assigned;
+                    event.group = json.group;
                     event.start = json.start;
                     event.end = json.end;
                     event.title = "uid: " + event.assigned + " sid: " + event.id;
@@ -201,6 +205,7 @@
         var post_data = {
             "id": event.id,
             "assigned": $("#supervisionpicker").val(),
+            "group": $("#targetpicker").val(),
             "start": $('#startpicker').data("DateTimePicker").date().format("YYYY-MM-DD HH:mm:ss"),
             "end": $('#endpicker').data("DateTimePicker").date().format("YYYY-MM-DD HH:mm:ss")
         };
@@ -214,6 +219,7 @@
                 // return success
                 if (json.success) {
                     event.assigned = json.assigned;
+                    event.group = json.group;
                     event.start = json.start;
                     event.end = json.end;
                     event.title = "uid: " + event.assigned + " sid: " + event.id;
@@ -299,7 +305,8 @@
 				//Place event's data to modal.
 				$('#startpicker').data("DateTimePicker").date(event.start);
 				$('#endpicker').data("DateTimePicker").date(event.end);
-				$("#supervisionpicker").val(event.assigned);
+                $('#supervisionpicker').selectpicker('val', event.assigned);
+                $('#targetpicker').selectpicker('val', event.group);
 			},
 			editable: true,
             eventRender: function(event, element){
@@ -512,7 +519,7 @@
             <div class="row">
                 <div class='col-sm-6'>
                     <div class="form-group">
-                        <label for="startpicker">Select start time:</label>
+                        <label for="startpicker">Start time:</label>
                         <div class='input-group date' id='startpicker'>
                             <input type='text' readonly="readonly" class="form-control" />
                             <span class="input-group-addon">
@@ -520,6 +527,8 @@
                             </span>
                         </div>
                     </div>
+                </div>
+                <div class='col-sm-6'>
                     <script type="text/javascript">
                         $(function () {
                             $('#startpicker').datetimepicker({
@@ -529,7 +538,7 @@
                         });
                     </script>
                     <div class="form-group">
-                        <label for="endpicker">Select end time:</label>
+                        <label for="endpicker">End time:</label>
                         <div class='input-group date' id='endpicker'>
                             <input type='text' readonly="readonly" class="form-control" />
                             <span class="input-group-addon">
@@ -537,6 +546,8 @@
                             </span>
                         </div>
                     </div>
+                </div>
+                <div class='col-sm-6'>
                     <script type="text/javascript">
                         $(function () {
                             $('#endpicker').datetimepicker({
@@ -546,9 +557,19 @@
                         });
                     </script>
                     <div class="form-group">
-                        <label for="supervisionpicker">Select supervisor:</label>
-                        <select class="form-control" id="supervisionpicker">
+                        <label for="supervisionpicker">Supervisor:</label>
+                        <select class="form-control selectpicker" id="supervisionpicker">
                             <?php foreach ($admins as $row ) {?>
+                                <option value="<?=$row->id ?>"><?=$row->name; ?></option>
+                            <?php }?>
+                        </select>
+                    </div>
+                </div>
+                <div class='col-sm-6'>
+                    <div class="form-group">
+                        <label for="targetpicker">Target group:</label>
+                        <select class="form-control selectpicker" id="targetpicker">
+                            <?php foreach ($groups as $row ) {?>
                                 <option value="<?=$row->id ?>"><?=$row->name; ?></option>
                             <?php }?>
                         </select>
