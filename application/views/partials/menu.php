@@ -26,10 +26,13 @@
             <li class="dropdown<?= echo_active_nav_parent('reservations') ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reservations<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li<?= set_active_nav('reservations/active') ?>>
+                <li<?= set_active_nav('reservations/basic_schedule') ?>>
+                  <?php echo anchor('reservations/basic_schedule', 'Basic schedule');?>
+                </li>
+                <li<?= set_active_nav('reservations/active') ?> <?php if(!$this->aauth->is_loggedin()) {echo 'class="disabled"';}?>>
                   <?php echo anchor('reservations/active', 'Active reservations');?>
                 </li>
-                <li<?= set_active_nav('reservations/reserve') ?>>
+                <li<?= set_active_nav('reservations/reserve') ?> <?php if(!$this->aauth->is_loggedin()) {echo 'class="disabled"';}?>>
                   <?php echo anchor('reservations/reserve', 'Reserve');?>
                 </li>
               </ul>

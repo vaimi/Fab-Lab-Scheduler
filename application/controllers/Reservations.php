@@ -17,6 +17,10 @@ class Reservations extends CI_Controller
 	}
 	
 	public function active() {
+		if (!$this->aauth->is_loggedin())
+		{
+			redirect('404');
+		}
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Active reservations";
@@ -26,8 +30,22 @@ class Reservations extends CI_Controller
 		$this->load->view('reservations/active', array("rdata"=>$rdata));
 		$this->load->view('partials/footer');
 	}
+
+	public function basic_schedule() {
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = "Basic schedule";
+		$jdata['message'] = "Here you can see assigned supervisors and active reservations. If you want to do reservation go to " . anchor("reservations/reserve", "reserve");
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('reservations/reserve_public');
+		$this->load->view('partials/footer');
+	}
 	
 	public function reserve() {
+		if (!$this->aauth->is_loggedin())
+		{
+			redirect('404');
+		}
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Need for reservation?";
@@ -635,6 +653,28 @@ class Reservations extends CI_Controller
 	    if ($interval->h) { $result .= $interval->format("%h h "); }
 	    if ($interval->i) { $result .= $interval->format("%i m "); }
 	    return $result;
+	}
+
+	public function reserve_get_supervision_slots() {
+		$start = $this->input->get('start');
+        $end = $this->input->get('end');
+		$ssessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
+		$response = array();
+		foreach ($ssessions->result() as $ssession) 
+		{
+			$supervisor_levels = $this->Reservations_model->reservations_get_supervisor_levels($ssession->aauth_usersID);
+			$supervisor = $this->aauth->get_user($ssession->aauth_usersID);
+			foreach ($supervisor_levels->result() as $supervisor_level)
+			{
+				$response[] = array(
+					"resourceId" => "mac_" . $supervisor_level->MachineID,
+	        		"start" => $ssession->StartTime,
+	        		"end" => $ssession->EndTime,
+	        		"title" => $supervisor->name
+				);
+			}
+		}
+  		$this->output->set_output(json_encode($response));
 	}
 	
 	public function reserve_get_reserved_slots() 
