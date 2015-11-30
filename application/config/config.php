@@ -513,4 +513,4 @@ define('USER_NEEDS_SUPERVISOR', 2);
 define('USER_SKILLED', 3);
 define('SUPERVISOR_CAN_SUPERVISE', 4);
 define('SUPERVISOR_CAN_TEACH', 5);
-
+define('PUBLIC_GROUP_ID', "2");

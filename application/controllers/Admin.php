@@ -295,7 +295,8 @@ class Admin extends CI_Controller
                     'group' => $slot->aauth_groupsID,
                     'assigned' => $slot->aauth_usersID,
                     'start' => $slot->StartTime,
-                    'end' => $slot->EndTime
+                    'end' => $slot->EndTime,
+                	'color' => $slot->aauth_groupsID === PUBLIC_GROUP_ID ? "#f0ad4e" : "#5cb85c" //public : saved color.
                 );
                 array_push($response, $slot_array);
                 if (!in_array($slot->SupervisionID, $modIDsSaved))
@@ -311,7 +312,7 @@ class Admin extends CI_Controller
 	                //Save another copy for discard changes.
 	                $s->original = clone $s;
 	                $s->original->list = "sv_saved_items";
-	                $s->original->color = "#5cb85c";
+	                $s->original->color = $s->group === PUBLIC_GROUP_ID ? "#f0ad4e" : "#5cb85c"; //public : saved color.
 	                $current_saved_slots[$s->id] = $s;
 	                $this->session->set_userdata('sv_saved_items', $current_saved_slots);
                 }

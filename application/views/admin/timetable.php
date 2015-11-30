@@ -265,7 +265,6 @@
             // your event source
                 {
                     url: 'timetable_fetch_supervision_sessions',
-                    color: ttColors.saved
                 },
                 {
                     url: 'timetable_fetch_mod_and_new_sessions', 
@@ -603,8 +602,8 @@
             <h4>Legend</h4>
             <span class="label label-success">Saved</span>
             <span class="label label-info">Modified</span>
-            <span class="label label-warning">Public</span>
-            <span class="label label-public-saved">Saved public</span>
+            <span class="label label-warning">Saved Public</span>
+<!--             <span class="label label-public-saved">Saved public</span> -->
             <span class="label label-danger">Unsaved deletion</span>
         </div>
 	</div>
