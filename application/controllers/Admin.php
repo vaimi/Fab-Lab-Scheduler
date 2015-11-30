@@ -985,14 +985,46 @@ class Admin extends CI_Controller
 				'machines' => $this->get_machine_group_levels($user_id, $machine_group->MachineGroupID)
 			);
 		}
+		$reservations = $this->Admin_model->get_reservations($user_id);
+		$data['results'] = $reservations;
+		$reservations_view = $this->load->view('user/reservations_list', $data, true);
+		//Sort array by start time.
+		usort($reservations, function($a, $b)
+		{
+			return $a['StartTime'] < $b['StartTime'];
+		});
+
+
 		// Prepare array for view
 		$response = array
 		(
 			'basic' => $basic,
 			'groups' => $groups,
-			'levels' => $levels
+			'levels' => $levels,
+			'reservations_view' => $reservations_view
 		);
 		$this->load->view('admin/users_form', $response);
+	}
+	/**
+	 * 
+	 */
+	public function get_reservations()
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+		$id = $this->input->post('user_id');
+		//Contains info about reservations
+		$reservations = $this->Admin_model->get_reservations($id);
+		//Sort array by start time.
+		usort($reservations, function($a, $b)
+		{
+			return $a['StartTime'] < $b['StartTime'];
+		});
+		$data['results'] = $reservations;
+		$this->load->view('user/reservations_list', $data);
 	}
 	
 	private function get_machine_group_levels($user_id, $machine_group_id) 

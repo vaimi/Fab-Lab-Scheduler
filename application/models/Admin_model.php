@@ -106,6 +106,14 @@ class Admin_model extends CI_Model {
 		}
 		return $this->db->get();
 	}
+	function get_reservations($user_id)
+	{
+		$sql = "select r.MachineID, r.StartTime, r.EndTime, r.QRCode, r.PassCode, m.MachineName, m.Manufacturer, m.Model, m.Description
+    			from Machine m, Reservation r
+    			where r.aauth_usersID=? and r.MachineID = m.MachineID";
+		$results = $this->db->query($sql,$user_id)->result_array();
+		return $results;
+	}
 	// TODO: This query needs checking.
 	public function get_admins() 
     {

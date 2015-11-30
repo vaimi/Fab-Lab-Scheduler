@@ -79,6 +79,7 @@
 		<li class="active"><a href="#basic" data-toggle="tab">Basic</a></li>
 		<li><a href="#groups" data-toggle="tab">Groups</a></li>
 		<li><a href="#levels" data-toggle="tab">Levels</a></li>
+		<li><a href="#reservations" data-toggle="tab">Reservations</a></li>
 	</ul>
 	<!-- Tab content -->
 	<div id="tab-content" class="tab-content">
@@ -225,6 +226,10 @@
 					<?php endforeach; ?>
 				</div>
 			</form>
+		</div>
+		<!-- Reservations tab-->
+		<div class="tab-pane" id="reservations">
+		<?php echo $reservations_view; ?>
 		</div>
 	</div>
 </div>
