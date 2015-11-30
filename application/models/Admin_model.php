@@ -131,6 +131,7 @@ class Admin_model extends CI_Model {
     }
     public function timetable_save_modified($slot)
     {
+    	// TODO BUG HERE WHEN Aauth_usersID IS MODIFIED
             $data = array(
             "SupervisionID" => (int)$slot->id,
             "StartTime" => date("Y-m-d H:i:s", strtotime($slot->start)),
