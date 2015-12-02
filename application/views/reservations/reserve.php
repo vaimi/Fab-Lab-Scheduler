@@ -552,9 +552,12 @@
     .collapse {
         position: inherit;
     }
+    .fc-timeline-event {
+    	cursor: pointer;
+    }
 </style>
 <div class="container">
-	<h4>Available quota: <span id="quotaMain"><?php echo $quota ?></span></h4>
+	<h4>Available quota: <span id="quotaMain"><?php echo $quota; ?></span> hours.</h4>
 	<article>
 		<legend>Search by form</legend>
 		<form class="form-horizontal">
@@ -582,7 +585,7 @@
 		  </div>
 		</div>
 		<div class="form-group">
-		  <label class="col-md-4 control-label" for="selectlenght">Reservation lenght</label>
+		  <label class="col-md-4 control-label" for="selectlenght">Reservation length</label>
 		  <div class="col-md-4">
 			<select id="selectLength" class="form-control selectpicker">
 			  <option value="0">Not defined</option>

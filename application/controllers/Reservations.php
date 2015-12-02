@@ -8,12 +8,7 @@ class Reservations extends CI_Controller
 	}
 	
 	public function index() {
-		$this->load->view('partials/header');
-		$this->load->view('partials/menu');
-		$jdata['title'] = "Need for reservation?";
-		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu. Sed arcu lectus auctor vitae, consectetuer et venenatis eget velit. Sed augue orci, lacinia eu tincidunt et eleifend nec lacus. Donec ultricies nisl ut felis, suspendisse potenti. Lorem ipsum ligula ut hendrerit mollis, ipsum erat vehicula risus, eu suscipit sem libero nec erat. Aliquam erat volutpat. Sed congue augue vitae neque. Nulla consectetuer porttitor pede. Fusce purus morbi tortor magna condimentum vel, placerat id blandit sit amet tortor.";
-		$this->load->view('partials/jumbotron_center', $jdata);
-		$this->load->view('partials/footer');
+		$this->basic_schedule();
 	}
 	
 	public function active() {
@@ -48,8 +43,8 @@ class Reservations extends CI_Controller
 		}
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Need for reservation?";
-		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$jdata['title'] = "Reserve";
+		$jdata['message'] = "";
 		$this->load->view('partials/jumbotron', $jdata);
 		//Load available machines
 		$this->load->model("Admin_model"); //TODO things relying from this should use functions from Reservation_model
