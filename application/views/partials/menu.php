@@ -15,11 +15,11 @@
             <li class="dropdown<?= echo_active_nav_parent('info') ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li<?= set_active_nav('info/floorplan') ?>>
-                  <?php echo anchor('info/floorplan', 'Floor plan');?>
+                <li<?= set_active_nav('info/floorplan') ?> class="disabled">
+                  <?php echo anchor('info/floorplan', 'Floor plan', 'class="menu-disabled"');?>
                 </li>
-                <li<?= set_active_nav('info/machines') ?>>
-                  <?php echo anchor('info/machines', 'Machines');?>
+                <li<?= set_active_nav('info/machines') ?> class="disabled">
+                  <?php echo anchor('info/machines', 'Machines', 'class="menu-disabled"');?>
                 </li>
               </ul>
             </li>
@@ -29,12 +29,26 @@
                 <li<?= set_active_nav('reservations/basic_schedule') ?>>
                   <?php echo anchor('reservations/basic_schedule', 'Basic schedule');?>
                 </li>
-                <li<?= set_active_nav('reservations/active') ?> <?php if(!$this->aauth->is_loggedin()) {echo 'class="disabled"';}?>>
-                  <?php echo anchor('reservations/active', 'Active reservations');?>
-                </li>
-                <li<?= set_active_nav('reservations/reserve') ?> <?php if(!$this->aauth->is_loggedin()) {echo 'class="disabled"';}?>>
-                  <?php echo anchor('reservations/reserve', 'Reserve');?>
-                </li>
+                <?php
+                if($this->aauth->is_loggedin())
+                {
+                  echo "<li " . set_active_nav('reservations/active') . ">";
+                  echo anchor('reservations/active', 'Active reservations');
+                  echo "</li>";
+                  echo "<li " . set_active_nav('reservations/reserve') . ">";
+                  echo anchor('reservations/reserve', 'Reserve');
+                  echo "</li>";
+                }
+                else
+                {
+                  echo "<li " . set_active_nav('reservations/active') . " class=\"disabled\">";
+                  echo anchor('#', 'Active reservations', 'class="menu-disabled"');
+                  echo "</li>";
+                  echo "<li " . set_active_nav('reservations/reserve') . " class=\"disabled\">";
+                  echo anchor('#', 'Reserve', 'class="menu-disabled"');
+                  echo "</li>";
+                }
+                ?>
               </ul>
             </li>
             <li<?= set_active_nav('contact') ?>>
