@@ -1268,8 +1268,8 @@ class Admin extends CI_Controller
 			redirect('404');
 			return;
 		}
-		$this->load->model('MachineGroup_model');
-		$result = $this->MachineGroup_model->change_activation_status($machine_group_id);
+		$this->load->model('Machinegroup_model');
+		$result = $this->Machinegroup_model->change_activation_status($machine_group_id);
 		if ($result)
 			echo '{"result": true}';
 		else
@@ -1282,8 +1282,8 @@ class Admin extends CI_Controller
 			redirect('404');
 			return;
 		}
-		$this->load->model('MachineGroup_model');
-		$result = $this->MachineGroup_model->delete_machine_group($machine_group_id);
+		$this->load->model('Machinegroup_model');
+		$result = $this->Machinegroup_model->delete_machine_group($machine_group_id);
 		if ($result)
 			echo '{"result": true}';
 		else
@@ -1342,8 +1342,8 @@ class Admin extends CI_Controller
 		{
 			redirect('404');
 		}
-		$this->load->model('MachineGroup_model');
-		$machine_group = $this->MachineGroup_model->get_machine_group($machine_group_id);
+		$this->load->model('Machinegroup_model');
+		$machine_group = $this->Machinegroup_model->get_machine_group($machine_group_id);
 		if ($machine_group == null)
 		{
 			redirect('404');
@@ -1361,8 +1361,8 @@ class Admin extends CI_Controller
 			$name = $this->input->post('name');
 			$description = $this->input->post('description');
 			$need_supervision = ($this->input->post('need_supervision') != '')?true:false;
-			$result = $this->MachineGroup_model->update_data($machine_group_id, $name, $description, $need_supervision);
-			$machine_group = $this->MachineGroup_model->get_machine_group($machine_group_id);
+			$result = $this->Machinegroup_model->update_data($machine_group_id, $name, $description, $need_supervision);
+			$machine_group = $this->Machinegroup_model->get_machine_group($machine_group_id);
 			$this->load->view('admin/edit_machine_group', array('machine_group' => $machine_group,'action'=>'edit'));
 		}
 		$this->load->view('partials/footer');

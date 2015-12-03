@@ -206,6 +206,46 @@ class Reservations_model extends CI_Model {
         return $now->getTimestamp();
     }
 
+    public function get_previous_supervision_end($machine_id, $time) 
+    {
+        $this->db->select("session.EndTime");
+        $this->db->from("Supervision as session");
+        $this->db->join("UserLevel as level", "level.aauth_usersID = session.aauth_usersID");
+        $this->db->where("level.MachineID", $machine_id);
+        $this->db->where("level.Level >", 3);
+        $this->db->where("session.EndTime <=", $time);
+        $this->db->order_by("session.EndTime", "desc");
+        $this->db->limit(1);
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            return strtotime($result->row()->EndTime);
+        }
+        $now = new DateTime();
+        $now->add(new DateInterval('P2M'));
+        return $now->getTimestamp();
+    }
+
+    public function get_next_supervision_start($machine_id, $time) 
+    {
+        $this->db->select("session.StartTime");
+        $this->db->from("Supervision as session");
+        $this->db->join("UserLevel as level", "level.aauth_usersID = session.aauth_usersID");
+        $this->db->where("level.MachineID", $machine_id);
+        $this->db->where("level.Level >", 3);
+        $this->db->where("session.StartTime >", $time);
+        $this->db->order_by("session.StartTime", "asc");
+        $this->db->limit(1);
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            return strtotime($result->row()->StartTime);
+        }
+        $now = new DateTime();
+        return $now->getTimestamp();
+    }
+
+
     public function get_reservation_email_info($reservation)
     {
         $this->db->select("r.ReservationID, r.StartTime, r.EndTime, m.Manufacturer, m.Model, u.email");
