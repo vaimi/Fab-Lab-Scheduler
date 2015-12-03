@@ -144,11 +144,12 @@
 		        classes: 'qtip-bootstrap qtip_width'
 		        //width: 'auto',
 			    //height: 'auto'
-		        
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
 		    },
-	        position: {
-        		viewport: $(window)
-    		},
 		    events: {
 		    	hide: function (event, api) {
 			        $(this).qtip('destroy');

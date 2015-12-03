@@ -10,12 +10,17 @@ class Reservations extends CI_Controller
 	public function index() {
 		$this->basic_schedule();
 	}
-	
-	public function active() {
+
+	private function no_public_access()
+	{
 		if (!$this->aauth->is_loggedin())
 		{
-			redirect('404');
+			show_error('No public access. Log in first.', 401);
 		}
+	}
+	
+	public function active() {
+		$this->no_public_access();
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Active reservations";
@@ -37,10 +42,7 @@ class Reservations extends CI_Controller
 	}
 	
 	public function reserve() {
-		if (!$this->aauth->is_loggedin())
-		{
-			redirect('404');
-		}
+		$this->no_public_access();
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Reserve";
@@ -68,7 +70,7 @@ class Reservations extends CI_Controller
      * @param int $now Current time as unixtime. Used to filter out free sessions in history and limit therefore 
      * reservation of old slots.
      * 
-     * @access logged in users
+     * @access private
      * @return free slots as array of objects. objects have following items:
      * 		machine == int machine id,
      * 		start == int start of the slot as unixtime,
@@ -78,11 +80,6 @@ class Reservations extends CI_Controller
      *  
      */
 	private function calculate_free_slots($start, $end, $predefined_machine=false, $now) {
-		// If we are not logged in, return empty array
-		if (!$this->aauth->is_loggedin())
-		{
-			return [];
-		}
 		// Array to hold the slot objects
 		$free_slots = array();
 
@@ -227,8 +224,7 @@ class Reservations extends CI_Controller
 				    	}
 				    }
 				    // if the start is still bigger than first item
-				    if ($session_ends[0] > strtotime($start))
-					{
+
 					// If the start of calculation is before current time, we use $now, otherwise we use $start
 						if ($start < $now)
 						{
@@ -238,20 +234,11 @@ class Reservations extends CI_Controller
 						{
 							array_unshift($session_ends, strtotime($start));
 						}
-					}
 
-					else
-					{
-						array_shift($session_ends);
-					}
 					// If session end is before end of search
 					if (end($session_ends) <= strtotime($end))
 					{
 						 $session_ends[] = strtotime($end);
-					}
-					else
-					{
-						array_pop($session_ends);
 					}
 				}
 				else
@@ -260,17 +247,14 @@ class Reservations extends CI_Controller
 					// use previous reservation as startpoint 
 					$previous_reservation = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, $start);
 					$previous_session = $this->Reservations_model->get_previous_supervision_end($machine->MachineID, $start);
-					if ($previous_reservation <= $previous_session) $previous_reservation = $previous_session;
+					if ($previous_reservation <= $previous_session and $previous_session <= strtotime($start)) $previous_reservation = $previous_session;
 					if ($previous_reservation < $now) $previous_reservation = $now;
 					$session_ends[] = $previous_reservation;
 					$session_ends[] = $this->Reservations_model->get_next_reservation_start($machine->MachineID, $end);
 				}
-				/*// remove breakpoints without break between
-				$session_ends_dub = array_diff_assoc($session_ends, array_unique($session_ends));
-				$session_ends = array_diff($session_ends, $session_ends_dub);
-				$session_ends = array_values($session_ends);*/
-				//var_dump($session_ends);
+
 				$session_amount = count($session_ends);
+				// If we for some reason end up with unpaired amount of sessionends, remove last
 				if ($session_amount % 2 != 0) $session_amount -= 1;
 				for($i=0; $i<$session_amount; $i=$i+2)
 				{
@@ -278,6 +262,7 @@ class Reservations extends CI_Controller
 					$reservations = $this->Reservations_model->reservations_get_reserved_slots(date('Y-m-d H:i:s', $session_ends[$i]), date('Y-m-d H:i:s', $session_ends[$i+1]), $machine->MachineID);
 					// Make array for breakpoints
 					$breakpoints = array(); 
+					// Transfer to unixtime
 					if (count($reservations) != 0)
 					{
 						foreach($reservations as $reservation) 
@@ -312,15 +297,19 @@ class Reservations extends CI_Controller
 						$breakpoints = array_diff($breakpoints, $breakpoints_dub);
 						$breakpoints = array_values($breakpoints);
 						$break_amount = count($breakpoints);
+						// Loop through free slots
 						for($j=0; $j<$break_amount; $j=$j+2)
 						{
+							// Make slot object
 							$slot = new stdClass();
 							$slot->start = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, date('Y-m-d H:i:s', $breakpoints[$j]));
+							
 							$next_session = $this->Reservations_model->get_next_supervision_start($machine->MachineID, date('Y-m-d H:i:s', $breakpoints[$j]));
 							$next_reservation = $this->Reservations_model->get_next_reservation_start($machine->MachineID, date('Y-m-d H:i:s', $breakpoints[$j]));
 							$next_start = $next_reservation;
 							if ($next_start > $end) $next_start = $next_reservation; 
 							$slot->end = $next_start;
+
 							$slot->machine = $machine->MachineID;
 							$slot->svLevel = "0";
 							$slot->group = 3;
@@ -328,7 +317,9 @@ class Reservations extends CI_Controller
 						}
 					}
 					else
+					// Case of no breakpoints -> "full slot"
 					{
+						// find previous reservation
 						$slot = new stdClass();
 						if (date("H:i:s", $session_ends[$i]) == "00:00:00") {
 							$slot->start = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i]));
@@ -337,15 +328,19 @@ class Reservations extends CI_Controller
 						{
 							$slot->start = $session_ends[$i];
 						}
+						// find next reservation/session
 						$next_session = $this->Reservations_model->get_next_supervision_start($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i+1]));
 						$next_reservation = $this->Reservations_model->get_next_reservation_start($machine->MachineID, date('Y-m-d H:i:s', $session_ends[$i+1]));
 						$next_start = $next_session < $next_reservation ? $next_session : $next_reservation;
 						if ($next_start > $end) $next_start = $next_reservation; 
-						$slot->end = $next_reservation;
+						$slot->end = $next_start;
+
 						$slot->machine = $machine->MachineID;
 						$slot->svLevel = "0";
 						$slot->group = 3;
 						$flag = false;
+
+						// Check that we don't already have this slot in array
 						foreach($free_slots as $free)
 						{
 							if ($free->machine == $slot->machine and $free->start == $slot->start and $free->end == $slot->end)
@@ -358,18 +353,10 @@ class Reservations extends CI_Controller
 						if(!$flag) $free_slots[] = $slot;
 					}
 				}
-				/*
-				else
-				{
-					$slot = new stdClass();
-					$slot->start = $this->Reservations_model->get_previous_reservation_end($machine->MachineID, $start);
-					$slot->end = $this->Reservations_model->get_next_reservation_start($machine->MachineID, $end);
-					$slot->machine = $machine->MachineID;
-					$slot->svLevel = 0;
-					$free_slots[] = $slot;
-				}*/
 			}
 		}
+
+		// check that we don't have slots starting in history
 		$free_slots = array_values($free_slots);
 		foreach($free_slots as $key => $slot)
 		{
@@ -433,19 +420,27 @@ class Reservations extends CI_Controller
 		});
 		$slot_count = count($tmp);
 		$response = array();
+		// There is no need to combine anything if there is only one slot
 		if ($slot_count > 1)
 		{
+			// Go through each slot
 			foreach($tmp as $key => $slot)
 			{
+				// offset
 				$i = 1;
+				// check that we don't go outside array
 				if ($key+$i < $slot_count)
 				{
+					// check that slot isn't already combined
 					if(isset($tmp[$i + $key]))
 					{
+						// While first slot end is bigger than oncoming slot start i.e. they overlap
 						while ($slot->end >= $tmp[$i + $key]->start)
 						{
+							// we don't have to continue if it's wrong machine
 							if($slot->machine != $tmp[$i + $key]->machine) 
 							{
+								// move offset forward and continue to next
 								$i = $i+1;
 								if ($key+$i >= $slot_count) break;
 								if (!isset($tmp[$i + $key]))
@@ -457,19 +452,23 @@ class Reservations extends CI_Controller
 									if ($key+$i >= $slot_count) break;
 								}
 								continue;
-							}	
+							}
+							// If we are overlapping 	
 							if ($slot->end >= $tmp[$i + $key]->start)
 							{
+								// If we will gain bigger slot, modify "first" slot end, otherwise, just remove
 								if($slot->end <= $tmp[$i + $key]->end)
 								{
 									$slot->end = $tmp[$i + $key]->end;
 								}
 								unset($tmp[$i + $key]);
 							}
+							// We are not more overlapping, no need to go forward
 							else
 							{
 								break;
 							}
+							// move offset forward and continue if we stay in the limits of array
 							$i = $i+1;
 							if ($key+$i >= $slot_count) break;
 							if (!isset($tmp[$i + $key]))
@@ -483,68 +482,77 @@ class Reservations extends CI_Controller
 						}
 					}
 				}
-				if (isset($tmp[$key])) $response[] = $slot;
+				// if the slot isn't combined, add the "first" slot to response array. Also, check lenght
+				if (isset($tmp[$key])) {
+					if ($length != false)
+					{
+						$diff = $slot->end - $slot->start;
+						$slot_length = $diff / ( 60 * 60 );
+						if ($slot_length >= $length)
+						{
+							$response[] = $slot;
+						}
+					}
+					else
+					{
+						$response[] = $slot;
+					}
+				} 
 			}
 		}
+		// Case of only one slot
 		else
 		{
-			$response = $tmp;
-		}
-		return $response;
-		//Combine free slots if necessary
-		/*while(list($key, $free_slot) = each($tmp))
-		{
-			$end_slot = $free_slot;
-			unset($tmp[$key]);
-			while(list($key2, $possible_start_slot) = each($tmp))
+			if ($length != false)
 			{
-				//if slots are not from same machine
-				if ($end_slot->machine != $possible_start_slot->machine) {
-					continue;
-				}
-				
-				$start_p = (int) $possible_start_slot->start;
-				$end_p = (int) $possible_start_slot->end;
-				$start = (int) $end_slot->start;
-				$end = (int) $end_slot->end;
-				//if slots are connected
-				if ( $end >= $start_p && $start <= $start_p) {
-					$end_slot = $possible_start_slot;
-					unset($tmp[$key2]);
-				}
-			}
-			if ($free_slot->start <= $end_slot->start && $free_slot->end >= $end_slot->end)
-			{
-				array_push($results, $free_slot);
-				reset($tmp);
-				continue;
-			}
-			$free_slot->end = $end_slot->end;
-			//create a combined slot
-			if ($length == false)
-			{
-				array_push($results, $free_slot);
-			}
-			else
-			{
-				$diff = $free_slot->end - $free_slot->start;
+				$diff = $tmp[0]->end - $tmp[0]->start;
 				$slot_length = $diff / ( 60 * 60 );
 				if ($slot_length >= $length)
 				{
-					array_push($results, $free_slot);
+					$response[] = $tmp;
 				}
 			}
-			reset($tmp);
-		}*/
-		return $results;
+			else
+			{
+				$response = $tmp;
+			}		
+		}
+		return $response;
 	}
 
-	//TODO inputs should be checked
+	 /**
+     * Search slots
+     * 
+	 * Search free slots that fit to requirements. Only machine is mandatory, you can set also date and lenght.
+	 * You have to be logged in to use this.
+     * 
+     * @uses post::input 'mid' Mandatory. Numeric machine identifier.
+     * @uses post::input 'date' Day limiter. format (\d{4}/\d{2}/\d{2})
+     * @uses post:input 'length' Numeric lenght limiter. Sessions shorter than this are ignored
+     * 
+     * @access public
+     * @return json array in format [{"mid": machineid,"start":"dd.mm.yyyy hh:mm","end":"dd.mm.yyyy hh:mm","title":"Free x h y m"]
+     *  
+     */
 	public function reserve_search_free_slots()
 	{
+		// You must be locked in to filter these properly
+		$this->no_public_access();
+		$this->form_validation->set_rules('mid', 'machine', 'required|numeric');
+		$this->form_validation->set_rules('length', 'session lenght', 'numeric');
+		$this->form_validation->set_rules('day', 'session day', 'exact_length[10]|regex_match[(\d{4}/\d{2}/\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo validation_errors();
+			die();
+		}
+		// get variables
 		$machine = $this->input->post('mid');
 		$length = $this->input->post('length');
 		$day = $this->input->post('day');
+
+		// If day is not set, use current + 2 months as limit
 		$now = new DateTime();
 		if ($day == null)
 		{
@@ -552,15 +560,20 @@ class Reservations extends CI_Controller
 			$now->add(new DateInterval('P2M'));
 			$end = $now->format('Y-m-d H:i:s');
 		}
+		// if day is set, set hours
 		else
 		{
 			$start = $day . " 00:00:00";
 			$end = $day . " 23:59:59";
 		}
+
+		// Give current time to slot finder
 		$limit = new DateTime();
         $limit->modify('+1 hour 15 minutes');
         $limit_u = $limit->getTimestamp();
 		$free_slots = $this->calculate_free_slots($start, $end, $machine, $limit_u);
+
+		// Check if length is set and filter results accordingly
 		if ($length == null)
 		{
 			$free_slots = $this->filter_free_slots($free_slots);
@@ -569,6 +582,8 @@ class Reservations extends CI_Controller
 		{
 			$free_slots = $this->filter_free_slots($free_slots, $length);
 		}
+
+		// Form response
 		$response = array();
 		if (count($free_slots) > 0)
 	    {
@@ -588,18 +603,47 @@ class Reservations extends CI_Controller
         $this->output->set_output(json_encode($response));
 
 	}
+
+	/**
+     * Get calendar free slots
+     * 
+	 * Used to fetch calendar free slot events. 
+     * 
+     * @uses get::input 'start' start day
+     * @uses get::input 'end' end day
+     * 
+     * @access public
+     * @return json array in format [{"resourceId":"mac_" + machine id ,"start":"yyyy-mm-dd hh:mm:ss","end":"yyyy-mm-dd hh:mm:ss","title":"Free","reserved":0}]
+     *  
+     */
 	public function reserve_get_free_slots() 
 	{
+		// You must be locked in to filter these properly
+		$this->no_public_access();
+		$this->form_validation->set_data($this->input->get());
+		$this->form_validation->set_rules('start', 'start day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+		$this->form_validation->set_rules('end', 'end day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			validation_errors();
+			die();
+		}
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
 
+        // We don't allow search from history
         $now = new DateTime();
         $now->modify('+1 hour 15 minutes');
         $now_u = $now->getTimestamp();
         if ($now_u > strtotime($end)) return [];
 
-        $free_slots = $this->calculate_free_slots($start, $end, null,$now_u); //TODO these need to be still filtered (e.g. if there is no break with supervision session/multiple supervisors) + user level
+        // Get unfiltered slots 
+        $free_slots = $this->calculate_free_slots($start, $end, null ,$now_u);
+        // Filter slots
 	    $free_slots = $this->filter_free_slots($free_slots);
+
+	    // Make response
         $response = array();
 	    if (count($free_slots) > 0)
 	    {
@@ -621,6 +665,17 @@ class Reservations extends CI_Controller
 
 	}
 
+	/**
+     * Format interval
+     * 
+	 * Make nice looking title for slots 
+     * 
+     * @param DateTime $interval input time
+     * 
+     * @access private
+     * @return string interval in human friendly format
+     *  
+     */
 	private function format_interval($interval) 
 	{
 	    $result = "";
@@ -632,10 +687,36 @@ class Reservations extends CI_Controller
 	    return $result;
 	}
 
+	/**
+     * Get calendar supervision slots
+     * 
+	 * Used to fetch calendar supervision slots. Used in public calendar. 
+     * 
+     * @uses get::input 'start' start day
+     * @uses get::input 'end' end day
+     * 
+     * @access public
+     * @return json array in format [{"resourceId":"mac_" + machine id ,"start":"yyyy-mm-dd hh:mm:ss","end":"yyyy-mm-dd hh:mm:ss","title":supervisor name}]
+     *  
+     */
 	public function reserve_get_supervision_slots() {
+		// Validate input
+		$this->form_validation->set_data($this->input->get());
+		$this->form_validation->set_rules('start', 'start day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+		$this->form_validation->set_rules('end', 'end day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			validation_errors();
+			die();
+		}
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
+
+        // get slots
 		$ssessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
+
+		// form response
 		$response = array();
 		foreach ($ssessions->result() as $ssession) 
 		{
@@ -654,6 +735,18 @@ class Reservations extends CI_Controller
   		$this->output->set_output(json_encode($response));
 	}
 	
+	/**
+     * Get calendar reserved slots
+     * 
+	 * Used to fetch calendar reserved slots. Used in public and reservation calendar. 
+     * 
+     * @uses get::input 'start' start day
+     * @uses get::input 'end' end day
+     * 
+     * @access public
+     * @return json array in format [{"resourceId":"mac_" + machine id ,"start":"yyyy-mm-dd hh:mm:ss","end":"yyyy-mm-dd hh:mm:ss","title":"Reserved", "reserved":"1"}]
+     *  
+     */
 	public function reserve_get_reserved_slots() 
 	{
     	$start = $this->input->get('start');
@@ -670,67 +763,37 @@ class Reservations extends CI_Controller
         		"title" => "Reserved",
         		"reserved" => 1
 			);
-		}		
-		/*$response = array 
-		(
-			array 
-			(
-				"id" => "cat_1_1",
-				"resourceId" => "mac_1",
-				"start" => "2015-10-26T09:00:00",
-				"end" => "2015-10-26T10:00:00",
-				//"url" => "confirm/1/1",
-				"title" => "FREE"
-			),
-			array 
-			(
-				"id" => "cat_1_2",
-				"resourceId" => "mac_1",
-				"start" => "2015-10-26T10:00:00",
-				"end" => "2015-10-26T12:00:00",
-				"color" => "#f00",
-				"title" => "RESERVED"
-			),
-			array 
-			(
-				"id" => "cat_1_3",
-				"resourceId" => "mac_1",
-				"start" => "2015-10-26T12:00:00",
-				"end" => "2015-10-26T13:15:00",
-				//"url" => "confirm/1/3",
-				"title" => "FREE"
-			)
-		);*/
+		}
 		$this->output->set_output(json_encode($response));
 	}
 
+	/**
+     * Get calendar machines
+     * 
+	 * Used to fetch calendar machines. Used in public and reservation calendar. 
+     * 
+     * @access public
+     * @return json array in format {"id":"cat_" + category id,"title":group name,"children":[{"id":"mac_" + machine id,"title":manufacturer + model}]}]
+     *  
+     */
 	public function reserve_get_machines() {
 		$response = $this->Reservations_model->reservations_get_machines();
-		/*$response = array 
-		(
-			array 
-			(
-				"id" => "cat_1",
-				"title" => "3d printers",
-				"children" => array
-				(	
-					array
-					(
-						"id" => "mac_1",
-						"title" => "example printer"
-					),
-					array
-					(
-						"id" => "mac_2",
-						"title" => "example printer2"
-					)
-				)
-			)
-		);*/
 		$this->output->set_output(json_encode($response));
 	}
 
+	/**
+     * Get quota
+     * 
+	 * Get user quota
+	 *
+	 * @uses input::post 'id' user id
+     * 
+     * @access public
+     * @return float user quota
+     *  
+     */
 	public function reserve_get_quota() {
+		$this->no_public_access();
 		echo $this->Reservations_model->get_user_quota($this->session->userdata('id'));
 	}
 
@@ -756,7 +819,26 @@ class Reservations extends CI_Controller
 		$this->email->send();
 	}
 
-	//TODO this should check that user has right levels to do the reservation
+	/**
+     * Reserve time
+     * 
+	 * Reserve free slot
+	 *
+	 * @uses input::post 'syear' start year
+	 * @uses input::post 'smonth' start month
+	 * @uses input::post 'sday' start day
+	 * @uses input::post 'shour' start hour
+	 * @uses input::post 'smin' start minute
+	 * @uses input::post 'eyear' end year
+	 * @uses input::post 'emonth' end month
+	 * @uses input::post 'eday' end day
+	 * @uses input::post 'ehour' end hour
+	 * @uses input::post 'emin' end minute
+     * 
+     * @access public
+     * @return json array{"success":1(true) or 0(false), "errors":[error string]} 
+     *  
+     */
 	public function reserve_time() {
 		
 		$this->form_validation->set_rules('syear', 'start year', 'required|regex_match[(\d{4})]');
@@ -774,7 +856,6 @@ class Reservations extends CI_Controller
 		if ($this->form_validation->run() == FALSE)
 		{
 			//echo errors.
-			//echo validation_errors();
 			$response['success'] = 0;
 			$response['errors'] =  $this->form_validation->error_array();
 		}
@@ -795,12 +876,10 @@ class Reservations extends CI_Controller
 			$end_hour = $this->input->post('ehour');
 			$end_min = $this->input->post('emin');
 
-			//echo $m_id . " " .  $start_time . " " . $end_time . " " . $start_date ." ". $end_date;
-
 			$start_time = new DateTime($start_year . "-" . $start_month . "-" . $start_day . " " . $start_hour . ":" . $start_min);
 			$end_time = new DateTime($end_year . "-" . $end_month . "-" . $end_day . " " . $end_hour . ":" . $end_min);
 
-			// TODO we should check the lenght
+			// TODO we should check the length
 			//$start_modulo = $start_time->format('i') % 30;
 			//$end_modulo = $end_time->format('i') % 30;
 			if ($start_time >= $end_time) 
@@ -812,8 +891,19 @@ class Reservations extends CI_Controller
 			{
 				$start = $start_time->format('Y-m-d H:i:s');
 				$end = $end_time->format('Y-m-d H:i:s');
-				$is_overlapping = $this->Reservations_model->is_reserved($start, $end, $m_id);
-
+				$now = new DateTime();
+		        $now->modify('+1 hour');
+		        $now_u = $now->getTimestamp();
+				$free_slot = $this->calculate_free_slots($start, $end, $m_id, $now_u);
+				$free_slot = $this->filter_free_slots($free_slot);
+				$is_overlapping = true;
+				if (isset($free_slot[0]))
+				{
+					if ($free_slot[0]->start <= $start_time->getTimestamp() and $free_slot[0]->end >= $end_time->getTimestamp())
+					{
+						$is_overlapping = false;
+					}
+				}
 				$diff = $start_time->diff($end_time);
 				$hours = $diff->h;
 				$hours = $hours + ($diff->format('%d')*24);
@@ -823,7 +913,7 @@ class Reservations extends CI_Controller
 				if ($is_overlapping) 
 				{
 					$response['success'] = 0;
-					$response['errors'] =  array("Overlapping with other reservation");
+					$response['errors'] =  array("Overlapping with other reservation or too low level");
 				}
 				else if ($cost > $this->Reservations_model->get_user_quota($this->session->userdata('id'))) //TODO this check should be done also on client side, this is just to double check it.
 				{
