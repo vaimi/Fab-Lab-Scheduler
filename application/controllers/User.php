@@ -80,7 +80,8 @@ class User extends CI_Controller
 			$data = array(
 						'success' => false,
 						'username' => '',
-						'password' => '',
+						'first_password' => '',
+						'second_password' => '',
 						'surname' => '',
 						'email' => '',
 						'phone_number' => '',
@@ -296,7 +297,7 @@ class User extends CI_Controller
 		if (!valid_email($post_data['email'])){
 			$error[] = $this->aauth->CI->lang->line('aauth_error_email_invalid');
 		}
-		if ( strlen($post_data['password']) < $this->aauth->config_vars['min'] OR strlen($post_data['password']) > $this->aauth->config_vars['max'] ){
+		if ( strlen($post_data['first_password']) < $this->aauth->config_vars['min'] OR strlen($post_data['first_password']) > $this->aauth->config_vars['max'] ){
 			$error[] = $this->aauth->CI->lang->line('aauth_error_password_invalid');
 		}
 		if ($post_data['username'] !='' && !ctype_alnum(str_replace($this->aauth->config_vars['valid_chars'], '', $post_data['username']))){
@@ -351,7 +352,7 @@ class User extends CI_Controller
 	}
 
 	private function create_user($post_data) {
-		$user_id = $this->aauth->create_user($post_data['email'], $post_data['password'], $post_data['username']);
+		$user_id = $this->aauth->create_user($post_data['email'], $post_data['first_password'], $post_data['username']);
 		$db = $this->aauth->aauth_db;
 		
 		$extended_data = array
