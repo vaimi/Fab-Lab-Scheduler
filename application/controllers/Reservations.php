@@ -82,6 +82,7 @@ class Reservations extends CI_Controller
      *  
      */
 	private function calculate_free_slots($start, $end, $predefined_machine=false, $now) {
+		// TODO FIXME Add reservation deadline offset to free slot
 		// Array to hold the slot objects
 		$free_slots = array();
 

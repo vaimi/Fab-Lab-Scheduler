@@ -1,3 +1,6 @@
+<!-- TODO -->
+<!-- $reservation_deadline contains deadline e.g 16:00 in format HH:mm. This should limit the reservation-->
+<!-- $is_admin (bool) determines if $reservation_deadline limitation is needed. -->
 <link rel="stylesheet" type="text/css"  href="<?php echo asset_url() . "css/jquery.qtip.min.css"; ?>" />
 <script src="<?php echo asset_url() . "js/jquery.qtip.min.js"; ?>"  ></script>
 <script type="text/javascript" src="<?=asset_url()?>js/bootstrap-notify.min.js"></script>
