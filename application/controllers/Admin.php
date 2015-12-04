@@ -63,8 +63,9 @@ class Admin extends CI_Controller
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Admin";
 		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$data['settings'] = $this->Admin_model->get_general_settings();
 		$this->load->view('partials/jumbotron', $jdata);
-		$this->load->view('admin/general');
+		$this->load->view('admin/general', $data);
 		$this->load->view('partials/footer');
 	}
 	

@@ -21,7 +21,16 @@ class Admin_model extends CI_Model {
 		$this->db->offset($offset);
 		return $this->db->get();
     }
-	
+	public function get_general_settings()
+	{
+		$tmp = array();
+		$results = $this->db->get("Setting")->result_array();
+		foreach ($results as $result) 
+		{
+			$tmp[$result["SettingKey"]] = $result["SettingValue"];
+		}
+		return $tmp;
+	}
 	public function get_user_data($user_id) 
     {
 		$this->db->select('main.id, main.email, main.name, 
@@ -133,17 +142,14 @@ class Admin_model extends CI_Model {
 	}
 	public function set_general_settings($settings)
 	{
-
 		foreach ($settings as $key => $value)
 		{
-			echo $key . $value;
 			$data = array(
 					'SettingKey' => $key,
 					'SettingValue' => $value
 			);
 			$this->db->replace("Setting", $data);
 		}
-		
 	}
     
     public function timetable_get_supervision_slots($start_time, $end_time) 

@@ -54,6 +54,8 @@ class Reservations extends CI_Controller
 		//Load available quota.
 		$data['quota'] = $this->session->userdata('quota');
 		$data['machines'] = $machines->result();
+		$data['is_admin'] = $this->aauth->is_admin();
+		$data['reservation_deadline'] = $this->Reservations_model->get_reservation_deadline();
 		$this->load->view('reservations/reserve',$data);
 		$this->load->view('partials/footer');
 	}

@@ -260,4 +260,16 @@ class Reservations_model extends CI_Model {
         }
         return null;
     }
+    public function get_reservation_deadline()
+    {
+    	$this->db->select("SettingValue");
+    	$this->db->from("Setting");
+    	$this->db->where("SettingKey", "reservation_deadline");
+    	$result = $this->db->get();
+    	if ($result->num_rows() > 0)
+    	{
+    		return $result->row()->SettingValue;
+    	}
+    	return null;
+    }
 }

@@ -18,6 +18,8 @@
 		$('#reservation_deadline').datetimepicker({
 			format: 'HH:mm',
 			stepping: 30
-				});
 		});
+		$('#reservation_deadline').data("DateTimePicker").date("<?php echo $settings['reservation_deadline']; ?>");
+	});
+	
 </script>
