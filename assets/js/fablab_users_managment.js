@@ -57,7 +57,7 @@ function saveData(user) {
 			if (data.length > 0) {
 				var message = $.parseJSON(data);
 				if (message.success == 1) {
-					user.name = post_data.username + " " + post_data.surname;
+					user.name = post_data.surname;
 					alerter("success", "User " + user.name + " data <strong>saved</strong>!");
 					$("#search_results > .active").text(user.name);
 				} else {

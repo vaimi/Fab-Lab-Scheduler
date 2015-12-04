@@ -117,11 +117,12 @@ class Admin_model extends CI_Model {
 	// TODO: This query needs checking.
 	public function get_admins() 
     {
-		$this->db->select('u.id, u.name, u.email');
+		$this->db->select('u.id, u.name, u.email, e.surname');
 		$this->db->distinct();
 		$this->db->from('aauth_users as u');
 		$this->db->join('aauth_user_to_group', 'u.id = aauth_user_to_group.user_id');	
 		$this->db->join('aauth_groups as g', 'aauth_user_to_group.group_id = g.id');
+		$this->db->join('extended_users_information as e', 'e.id = u.id');
 		$this->db->like('g.name', 'Admin');
 		return $this->db->get();
 	}
@@ -133,7 +134,7 @@ class Admin_model extends CI_Model {
     
     public function timetable_get_supervision_slots($start_time, $end_time) 
     {
-        $sql = "SELECT * FROM Supervision WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
+        $sql = "SELECT * FROM Supervision JOIN extended_users_information as e ON e.id = Supervision.aauth_usersID WHERE StartTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                       EndTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
         return $this->db->query($sql, array($start_time, $end_time));
     }

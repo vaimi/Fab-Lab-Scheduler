@@ -244,6 +244,7 @@
 			$(this).data('event', {
 				title: $.trim($(this).text()), // use the element's text as the event title
                 assigned: $.trim($(this).data( "assigned" )),
+                group: 3,
 				stick: false // maintain when user navigates (see docs on the renderEvent method)
 			});
 
@@ -316,6 +317,7 @@
                 var post_data = {
                     "id": event.id,
                     "assigned": event.assigned,
+                    "group": event.group,
                     "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
                     "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss")
                 }
@@ -337,6 +339,7 @@
                 var post_data = {
                     "id": event.id,
                     "assigned": event.assigned,
+                    "group": event.group,
                     "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
                     "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss")
                 }
@@ -359,6 +362,7 @@
                 var post_data = {
                     "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
                     "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss"),
+                    "group": event.group,
                     "assigned": event.assigned
                 }
 				$.ajax({
@@ -594,7 +598,7 @@
             <h4>Supervisors</h4>
             <ul class="list-group" id='external-events'>
             <?php foreach ($admins as $row ) {?>
-                <li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1' data-assigned='<?=$row->id?>'><?php echo $row->name; ?>(<?php echo$row->email ?>)</li>
+                <li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1' data-assigned='<?=$row->id?>'><?php echo $row->id; ?> <?php echo$row->surname?></li>
             <?php }?>
             </ul>
         </div>

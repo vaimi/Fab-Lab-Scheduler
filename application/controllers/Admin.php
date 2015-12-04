@@ -950,7 +950,7 @@ class Admin extends CI_Controller
 		if (count($query->result()) > 0) {
 			foreach ($query->result() as $row) 
 			{
-				echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->name . " " . $row->surname . "</a>";
+				echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->surname . "</a>";
 			}
 		} 
 		else 

@@ -90,41 +90,41 @@
 				<div class="form-group">
 					<label class="control-label col-md-2" for="email_input">Email:</label>
 					<div class="col-md-8">
-						<input type="email" class="form-control" id="email_input" placeholder="Email" value=<?=$basic->email;?>>
+						<input type="email" class="form-control" id="email_input" placeholder="Email" value="<?=$basic->email;?>">
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="control-label col-md-2">Name:</label>
+					<label class="control-label col-md-2">Username:</label>
 					<div class="col-md-8">
-						<input type="text" class="form-control" id="name_input" placeholder="First Name" value=<?=$basic->name;?>>
+						<input type="text" class="form-control" id="name_input" placeholder="Username" value="<?=$basic->name;?>">
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="control-label col-md-2" for="email_input">Full name:</label>
 					<div class="col-md-8">
-						<input type="email" class="form-control" id="surname_input" placeholder="Full name" value=<?=$basic->surname;?>>
+						<input type="email" class="form-control" id="surname_input" placeholder="Full name" value="<?=$basic->surname;?>">
 					</div>
 				</div>
 				
 				<div class="form-group">
 					<label class="control-label col-md-2">Address:</label>
 					<div class="col-md-4">
-						<input type="text" class="form-control" id="address_street_input" placeholder="Postal Address" value=<?=$basic->address_street;?>></textarea>
+						<input type="text" class="form-control" id="address_street_input" placeholder="Postal Address" value="<?=$basic->address_street;?>"></textarea>
 					</div>
 					<div class="col-md-4">
-						<input type="text" class="form-control" id="address_postal_code_input" placeholder="Zip Code" value=<?php echo $basic->address_postal_code;?>>
+						<input type="text" class="form-control" id="address_postal_code_input" placeholder="Zip Code" value="<?php echo $basic->address_postal_code;?>">
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="control-label col-md-2" for="phone_number_input">Phone:</label>
 					<div class="col-md-4">
-						<input type="tel" class="form-control" id="phone_number_input" placeholder="Phone Number" value=<?=$basic->phone_number;?>>
+						<input type="tel" class="form-control" id="phone_number_input" placeholder="Phone Number" value="<?=$basic->phone_number;?>">
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="control-label col-md-2" for="student_number_input">Student ID:</label>
 					<div class="col-md-4">
-						<input type="text" class="form-control" id="student_number_input" placeholder="Student ID" value=<?=$basic->student_number;?>>
+						<input type="text" class="form-control" id="student_number_input" placeholder="Student ID" value="<?=$basic->student_number;?>">
 					</div>
 				</div>
 			</form>
