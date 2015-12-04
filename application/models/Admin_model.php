@@ -131,6 +131,20 @@ class Admin_model extends CI_Model {
 		$this->db->update('extended_users_information', array('Quota' => $amount), array('id' => $user_id));
 		return True;
 	}
+	public function set_general_settings($settings)
+	{
+
+		foreach ($settings as $key => $value)
+		{
+			echo $key . $value;
+			$data = array(
+					'SettingKey' => $key,
+					'SettingValue' => $value
+			);
+			$this->db->replace("Setting", $data);
+		}
+		
+	}
     
     public function timetable_get_supervision_slots($start_time, $end_time) 
     {

@@ -23,6 +23,7 @@ class Admin extends CI_Controller
 		}
 		if ($this->input->method() == 'post')
 		{
+			// TODO FIXME ASDF NO HARDCODE
 			$uploaddir = 'F:/xampp/htdocs/Fab-Lab-Scheduler/assets/images/admin_uploads/';
 			$file_extension = pathinfo($_FILES['fileToUpload']['name'], PATHINFO_EXTENSION);
 			$file_name = random_string('alnum', 50).'.'.$file_extension;
@@ -1043,7 +1044,32 @@ class Admin extends CI_Controller
 		}
 		return $response;
 	}
-	
+	/**
+	 * Save general settings.
+	 * Accepts form as post, validates field and if no errors, saves data to database
+	 * @access admin
+	 * @uses input::post array containing form fields
+	 */
+	public function save_general_settings() {
+		//if not post request
+		if (!$this->input->server('REQUEST_METHOD') == 'POST') return;
+		//validation
+		$this->form_validation->set_rules('reservation_deadline', 'Reservation deadline', 'required|regex_match[(\d{2}:\d{2})]');
+		//Send error msg
+		if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo validation_errors();
+			return;
+		}
+		//Take time to HH:mm format	
+		$deadline = new DateTime( $this->input->post('reservation_deadline') );
+		$deadline = $deadline->format("H:i");
+		$settings = array();
+		$settings['reservation_deadline'] = $deadline;
+		//put settings to the db
+		$this->Admin_model->set_general_settings($settings);
+	}
 	/**
 	 * Save user data
 	 * Accepts form as post, validates field and if no errors, saves data to database
