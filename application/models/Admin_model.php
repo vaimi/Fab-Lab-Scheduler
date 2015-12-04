@@ -189,7 +189,7 @@ class Admin_model extends CI_Model {
     		$slot->start = $new_start_time->format('Y-m-d H:i:s');
     		$slot->end = $new_end_time->format('Y-m-d H:i:s');
     		$slot->assigned = $row->aauth_usersID;
-    		$slot->group = $row->aauth_groupID;
+    		$slot->group = $row->aauth_groupsID;
     		$this->timetable_save_new($slot);
     		$count++;
     	}
