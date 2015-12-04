@@ -656,8 +656,8 @@ class Reservations extends CI_Controller
 	        		"resourceId" => "mac_" . $free_slot->machine,
 	        		"start" => date('Y-m-d H:i:s', $free_slot->start),
 	        		"end" => date('Y-m-d H:i:s', $free_slot->end),
-	        		"title" => "Free " . $this->format_interval($free),
-	        		"reserved" => 0
+	        		"title" => date('d.m.Y H:i', $free_slot->start) . " - " . date('d.m.Y H:i', $free_slot->end) . ": Free ". $this->format_interval($free),
+	        		"reserved" => 0,
 	        	);
 	        }
         }
