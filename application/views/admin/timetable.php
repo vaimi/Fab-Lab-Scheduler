@@ -214,7 +214,7 @@
             url: "timetable_confirm_slot",
             data: post_data,
             success: function(data) {
-                alert(data);
+                //alert(data);
                 var json = JSON.parse(data);
                 // return success
                 if (json.success) {
