@@ -403,8 +403,11 @@ class Admin extends CI_Controller
             	{
             		$user = $this->Admin_model->get_user_data($user_id)->row();
             		$email = $user->email;
+            		$data['fullname'] = $user->surname;
+            		$data['slot_start'] = $slot->start;
+            		$data['slot_end'] = $slot->end;
             		// Send email to associated reservations.
-            		$this->send_cancel_email($email);
+            		$this->send_cancel_email($email, $data);
             	}
                 $this->Admin_model->timetable_save_deleted($slot);
             }
@@ -1477,7 +1480,7 @@ class Admin extends CI_Controller
 	 * @input email
 	 *
 	 */
-	private function send_cancel_email($email) {
+	private function send_cancel_email($email, $data) {
 		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
 		$this->email->to($email);
 		$this->email->subject("Supervision session has cancelled.");
