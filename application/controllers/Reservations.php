@@ -53,19 +53,11 @@ class Reservations extends CI_Controller
 		$data['quota'] = $this->session->userdata('quota');
 		$data['machines'] = $machines->result();
 		$data['is_admin'] = $this->aauth->is_admin();
-		$data['reservation_deadline'] = $this->Reservations_model->get_reservation_deadline();
+		$deadline = $this->Reservations_model->get_reservation_deadline();
 		$jdata['title'] = "Reserve";
-		$jdata['message'] = "Rember to reserve time before " . $data['reservation_deadline'] . ".";
-		//Timezone must be correct in the server.
-		$now = date ("H:i");
-		$deadline = date($data['reservation_deadline']);
-		
-		if ($data['is_admin']) //Admin can reserve time anytime.
-		{
-			$this->load->view('partials/jumbotron', $jdata);
-			$this->load->view('reservations/reserve',$data);
-		}
-		elseif ($now < $deadline) //User is not admin, check if deadline has exceeded
+		$jdata['message'] = "Rember to reserve time before " . $deadline . ".";
+
+		if ( $data['is_admin'] || $this->is_reservation_deadline_exceeded() ) //Admin can reserve time anytime or User is not admin and deadline is not exceeded.
 		{
 			$this->load->view('partials/jumbotron', $jdata);
 			$this->load->view('reservations/reserve',$data);
@@ -80,7 +72,13 @@ class Reservations extends CI_Controller
 		}
 		$this->load->view('partials/footer');
 	}
-
+	private function is_reservation_deadline_exceeded()
+	{
+		//Timezone must be correct in the server.
+		$now = date ("H:i");
+		$deadline = date( $this->Reservations_model->get_reservation_deadline() );
+		return  $now < $deadline;
+	}
 	 /**
      * Calculate free slots
      * 
