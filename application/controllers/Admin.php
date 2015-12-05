@@ -61,8 +61,8 @@ class Admin extends CI_Controller
 	{
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Admin";
-		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$jdata['title'] = "General settings";
+		$jdata['message'] = "You can manage general settings.";
 		$data['settings'] = $this->Admin_model->get_general_settings();
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('admin/general', $data);
@@ -1074,6 +1074,8 @@ class Admin extends CI_Controller
 		if (!$this->input->server('REQUEST_METHOD') == 'POST') return;
 		//validation
 		$this->form_validation->set_rules('reservation_deadline', 'Reservation deadline', 'required|regex_match[(\d{2}:\d{2})]');
+		$this->form_validation->set_rules('reservation_timespan', 'Reservation timespan', 'required|is_natural_no_zero');
+		$this->form_validation->set_rules('interval', 'Interval (days, weeks or months)', 'required|callback_interval_check');
 		//Send error msg
 		if ($this->form_validation->run() == FALSE)
 		{
@@ -1086,6 +1088,8 @@ class Admin extends CI_Controller
 		$deadline = $deadline->format("H:i");
 		$settings = array();
 		$settings['reservation_deadline'] = $deadline;
+		$settings['reservation_timespan'] = $this->input->post('reservation_timespan');
+		$settings['interval'] = $this->input->post('interval');
 		//put settings to the db
 		$this->Admin_model->set_general_settings($settings);
 		redirect("/admin/moderate_general", "refresh");
@@ -1490,5 +1494,20 @@ class Admin extends CI_Controller
 		$this->email->message($email_content);
 		$this->email->send();
 	}
-	
+	/**
+	 * Check interval input. Possible values are: Days, Weeks, Months.
+	 */
+	public function interval_check($str) {
+		switch ($str) {
+			case "Days":
+				return true;
+			case "Months":
+				return true;
+			case "Weeks":
+				return true;
+			default:
+				$this->form_validation->set_message('interval', 'The %s field can not be the word ' . $str);
+				return false;
+		}
+	}
 }
