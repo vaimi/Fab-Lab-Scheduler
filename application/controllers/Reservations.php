@@ -901,6 +901,7 @@ class Reservations extends CI_Controller
 			$end_time = new DateTime($end_year . "-" . $end_month . "-" . $end_day . " " . $end_hour . ":" . $end_min);
 
 			// TODO we should check the length
+			// TODO check if reservation is done after deadline.
 			//$start_modulo = $start_time->format('i') % 30;
 			//$end_modulo = $end_time->format('i') % 30;
 			if ($start_time >= $end_time) 

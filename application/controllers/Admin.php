@@ -392,6 +392,20 @@ class Admin extends CI_Controller
         {
             if ($slot->id > 0)
             {
+            	//Get all reservation which is in the deleted slot
+            	$reservations = $this->Admin_model->get_reservations_by_slot($slot);
+            	//Get all reservation user ids
+            	$user_ids = array_map(function($o) { return $o['aauth_usersID']; }, $reservations);
+            	//remove duplicates.
+            	$user_ids = array_unique($user_ids);
+            	//send email to every user.
+            	foreach ($user_ids as $user_id)
+            	{
+            		$user = $this->Admin_model->get_user_data($user_id)->row();
+            		$email = $user->email;
+            		// Send email to associated reservations.
+            		$this->send_cancel_email($email);
+            	}
                 $this->Admin_model->timetable_save_deleted($slot);
             }
         }
@@ -1456,4 +1470,21 @@ class Admin extends CI_Controller
 		}
 		return $groups;
 	}
+	/**
+	 * Send cancel email
+	 * Sends cancel email to a specific email address
+	 * @access admin
+	 * @input email
+	 *
+	 */
+	private function send_cancel_email($email) {
+		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+		$this->email->to($email);
+		$this->email->subject("Supervision session has cancelled.");
+		$data['name'] = $this->aauth->config_vars['name'];
+		$email_content = $this->load->view("emails/cancel_email", $data, true);
+		$this->email->message($email_content);
+		$this->email->send();
+	}
+	
 }

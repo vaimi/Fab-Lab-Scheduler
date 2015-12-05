@@ -123,6 +123,25 @@ class Admin_model extends CI_Model {
 		$results = $this->db->query($sql,$user_id)->result_array();
 		return $results;
 	}
+	function get_reservations_by_slot($slot)
+	{
+		$slot_start = $slot->start;
+		$slot_end = $slot->end;
+		//$group = $slot->group;
+		$s_id = $slot->assigned;
+		$this->db->select('*');
+		$this->db->from("Reservation");
+		//Supervisor id
+		$this->db->where('aauth_usersID', $s_id);
+		//Reservation start time is in slot
+		$this->db->where('StartTime >= ', $slot_start);
+		$this->db->where('StartTime <= ', $slot_end);
+		//Reservation end time is in slot
+		$this->db->or_where('EndTime >= ', $slot_start);
+		$this->db->where('EndTime <= ', $slot_end);
+		$results = $this->db->get()->result_array();
+		return $results;
+	}
 	// TODO: This query needs checking.
 	public function get_admins() 
     {
