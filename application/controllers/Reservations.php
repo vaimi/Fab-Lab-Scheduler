@@ -45,9 +45,7 @@ class Reservations extends CI_Controller
 		$this->no_public_access();
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Reserve";
-		$jdata['message'] = "";
-		$this->load->view('partials/jumbotron', $jdata);
+
 		//Load available machines
 		$this->load->model("Admin_model"); //TODO things relying from this should use functions from Reservation_model
 		$machines = $this->Admin_model->get_machines();
@@ -56,7 +54,30 @@ class Reservations extends CI_Controller
 		$data['machines'] = $machines->result();
 		$data['is_admin'] = $this->aauth->is_admin();
 		$data['reservation_deadline'] = $this->Reservations_model->get_reservation_deadline();
-		$this->load->view('reservations/reserve',$data);
+		$jdata['title'] = "Reserve";
+		$jdata['message'] = "Rember to reserve time before " . $data['reservation_deadline'] . ".";
+		//Timezone must be correct in the server.
+		$now = date ("H:i");
+		$deadline = date($data['reservation_deadline']);
+		
+		if ($data['is_admin']) //Admin can reserve time anytime.
+		{
+			$this->load->view('partials/jumbotron', $jdata);
+			$this->load->view('reservations/reserve',$data);
+		}
+		elseif ($now < $deadline) //User is not admin, check if deadline has exceeded
+		{
+			$this->load->view('partials/jumbotron', $jdata);
+			$this->load->view('reservations/reserve',$data);
+		}
+		else //Deadline is exceeded, return error.
+		{
+			$d = array(
+					"message" => "Deadline is exceeded. You have to reserve time before " . $deadline . " server time.",
+					"title" => "Deadline is exceeded."
+			);
+			$this->load->view('partials/jumbotron_center', $d);
+		}
 		$this->load->view('partials/footer');
 	}
 
@@ -485,7 +506,7 @@ class Reservations extends CI_Controller
 						}
 					}
 				}
-				// if the slot isn't combined, add the "first" slot to response array. Also, check lenght
+				// if the slot isn't combined, add the "first" slot to response array. Also, check length
 				if (isset($tmp[$key])) {
 					if ($length != false)
 					{
@@ -526,7 +547,7 @@ class Reservations extends CI_Controller
 	 /**
      * Search slots
      * 
-	 * Search free slots that fit to requirements. Only machine is mandatory, you can set also date and lenght.
+	 * Search free slots that fit to requirements. Only machine is mandatory, you can set also date and length.
 	 * You have to be logged in to use this.
      * 
      * @uses post::input 'mid' Mandatory. Numeric machine identifier.
@@ -821,7 +842,6 @@ class Reservations extends CI_Controller
 		$this->email->message($email_content);
 		$this->email->send();
 	}
-
 	/**
      * Reserve time
      * 

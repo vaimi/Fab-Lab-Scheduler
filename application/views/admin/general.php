@@ -1,3 +1,6 @@
+<?php 
+	$deadline = isset($settings['reservation_deadline']) ? $settings['reservation_deadline'] : "undefined"; 
+?>
 <div class="container">
 	<form role="form" action="<?php echo base_url();?>admin/save_general_settings" method="post">
 		<label for="reservation_deadline">Reservation submission deadline:</label>
@@ -19,7 +22,7 @@
 			format: 'HH:mm',
 			stepping: 30
 		});
-		$('#reservation_deadline').data("DateTimePicker").date("<?php echo $settings['reservation_deadline']; ?>");
+		$('#reservation_deadline').data("DateTimePicker").date("<?php echo $deadline; ?>");
 	});
 	
 </script>

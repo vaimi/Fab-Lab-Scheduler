@@ -1070,6 +1070,7 @@ class Admin extends CI_Controller
 		$settings['reservation_deadline'] = $deadline;
 		//put settings to the db
 		$this->Admin_model->set_general_settings($settings);
+		redirect("/admin/moderate_general", "refresh");
 	}
 	/**
 	 * Save user data
