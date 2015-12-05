@@ -386,6 +386,7 @@ class Admin extends CI_Controller
         }
         foreach($modified_slots as $slot)
         {
+        	//TODO What about modified slots?? Do we send email or what? (disable modifying).
             $this->Admin_model->timetable_save_modified($slot);
         }
         foreach($deleted_slots as $slot)
