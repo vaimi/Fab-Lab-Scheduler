@@ -654,9 +654,21 @@ class Reservations extends CI_Controller
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
 
+        //Add limitation if user is not an admin.....
+        $settings = $this->Reservations_model->get_general_settings();
+        if ( !isset($settings['reservation_timespan']) || !isset($settings['interval']) )
+        {
+        	//TODO Should Show Better error.
+        	show_error("Parameters are not found in db.");
+        }
+        $limitation_timespan = $settings['reservation_timespan'];
+        $limitation_interval = $settings['interval'];
+        
         // We don't allow search from history
         $now = new DateTime();
-        $now->modify('+1 hour 15 minutes');
+        //Round to nearest 30 minutes.
+        $now = $this->round_time($now, 30);
+        //$now->modify('+1 hour 15 minutes');
         $now_u = $now->getTimestamp();
         if ($now_u > strtotime($end)) return [];
 
@@ -734,7 +746,6 @@ class Reservations extends CI_Controller
 		}
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
-
         // get slots
 		$ssessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
 
@@ -961,4 +972,28 @@ class Reservations extends CI_Controller
 		}
 		$this->output->set_output(json_encode($response));
 	}
+	
+	private function round_time(\DateTime $datetime, $precision = 30) {
+		// 1) Set number of seconds to 0 (by rounding up to the nearest minute if necessary)
+		$second = (int) $datetime->format("s");
+		if ($second > 30) {
+			// Jumps to the next minute
+			$datetime->add(new \DateInterval("PT".(60-$second)."S"));
+		} elseif ($second > 0) {
+			// Back to 0 seconds on current minute
+			$datetime->sub(new \DateInterval("PT".$second."S"));
+		}
+		// 2) Get minute
+		$minute = (int) $datetime->format("i");
+		// 3) Convert modulo $precision
+		$minute = $minute % $precision;
+		if ($minute > 0) {
+			// 4) Count minutes to next $precision-multiple minuts
+			$diff = $precision - $minute;
+			// 5) Add the difference to the original date time
+			$datetime->add(new \DateInterval("PT".$diff."M"));
+		}
+		return $datetime;
+	}
+	
 }

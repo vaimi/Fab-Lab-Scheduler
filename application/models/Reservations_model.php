@@ -100,6 +100,16 @@ class Reservations_model extends CI_Model {
     	$this->db->insert('Reservation', $data);
         return $this->db->insert_id();
     }
+    public function get_general_settings()
+    {
+    	$tmp = array();
+    	$results = $this->db->get("Setting")->result_array();
+    	foreach ($results as $result)
+    	{
+    		$tmp[$result["SettingKey"]] = $result["SettingValue"];
+    	}
+    	return $tmp;
+    }
     public function get_user_level($user_id = false, $machine_id = false)
     {
     	$this->db->select('*');
@@ -244,7 +254,6 @@ class Reservations_model extends CI_Model {
         $now = new DateTime();
         return $now->getTimestamp();
     }
-
 
     public function get_reservation_email_info($reservation)
     {
