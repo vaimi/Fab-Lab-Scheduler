@@ -122,7 +122,8 @@ class Reservations_model extends CI_Model {
     	{
     		$this->db->where('MachineID', $machine_id);
     	}
-    	return $this->db->get();
+    	$r = $this->db->get()->row();
+    	return isset($r) ? $r->Level : 1;
     }
 
     public function get_user_quota($user_id) {
