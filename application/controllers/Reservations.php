@@ -541,7 +541,7 @@ class Reservations extends CI_Controller
 			}
 		}
 		// Case of only one slot
-		else
+		elseif ($slot_count == 1)
 		{
 			if ($length != false)
 			{
@@ -580,7 +580,7 @@ class Reservations extends CI_Controller
 		$this->no_public_access();
 		$this->form_validation->set_rules('mid', 'machine', 'required|numeric');
 		$this->form_validation->set_rules('length', 'session lenght', 'numeric');
-		$this->form_validation->set_rules('day', 'session day', 'exact_length[10]|regex_match[(\d{4}/\d{2}/\d{2})]');
+		$this->form_validation->set_rules('day', 'session day', 'exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
 	    if ($this->form_validation->run() == FALSE)
 		{
 			//echo errors.
@@ -594,20 +594,26 @@ class Reservations extends CI_Controller
 
 		// If day is not set, use current + db interval limit.
 		$now = new DateTime();
-		
+		$is_admin = $this->aauth->is_admin();
 		
 		if ($day == null)
 		{
 			$start = $now->format('Y-m-d H:i:s');
-			//Get general settings
-			$settings = $this->Reservations_model->get_general_settings();
-			if ( !isset($settings['reservation_timespan']) || !isset($settings['interval']) )
+			if (!$is_admin)
 			{
-				//TODO Should Show Better error.
-				show_error("Parameters are not found in db.");
+				//Get general settings
+				$settings = $this->Reservations_model->get_general_settings();
+				if ( !isset($settings['reservation_timespan']) || !isset($settings['interval']) )
+				{
+					//TODO Should Show Better error.
+					show_error("Parameters are not found in db.");
+				}
+				$now->modify('+' . $settings['reservation_timespan'] . $settings['interval']);
 			}
-			$now->modify('+' . $settings['reservation_timespan'] . $settings['interval']);
-			//$now->add(new DateInterval('P2M')); // For admin
+			else 
+			{
+				$now->add(new DateInterval('P2M')); // For admin
+			}
 			$end = $now->format('Y-m-d H:i:s');
 		}
 		// if day is set, set hours
@@ -617,16 +623,17 @@ class Reservations extends CI_Controller
 			$end = $day . " 23:59:59";
 			$result = $this->is_time_limit_exceeded($start, $end);
 			//If user tries to search over the time limit.
-			if($result['failed']) 
+			if($result['failed'] && !$is_admin) 
 			{
-				return json_encode( array(
-				 	"mid" => "You cannot search over the limit.",
-	        		"start" => "You cannot search over the limit.",
-	        		"end" => "You cannot search over the limit.",
+				$err = array(
+				 	"mid" => "0",
+	        		"start" => "0000-00-00 00:00:00",
+	        		"end" => "0000-00-00 00:00:00",
 	        		"title" => "You cannot search over the limit."
-	        	));
+	        	);
+				$this->output->set_output(json_encode($err));
+				return;
 			}
-	        		
 		}
 
 		// Give current time to slot finder

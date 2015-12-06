@@ -40,7 +40,7 @@
 		var day = $("#searchInput").val();
 		if (day != "") {
 			day = moment(day, "DD.MM.YYYY");
-			var day_string = day.format("YYYY/MM/DD");
+			var day_string = day.format("YYYY-MM-DD");
 		} else {
 			var day_string = "";
 		}
