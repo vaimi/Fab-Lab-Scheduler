@@ -417,10 +417,10 @@
             ],
 			eventAfterRender : function( e, element, view ) { 
 // 				console.log(element);
-// 				console.log(e.is_admin);
+// 				console.log(e);
 				var machine = e.resourceId;
-				var eStart = moment(e.start._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-				var eEnd = moment(e.end._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				if (e.reserved == 1)
 				{
 					if(e.is_admin === true) 

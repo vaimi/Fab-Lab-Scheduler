@@ -400,6 +400,16 @@ class Reservations extends CI_Controller
 				$slot->start = $now;
 			}
 		}
+		//Check that we don't have same start and end date. 
+		//This error occured when endTime is near the now time. Also Ui doesnt work well.
+		$free_slots = array_values($free_slots);
+		foreach($free_slots as $key => $slot)
+		{
+			if ($slot->end <= $slot->start)
+			{
+				unset($free_slots[$key]);
+			}
+		}
 		return $free_slots;	
 	}
 
@@ -582,12 +592,22 @@ class Reservations extends CI_Controller
 		$length = $this->input->post('length');
 		$day = $this->input->post('day');
 
-		// If day is not set, use current + 2 months as limit
+		// If day is not set, use current + db interval limit.
 		$now = new DateTime();
+		
+		
 		if ($day == null)
 		{
 			$start = $now->format('Y-m-d H:i:s');
-			$now->add(new DateInterval('P2M'));
+			//Get general settings
+			$settings = $this->Reservations_model->get_general_settings();
+			if ( !isset($settings['reservation_timespan']) || !isset($settings['interval']) )
+			{
+				//TODO Should Show Better error.
+				show_error("Parameters are not found in db.");
+			}
+			$now->modify('+' . $settings['reservation_timespan'] . $settings['interval']);
+			//$now->add(new DateInterval('P2M')); // For admin
 			$end = $now->format('Y-m-d H:i:s');
 		}
 		// if day is set, set hours
@@ -595,12 +615,25 @@ class Reservations extends CI_Controller
 		{
 			$start = $day . " 00:00:00";
 			$end = $day . " 23:59:59";
+			$result = $this->is_time_limit_exceeded($start, $end);
+			//If user tries to search over the time limit.
+			if($result['failed']) 
+			{
+				return json_encode( array(
+				 	"mid" => "You cannot search over the limit.",
+	        		"start" => "You cannot search over the limit.",
+	        		"end" => "You cannot search over the limit.",
+	        		"title" => "You cannot search over the limit."
+	        	));
+			}
+	        		
 		}
 
 		// Give current time to slot finder
 		$limit = new DateTime();
-        $limit->modify('+1 hour 15 minutes');
+		$limit = $this->round_time($limit, 30);
         $limit_u = $limit->getTimestamp();
+        
 		$free_slots = $this->calculate_free_slots($start, $end, $machine, $limit_u);
 
 		// Check if length is set and filter results accordingly
