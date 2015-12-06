@@ -726,10 +726,10 @@ class Reservations extends CI_Controller
         $now_u = $now->getTimestamp();
         if ($now_u > strtotime($end)) return [];
 
-        // Get unfiltered slots TODO BUG shows slots after endtime
-        $free_slots = $this->calculate_free_slots($start, $end, null ,$now_u); //Takes a lot of time when searching for a month
+        // Get unfiltered slots TODO BUG shows slots after endtime 
+        $free_slots = $this->calculate_free_slots($start, $end, null ,$now_u); //Takes a lot of time when searching for a month IF there is non-supervised machine
         // Filter slots
-	    $free_slots = $this->filter_free_slots($free_slots); //Takes a lot of time when searching for a month
+	    $free_slots = $this->filter_free_slots($free_slots); //Takes a lot of time when searching for a month IF there is non-supervised machine
 
 	    // Make response
         $response = array();
@@ -842,13 +842,29 @@ class Reservations extends CI_Controller
 		$response = array();
 		foreach ($reservations as $reservation) 
 		{
-			$response[] = array(
-				"resourceId" => "mac_" . $reservation->MachineID,
-        		"start" => $reservation->StartTime,
-        		"end" => $reservation->EndTime,
-        		"title" => "Reserved",
-        		"reserved" => 1
-			);
+			if( $this->aauth->is_admin() )
+			{
+				$response[] = array(
+						"resourceId" => "mac_" . $reservation->MachineID,
+						"start" => $reservation->StartTime,
+						"end" => $reservation->EndTime,
+						"title" => "Reserved information",
+						"surname" => $reservation->surname,
+						"email" => $reservation->email,
+						"is_admin" => true,
+						"reserved" => 1
+				);
+			}
+			else
+			{
+				$response[] = array(
+						"resourceId" => "mac_" . $reservation->MachineID,
+						"start" => $reservation->StartTime,
+						"end" => $reservation->EndTime,
+						"title" => "Reserved",
+						"reserved" => 1
+				);
+			}
 		}
 		$this->output->set_output(json_encode($response));
 	}

@@ -231,7 +231,46 @@
 			}  
 		});
 	}
+	
+	function makeQtip_admin(elementId, machine, e_Start, e_End, surname, email) {
+		var sModal="";
+		sModal += "<p>Start time: " + e_Start + "</p>";
+		sModal += "<p>End time: " + e_End + "</p>";
+		sModal += "<p>Surname (Should be fullname) : " + surname + "</p>";
+		sModal += "<p>Email: " + email + "</p>";
+		sModal += "";
+		
+		$(elementId).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: true,
+            	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Reservation",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
+		    },
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	}
+			}  
+		});
+	}
 
+	
 	function reserve() {
 		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
 		var end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
@@ -378,12 +417,22 @@
             ],
 			eventAfterRender : function( e, element, view ) { 
 // 				console.log(element);
-// 				console.log(e);
-				if (e.reserved == 1) return; 
-// 				console.log(view);
+// 				console.log(e.is_admin);
 				var machine = e.resourceId;
 				var eStart = moment(e.start._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				var eEnd = moment(e.end._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				if (e.reserved == 1)
+				{
+					if(e.is_admin === true) 
+					{
+						var surname = e.surname;
+						var email = e.email;
+						$(element).click(function(){ 
+					        makeQtip_admin($(element), machine, eStart, eEnd, surname, email);
+					    });
+					}
+					return; 
+				}
 				$(element).click(function(){ 
 			        makeQtip($(element), machine, eStart, eEnd);
 			    });
