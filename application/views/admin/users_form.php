@@ -109,7 +109,7 @@
 				<div class="form-group">
 					<label class="control-label col-md-2">Address:</label>
 					<div class="col-md-4">
-						<input type="text" class="form-control" id="address_street_input" placeholder="Postal Address" value="<?=$basic->address_street;?>"></textarea>
+						<input type="text" class="form-control" id="address_street_input" placeholder="Postal Address" value="<?=$basic->address_street;?>">
 					</div>
 					<div class="col-md-4">
 						<input type="text" class="form-control" id="address_postal_code_input" placeholder="Zip Code" value="<?php echo $basic->address_postal_code;?>">

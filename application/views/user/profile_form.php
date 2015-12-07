@@ -54,12 +54,12 @@
 					<div class="col-xs-4">
 						<input type="text" class="form-control" id="address_street_input"
 							placeholder="Postal Address"
-							value=<?php echo $address_street;?> />
+							value=<?php echo $address_street;?> >
 					</div>
 					<div class="col-xs-4">
 						<input type="text" class="form-control"
 							id="address_postal_code_input" placeholder="Zip Code"
-							value=<?php echo $address_postal_code;?>>
+							value=<?php echo $address_postal_code;?> >
 					</div>
 				</div>
 				<div class="form-group">
