@@ -347,6 +347,7 @@ class Admin extends CI_Controller
         	//TODO What about modified slots?? Do we send email or what? (disable modifying).
             $this->Admin_model->timetable_save_modified($slot);
         }
+        $emails = array();
         foreach($deleted_slots as $slot)
         {
             if ($slot->id > 0)
@@ -362,6 +363,7 @@ class Admin extends CI_Controller
             	{
             		$user = $this->Admin_model->get_user_data($user_id)->row();
             		$email = $user->email;
+            		array_push($emails, "<br>" . $email);
             		$data['fullname'] = $user->surname;
             		$data['slot_start'] = $slot->start;
             		$data['slot_end'] = $slot->end;
@@ -374,7 +376,7 @@ class Admin extends CI_Controller
         $this->session->set_userdata('sv_unsaved_new_items', array());
         $this->session->set_userdata('sv_unsaved_modified_items', array());
         $this->session->set_userdata('sv_unsaved_deleted_items', array());
-        echo json_encode(array("success" => 1, "errors" => $errors));
+        echo json_encode(array("success" => 1, "errors" => $errors , "emails_sent" => $emails ));
     }
     
     public function timetable_new_slot() {

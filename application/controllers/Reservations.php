@@ -1034,7 +1034,7 @@ class Reservations extends CI_Controller
 				$start = $start_time->format('Y-m-d H:i:s');
 				$end = $end_time->format('Y-m-d H:i:s');
 				$now = new DateTime();
-		        $now->modify('+1 hour');
+		        $now = $this->round_time($now, 30);
 		        $now_u = $now->getTimestamp();
 				$free_slot = $this->calculate_free_slots($start, $end, $m_id, $now_u);
 				$free_slot = $this->filter_free_slots($free_slot);

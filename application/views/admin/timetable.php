@@ -35,18 +35,44 @@
         "deleted": "#d9534f",
         "public": "#f0ad4e" 
     };
-    
+    function alerter(alert_type, alert_message) {
+		// alerter function for on-screen alerts
+		$.notify({
+		// options
+		message: alert_message 
+		},{
+			// settings
+			type: alert_type,
+			mouse_over: "pause",
+			timer: 5000,
+			animate: {
+				enter: 'animated fadeInDown',
+				exit: 'animated fadeOutUp'
+			}
+		});
+	}
     function saveData() {
+    	$('#save_button').addClass("disabled");
         $.ajax({
             type: "POST",
             url: "timetable_save",
             success: function(data) {
+            	$('#save_button').removeClass("disabled");
                 // return success
                 if (data.length > 0) {
                     $('#calendar').fullCalendar('refetchEvents');
                     //alert("events fetched!");
+                    var json = JSON.parse(data);
+                    if(json.success)
+                    {
+                    	alerter("success", "Saving successful. Notifications were sent to emails:" + json.emails_sent);
+                    }
+                    
                 }
-            }
+            },
+        	error: function(data) {
+	        	$('#save_button').removeClass("disabled");
+	        }
         });
     }
     
@@ -68,6 +94,7 @@
                 if (data.length > 0) {
                     event.color = ttColors.deleted;
                     $('#calendar').fullCalendar('updateEvent', event);
+                    $('#eventModal').modal("hide");
                 }
             }
         });

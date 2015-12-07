@@ -17,6 +17,8 @@
 		},{
 			// settings
 			type: alert_type,
+			mouse_over: "pause",
+			timer: 5000,
 			animate: {
 				enter: 'animated fadeInDown',
 				exit: 'animated fadeOutUp'
