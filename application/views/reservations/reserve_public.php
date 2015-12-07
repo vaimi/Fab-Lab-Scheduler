@@ -4,6 +4,45 @@
 <link rel="stylesheet" type="text/css" href="<?=asset_url()?>css/animate.css"/>
 
 <script>
+
+	function makeQtip_admin(elementId, machine, e_Start, e_End, surname, email) {
+		var sModal="";
+		sModal += "<p>Start time: " + e_Start + "</p>";
+		sModal += "<p>End time: " + e_End + "</p>";
+		sModal += "<p>Surname (Should be fullname) : " + surname + "</p>";
+		sModal += "<p>Email: " + email + "</p>";
+		sModal += "";
+		
+		$(elementId).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: true,
+	        	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Reservation",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
+		    },
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	}
+			}  
+		});
+	}
+
 	$(function() { // document ready
 		$('#calendar').fullCalendar({
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
@@ -45,6 +84,25 @@
                     url: 'reserve_get_supervision_slots'
                 }
             ],
+            eventAfterRender : function( e, element, view ) { 
+// 				console.log(element);
+// 				console.log(e);
+				if (e.reserved == 1)
+				{
+					if(e.is_admin === true) 
+					{
+						var machine = e.resourceId;
+						var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						var surname = e.surname;
+						var email = e.email;
+						$(element).css("cursor", "pointer");
+						$(element).click(function(){ 
+					        makeQtip_admin($(element), machine, eStart, eEnd, surname, email);
+					    });
+					}
+				}
+            }
 		});//fullcalendar
 	});//$function
 
