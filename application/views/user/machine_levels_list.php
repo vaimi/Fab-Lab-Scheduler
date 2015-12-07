@@ -13,7 +13,7 @@
    <tbody>
     <?php foreach ($results as $r) {?>
 	  <tr>
-	  	<th scope="row"><?php echo $r['mid']?></th>
+	  	<td><?php echo $r['mid']?></td>
 	  	<td><?php echo $r['machine_name']?></td>
 	  	<td><?php echo $r['level']?></td>
 	    <td><?php echo $r['manufacturer']?></td>
