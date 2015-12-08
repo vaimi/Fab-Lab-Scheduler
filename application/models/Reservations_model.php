@@ -26,8 +26,12 @@ class Reservations_model extends CI_Model {
 
     public function reservations_get_all_reserved_slots($start_time, $end_time) 
     {
-        $sql = "SELECT * FROM Reservation WHERE EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
-                      StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
+        $sql = "SELECT MachineID, StartTime, EndTime, surname, email 
+        		FROM Reservation, extended_users_information, aauth_users
+        		WHERE EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
+                StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND
+        		Reservation.aauth_usersID = extended_users_information.id AND
+        		Reservation.aauth_usersID = aauth_users.id ";
         $response = $this->db->query($sql, array($start_time, $end_time));
         return $response->result();
     }
@@ -100,6 +104,16 @@ class Reservations_model extends CI_Model {
     	$this->db->insert('Reservation', $data);
         return $this->db->insert_id();
     }
+    public function get_general_settings()
+    {
+    	$tmp = array();
+    	$results = $this->db->get("Setting")->result_array();
+    	foreach ($results as $result)
+    	{
+    		$tmp[$result["SettingKey"]] = $result["SettingValue"];
+    	}
+    	return $tmp;
+    }
     public function get_user_level($user_id = false, $machine_id = false)
     {
     	$this->db->select('*');
@@ -112,7 +126,8 @@ class Reservations_model extends CI_Model {
     	{
     		$this->db->where('MachineID', $machine_id);
     	}
-    	return $this->db->get();
+    	$r = $this->db->get()->row();
+    	return isset($r) ? $r->Level : 1;
     }
 
     public function get_user_quota($user_id) {
@@ -245,7 +260,6 @@ class Reservations_model extends CI_Model {
         return $now->getTimestamp();
     }
 
-
     public function get_reservation_email_info($reservation)
     {
         $this->db->select("r.ReservationID, r.StartTime, r.EndTime, m.Manufacturer, m.Model, u.email");
@@ -259,5 +273,17 @@ class Reservations_model extends CI_Model {
             return $result->row();
         }
         return null;
+    }
+    public function get_reservation_deadline()
+    {
+    	$this->db->select("SettingValue");
+    	$this->db->from("Setting");
+    	$this->db->where("SettingKey", "reservation_deadline");
+    	$result = $this->db->get();
+    	if ($result->num_rows() > 0)
+    	{
+    		return $result->row()->SettingValue;
+    	}
+    	return null;
     }
 }

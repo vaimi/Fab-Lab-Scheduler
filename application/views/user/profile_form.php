@@ -8,7 +8,7 @@
 					<div class="col-xs-8">
 						<input type="email" class="form-control" id="email_input"
 							placeholder="Email" readonly
-							value=<?php echo $email;?>>
+							value="<?php echo $email;?>" >
 					</div>
 				</div>
 				<div class="form-group">
@@ -30,7 +30,7 @@
 					<div class="col-xs-8">
 						<input type="text" class="form-control" id="name_input"
 							placeholder="First Name"
-							value=<?php echo $name; ?>>
+							value="<?php echo $name; ?>" >
 					</div>
 				</div>
 				<div class="form-group">
@@ -38,7 +38,7 @@
 					<div class="col-xs-8">
 						<input type="text" class="form-control" id="surname_input"
 							placeholder="Last Name"
-							value=<?php echo $surname; ?>>
+							value="<?php echo $surname; ?>" >
 					</div>
 				</div>
 				<div class="form-group">
@@ -46,7 +46,7 @@
 					<div class="col-xs-8">
 						<input type="tel" class="form-control" id="phone_number_input"
 							placeholder="Phone Number"
-							value=<?php echo $phone_number;?>>
+							value="<?php echo $phone_number;?>" >
 					</div>
 				</div>
 				<div class="form-group">
@@ -54,12 +54,12 @@
 					<div class="col-xs-4">
 						<input type="text" class="form-control" id="address_street_input"
 							placeholder="Postal Address"
-							value=<?php echo $address_street;?> />
+							value="<?php echo $address_street;?>" >
 					</div>
 					<div class="col-xs-4">
 						<input type="text" class="form-control"
 							id="address_postal_code_input" placeholder="Zip Code"
-							value=<?php echo $address_postal_code;?>>
+							value="<?php echo $address_postal_code;?>" >
 					</div>
 				</div>
 				<div class="form-group">

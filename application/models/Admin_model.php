@@ -21,7 +21,16 @@ class Admin_model extends CI_Model {
 		$this->db->offset($offset);
 		return $this->db->get();
     }
-	
+	public function get_general_settings()
+	{
+		$tmp = array();
+		$results = $this->db->get("Setting")->result_array();
+		foreach ($results as $result) 
+		{
+			$tmp[$result["SettingKey"]] = $result["SettingValue"];
+		}
+		return $tmp;
+	}
 	public function get_user_data($user_id) 
     {
 		$this->db->select('main.id, main.email, main.name, 
@@ -114,6 +123,25 @@ class Admin_model extends CI_Model {
 		$results = $this->db->query($sql,$user_id)->result_array();
 		return $results;
 	}
+	function get_reservations_by_slot($slot)
+	{
+		$slot_start = $slot->start;
+		$slot_end = $slot->end;
+		//$group = $slot->group;
+		$s_id = $slot->assigned;
+		$this->db->select('*');
+		$this->db->from("Reservation");
+		//Supervisor id
+		$this->db->where('aauth_usersID', $s_id);
+		//Reservation start time is in slot
+		$this->db->where('StartTime >= ', $slot_start);
+		$this->db->where('StartTime <= ', $slot_end);
+		//Reservation end time is in slot
+		$this->db->or_where('EndTime >= ', $slot_start);
+		$this->db->where('EndTime <= ', $slot_end);
+		$results = $this->db->get()->result_array();
+		return $results;
+	}
 	// TODO: This query needs checking.
 	public function get_admins() 
     {
@@ -130,6 +158,17 @@ class Admin_model extends CI_Model {
     {
 		$this->db->update('extended_users_information', array('Quota' => $amount), array('id' => $user_id));
 		return True;
+	}
+	public function set_general_settings($settings)
+	{
+		foreach ($settings as $key => $value)
+		{
+			$data = array(
+					'SettingKey' => $key,
+					'SettingValue' => $value
+			);
+			$this->db->replace("Setting", $data);
+		}
 	}
     
     public function timetable_get_supervision_slots($start_time, $end_time) 

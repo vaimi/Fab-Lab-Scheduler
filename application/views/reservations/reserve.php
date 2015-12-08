@@ -1,3 +1,6 @@
+<!-- TODO -->
+<!-- $reservation_deadline contains deadline e.g 16:00 in format HH:mm. This should limit the reservation-->
+<!-- $is_admin (bool) determines if $reservation_deadline limitation is needed. -->
 <link rel="stylesheet" type="text/css"  href="<?php echo asset_url() . "css/jquery.qtip.min.css"; ?>" />
 <script src="<?php echo asset_url() . "js/jquery.qtip.min.js"; ?>"  ></script>
 <script type="text/javascript" src="<?=asset_url()?>js/bootstrap-notify.min.js"></script>
@@ -14,6 +17,8 @@
 		},{
 			// settings
 			type: alert_type,
+			mouse_over: "pause",
+			timer: 5000,
 			animate: {
 				enter: 'animated fadeInDown',
 				exit: 'animated fadeOutUp'
@@ -37,7 +42,7 @@
 		var day = $("#searchInput").val();
 		if (day != "") {
 			day = moment(day, "DD.MM.YYYY");
-			var day_string = day.format("YYYY/MM/DD");
+			var day_string = day.format("YYYY-MM-DD");
 		} else {
 			var day_string = "";
 		}
@@ -228,7 +233,46 @@
 			}  
 		});
 	}
+	
+	function makeQtip_admin(elementId, machine, e_Start, e_End, surname, email) {
+		var sModal="";
+		sModal += "<p>Start time: " + e_Start + "</p>";
+		sModal += "<p>End time: " + e_End + "</p>";
+		sModal += "<p>Surname (Should be fullname) : " + surname + "</p>";
+		sModal += "<p>Email: " + email + "</p>";
+		sModal += "";
+		
+		$(elementId).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: true,
+            	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Reservation",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
+		    },
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	}
+			}  
+		});
+	}
 
+	
 	function reserve() {
 		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
 		var end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
@@ -376,11 +420,21 @@
 			eventAfterRender : function( e, element, view ) { 
 // 				console.log(element);
 // 				console.log(e);
-				if (e.reserved == 1) return; 
-// 				console.log(view);
 				var machine = e.resourceId;
-				var eStart = moment(e.start._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-				var eEnd = moment(e.end._i).format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				if (e.reserved == 1)
+				{
+					if(e.is_admin === true) 
+					{
+						var surname = e.surname;
+						var email = e.email;
+						$(element).click(function(){ 
+					        makeQtip_admin($(element), machine, eStart, eEnd, surname, email);
+					    });
+					}
+					return; 
+				}
 				$(element).click(function(){ 
 			        makeQtip($(element), machine, eStart, eEnd);
 			    });

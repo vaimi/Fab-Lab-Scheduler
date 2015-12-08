@@ -45,19 +45,48 @@ class Reservations extends CI_Controller
 		$this->no_public_access();
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Reserve";
-		$jdata['message'] = "";
-		$this->load->view('partials/jumbotron', $jdata);
+
 		//Load available machines
 		$this->load->model("Admin_model"); //TODO things relying from this should use functions from Reservation_model
 		$machines = $this->Admin_model->get_machines();
 		//Load available quota.
 		$data['quota'] = $this->session->userdata('quota');
 		$data['machines'] = $machines->result();
-		$this->load->view('reservations/reserve',$data);
+		$data['is_admin'] = $this->aauth->is_admin();
+		$deadline = $this->Reservations_model->get_reservation_deadline();
+		//Get general settings for displaying them in the view
+		$settings = $this->Reservations_model->get_general_settings();
+		if ( !isset($settings['reservation_timespan']) || !isset($settings['interval']) )
+		{
+			//TODO Should Show Better error.
+			show_error("Parameters are not found in db.");
+		}
+		$jdata['title'] = "Reserve";
+		$jdata['message'] = "Rember to reserve time before " . $deadline .
+		" today. Also you can reserve time " . $settings['reservation_timespan'] . " " . $settings['interval'] . " forward.";
+
+		if ( $data['is_admin'] || $this->is_reservation_deadline_exceeded() ) //Admin can reserve time anytime or User is not admin and deadline is not exceeded.
+		{
+			$this->load->view('partials/jumbotron', $jdata);
+			$this->load->view('reservations/reserve',$data);
+		}
+		else //Deadline is exceeded, return error.
+		{
+			$d = array(
+					"message" => "Deadline is exceeded. You have to reserve time before " . $deadline . " server time.",
+					"title" => "Deadline is exceeded."
+			);
+			$this->load->view('partials/jumbotron_center', $d);
+		}
 		$this->load->view('partials/footer');
 	}
-
+	private function is_reservation_deadline_exceeded()
+	{
+		//Timezone must be correct in the server.
+		$now = date ("H:i");
+		$deadline = date( $this->Reservations_model->get_reservation_deadline() );
+		return  $now < $deadline;
+	}
 	 /**
      * Calculate free slots
      * 
@@ -80,6 +109,7 @@ class Reservations extends CI_Controller
      *  
      */
 	private function calculate_free_slots($start, $end, $predefined_machine=false, $now) {
+		// TODO FIXME Add reservation deadline offset to free slot
 		// Array to hold the slot objects
 		$free_slots = array();
 
@@ -370,6 +400,16 @@ class Reservations extends CI_Controller
 				$slot->start = $now;
 			}
 		}
+		//Check that we don't have same start and end date. 
+		//This error occured when endTime is near the now time. Also Ui doesnt work well.
+		$free_slots = array_values($free_slots);
+		foreach($free_slots as $key => $slot)
+		{
+			if ($slot->end <= $slot->start)
+			{
+				unset($free_slots[$key]);
+			}
+		}
 		return $free_slots;	
 	}
 
@@ -382,20 +422,20 @@ class Reservations extends CI_Controller
 		$tmp = $free_slots;
 		$user_id = $this->session->userdata('id');
 
+		$mid = -1;
+		$user_machine_level = 1;
 		//loop over free slots to delete unnecessary ones.
 		foreach ($tmp as $key=>$free_slot)
 		{
+			if ($mid != $free_slot->machine ) //if mid has changed
+			{
+				$mid = $free_slot->machine;
+				$user_machine_level = $this->Reservations_model->get_user_level($user_id, $mid);
+			}
 			
-			$mid = $free_slot->machine;
-			$user_machine_level = $this->Reservations_model->get_user_level($user_id, $mid)->row();
 			//If user level is not found in db. 1-4 cant reserve 2-4 cant machine if 4 supervisor 3 can reserve
 			//if 5 supervisor all can reserve
-			if ($user_machine_level == null) {
-				//unset($tmp[$key]);
-				$user_machine_level->Level = 1;
-				//continue;
-			}
-			$user_machine_level = $user_machine_level->Level;
+			
 			//If supervisor lvl is 4, delete slot if user lvl is 2 or below 
 			if($free_slot->svLevel == SUPERVISOR_CAN_SUPERVISE && $user_machine_level < USER_SKILLED) 
 			{
@@ -482,7 +522,7 @@ class Reservations extends CI_Controller
 						}
 					}
 				}
-				// if the slot isn't combined, add the "first" slot to response array. Also, check lenght
+				// if the slot isn't combined, add the "first" slot to response array. Also, check length
 				if (isset($tmp[$key])) {
 					if ($length != false)
 					{
@@ -501,7 +541,7 @@ class Reservations extends CI_Controller
 			}
 		}
 		// Case of only one slot
-		else
+		elseif ($slot_count == 1)
 		{
 			if ($length != false)
 			{
@@ -523,7 +563,7 @@ class Reservations extends CI_Controller
 	 /**
      * Search slots
      * 
-	 * Search free slots that fit to requirements. Only machine is mandatory, you can set also date and lenght.
+	 * Search free slots that fit to requirements. Only machine is mandatory, you can set also date and length.
 	 * You have to be logged in to use this.
      * 
      * @uses post::input 'mid' Mandatory. Numeric machine identifier.
@@ -540,7 +580,7 @@ class Reservations extends CI_Controller
 		$this->no_public_access();
 		$this->form_validation->set_rules('mid', 'machine', 'required|numeric');
 		$this->form_validation->set_rules('length', 'session lenght', 'numeric');
-		$this->form_validation->set_rules('day', 'session day', 'exact_length[10]|regex_match[(\d{4}/\d{2}/\d{2})]');
+		$this->form_validation->set_rules('day', 'session day', 'exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
 	    if ($this->form_validation->run() == FALSE)
 		{
 			//echo errors.
@@ -552,12 +592,28 @@ class Reservations extends CI_Controller
 		$length = $this->input->post('length');
 		$day = $this->input->post('day');
 
-		// If day is not set, use current + 2 months as limit
+		// If day is not set, use current + db interval limit.
 		$now = new DateTime();
+		$is_admin = $this->aauth->is_admin();
+		
 		if ($day == null)
 		{
 			$start = $now->format('Y-m-d H:i:s');
-			$now->add(new DateInterval('P2M'));
+			if (!$is_admin)
+			{
+				//Get general settings
+				$settings = $this->Reservations_model->get_general_settings();
+				if ( !isset($settings['reservation_timespan']) || !isset($settings['interval']) )
+				{
+					//TODO Should Show Better error.
+					show_error("Parameters are not found in db.");
+				}
+				$now->modify('+' . $settings['reservation_timespan'] . $settings['interval']);
+			}
+			else 
+			{
+				$now->add(new DateInterval('P2M')); // For admin
+			}
 			$end = $now->format('Y-m-d H:i:s');
 		}
 		// if day is set, set hours
@@ -565,12 +621,26 @@ class Reservations extends CI_Controller
 		{
 			$start = $day . " 00:00:00";
 			$end = $day . " 23:59:59";
+			$result = $this->is_time_limit_exceeded($start, $end);
+			//If user tries to search over the time limit.
+			if($result['failed'] && !$is_admin) 
+			{
+				$err = array(
+				 	"mid" => "0",
+	        		"start" => "0000-00-00 00:00:00",
+	        		"end" => "0000-00-00 00:00:00",
+	        		"title" => "You cannot search over the limit."
+	        	);
+				$this->output->set_output(json_encode($err));
+				return;
+			}
 		}
 
 		// Give current time to slot finder
 		$limit = new DateTime();
-        $limit->modify('+1 hour 15 minutes');
+		$limit = $this->round_time($limit, 30);
         $limit_u = $limit->getTimestamp();
+        
 		$free_slots = $this->calculate_free_slots($start, $end, $machine, $limit_u);
 
 		// Check if length is set and filter results accordingly
@@ -603,7 +673,40 @@ class Reservations extends CI_Controller
         $this->output->set_output(json_encode($response));
 
 	}
-
+	
+	private function is_time_limit_exceeded($start, $end) 
+	{
+		//Add limitation if user is not an admin.....
+		$settings = $this->Reservations_model->get_general_settings();
+		if ( !isset($settings['reservation_timespan']) || !isset($settings['interval']) )
+		{
+			//TODO Should Show Better error.
+			show_error("Parameters are not found in db.");
+		}
+		$timespan = $settings['reservation_timespan'];
+		$interval = $settings['interval'];
+		
+		// We don't allow search from history
+		$now = new DateTime();
+		//Round to nearest 30 minutes.
+		$now = $this->round_time($now, 30);
+		//if user is fetching over limit.
+		$future_limit = clone $now;
+		$future_limit->setTime(0, 0, 0);
+		$future_limit->modify('+' . $timespan . $interval);
+		$startTime = new DateTime($start);
+		$startTime->setTime(0, 0, 0);
+		$endTime = new DateTime($end);
+		$endTime->setTime(0, 0, 0);
+		if ( $future_limit <= $startTime || $future_limit <= $endTime )
+		{
+			return array( "failed" => true, "future_limit" => $future_limit );
+		}
+		else 
+		{
+			return array( "failed" => false, "future_limit" => $future_limit );
+		}
+	}
 	/**
      * Get calendar free slots
      * 
@@ -618,6 +721,7 @@ class Reservations extends CI_Controller
      */
 	public function reserve_get_free_slots() 
 	{
+		//$this->output->enable_profiler(TRUE);
 		// You must be locked in to filter these properly
 		$this->no_public_access();
 		$this->form_validation->set_data($this->input->get());
@@ -631,17 +735,41 @@ class Reservations extends CI_Controller
 		}
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
-
-        // We don't allow search from history
-        $now = new DateTime();
-        $now->modify('+1 hour 15 minutes');
+		
+        $result = $this->is_time_limit_exceeded($start, $end);
+        $is_admin = $this->aauth->is_admin();
+		//check time limitation
+		if ( $result['failed'] && !$is_admin)
+		{	
+			$startTime = new DateTime($start);
+			$startTime->setTime(0, 0, 0);
+			$endTime = new DateTime($end);
+			$endTime->setTime(0, 0, 0);
+			$future_limit = $result['future_limit'];
+			//Which time exceeded.
+			if ($future_limit < $startTime)
+			{
+				return [];
+			}
+			if ($future_limit <= $endTime)
+			{
+				//Just reduce end time.
+				$end = $future_limit->format("Y-m-d");
+			}
+		}
+		
+		// We don't allow search from history
+		$now = new DateTime();
+		//Round to nearest 30 minutes.
+		$now = $this->round_time($now, 30);
+        //Get unix timestamp.
         $now_u = $now->getTimestamp();
         if ($now_u > strtotime($end)) return [];
 
-        // Get unfiltered slots 
-        $free_slots = $this->calculate_free_slots($start, $end, null ,$now_u);
+        // Get unfiltered slots TODO BUG shows slots after endtime 
+        $free_slots = $this->calculate_free_slots($start, $end, null ,$now_u); //Takes a lot of time when searching for a month IF there is non-supervised machine
         // Filter slots
-	    $free_slots = $this->filter_free_slots($free_slots);
+	    $free_slots = $this->filter_free_slots($free_slots); //Takes a lot of time when searching for a month IF there is non-supervised machine
 
 	    // Make response
         $response = array();
@@ -662,7 +790,6 @@ class Reservations extends CI_Controller
 	        }
         }
         $this->output->set_output(json_encode($response));
-
 	}
 
 	/**
@@ -712,7 +839,6 @@ class Reservations extends CI_Controller
 		}
 		$start = $this->input->get('start');
         $end = $this->input->get('end');
-
         // get slots
 		$ssessions = $this->Reservations_model->reservations_get_supervision_slots($start, $end);
 
@@ -756,13 +882,29 @@ class Reservations extends CI_Controller
 		$response = array();
 		foreach ($reservations as $reservation) 
 		{
-			$response[] = array(
-				"resourceId" => "mac_" . $reservation->MachineID,
-        		"start" => $reservation->StartTime,
-        		"end" => $reservation->EndTime,
-        		"title" => "Reserved",
-        		"reserved" => 1
-			);
+			if( $this->aauth->is_admin() )
+			{
+				$response[] = array(
+						"resourceId" => "mac_" . $reservation->MachineID,
+						"start" => $reservation->StartTime,
+						"end" => $reservation->EndTime,
+						"title" => "Reserved information",
+						"surname" => $reservation->surname,
+						"email" => $reservation->email,
+						"is_admin" => true,
+						"reserved" => 1
+				);
+			}
+			else
+			{
+				$response[] = array(
+						"resourceId" => "mac_" . $reservation->MachineID,
+						"start" => $reservation->StartTime,
+						"end" => $reservation->EndTime,
+						"title" => "Reserved",
+						"reserved" => 1
+				);
+			}
 		}
 		$this->output->set_output(json_encode($response));
 	}
@@ -818,7 +960,6 @@ class Reservations extends CI_Controller
 		$this->email->message($email_content);
 		$this->email->send();
 	}
-
 	/**
      * Reserve time
      * 
@@ -880,6 +1021,7 @@ class Reservations extends CI_Controller
 			$end_time = new DateTime($end_year . "-" . $end_month . "-" . $end_day . " " . $end_hour . ":" . $end_min);
 
 			// TODO we should check the length
+			// TODO check if reservation is done after deadline.
 			//$start_modulo = $start_time->format('i') % 30;
 			//$end_modulo = $end_time->format('i') % 30;
 			if ($start_time >= $end_time) 
@@ -892,7 +1034,7 @@ class Reservations extends CI_Controller
 				$start = $start_time->format('Y-m-d H:i:s');
 				$end = $end_time->format('Y-m-d H:i:s');
 				$now = new DateTime();
-		        $now->modify('+1 hour');
+		        $now = $this->round_time($now, 30);
 		        $now_u = $now->getTimestamp();
 				$free_slot = $this->calculate_free_slots($start, $end, $m_id, $now_u);
 				$free_slot = $this->filter_free_slots($free_slot);
@@ -939,4 +1081,28 @@ class Reservations extends CI_Controller
 		}
 		$this->output->set_output(json_encode($response));
 	}
+	
+	private function round_time(\DateTime $datetime, $precision = 30) {
+		// 1) Set number of seconds to 0 (by rounding up to the nearest minute if necessary)
+		$second = (int) $datetime->format("s");
+		if ($second > 30) {
+			// Jumps to the next minute
+			$datetime->add(new \DateInterval("PT".(60-$second)."S"));
+		} elseif ($second > 0) {
+			// Back to 0 seconds on current minute
+			$datetime->sub(new \DateInterval("PT".$second."S"));
+		}
+		// 2) Get minute
+		$minute = (int) $datetime->format("i");
+		// 3) Convert modulo $precision
+		$minute = $minute % $precision;
+		if ($minute > 0) {
+			// 4) Count minutes to next $precision-multiple minuts
+			$diff = $precision - $minute;
+			// 5) Add the difference to the original date time
+			$datetime->add(new \DateInterval("PT".$diff."M"));
+		}
+		return $datetime;
+	}
+	
 }

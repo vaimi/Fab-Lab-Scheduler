@@ -15,55 +15,15 @@ class Admin extends CI_Controller
 	//
 	// Sites
 	//
-	public function upload_image()
-	{
-		if (!$this->aauth->is_admin())
-		{
-			redirect('404');
-		}
-		if ($this->input->method() == 'post')
-		{
-			$uploaddir = 'F:/xampp/htdocs/Fab-Lab-Scheduler/assets/images/admin_uploads/';
-			$file_extension = pathinfo($_FILES['fileToUpload']['name'], PATHINFO_EXTENSION);
-			$file_name = random_string('alnum', 50).'.'.$file_extension;
-			$uploadfile = $uploaddir . basename($file_name);
-			if (move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $uploadfile))
-			{
-				$data = array('upload_file' => $file_name, 'errors' => array());
-				$this->load->view('admin/upload_image', $data);
-			} else
-			{
-				$data = array('upload_file' => '', 'errors' => array());
-				switch($_FILES['fileToUpload']['error'])
-				{
-					case UPLOAD_ERR_INI_SIZE:
-						$data['errors'][] = 'File too big, please choose a smaller file';
-						break;
-					case UPLOAD_ERR_NO_FILE:
-						$data['errors'][] = 'No file found, please upload again';
-						break;
-					default:
-						$data['errors'][] = 'Error uploading file, please try again';
-						break;
-				}
-				$this->load->view('admin/upload_image', $data);
-			}
-		}
-		else
-		{
-			$data = array('upload_file' => '', 'errors' => array());
-			$this->load->view('admin/upload_image', $data);
-		}
-	}
-	
 	public function moderate_general() 
 	{
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Admin";
-		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$jdata['title'] = "General settings";
+		$jdata['message'] = "You can manage general settings.";
+		$data['settings'] = $this->Admin_model->get_general_settings();
 		$this->load->view('partials/jumbotron', $jdata);
-		$this->load->view('admin/general');
+		$this->load->view('admin/general', $data);
 		$this->load->view('partials/footer');
 	}
 	
@@ -421,19 +381,39 @@ class Admin extends CI_Controller
         }
         foreach($modified_slots as $slot)
         {
+        	//TODO What about modified slots?? Do we send email or what? (disable modifying).
             $this->Admin_model->timetable_save_modified($slot);
         }
+        $emails = array();
         foreach($deleted_slots as $slot)
         {
             if ($slot->id > 0)
             {
+            	//Get all reservation which is in the deleted slot
+            	$reservations = $this->Admin_model->get_reservations_by_slot($slot);
+            	//Get all reservation user ids
+            	$user_ids = array_map(function($o) { return $o['aauth_usersID']; }, $reservations);
+            	//remove duplicates.
+            	$user_ids = array_unique($user_ids);
+            	//send email to every user.
+            	foreach ($user_ids as $user_id)
+            	{
+            		$user = $this->Admin_model->get_user_data($user_id)->row();
+            		$email = $user->email;
+            		array_push($emails, "<br>" . $email);
+            		$data['fullname'] = $user->surname;
+            		$data['slot_start'] = $slot->start;
+            		$data['slot_end'] = $slot->end;
+            		// Send email to associated reservations.
+            		$this->send_cancel_email($email, $data);
+            	}
                 $this->Admin_model->timetable_save_deleted($slot);
             }
         }
         $this->session->set_userdata('sv_unsaved_new_items', array());
         $this->session->set_userdata('sv_unsaved_modified_items', array());
         $this->session->set_userdata('sv_unsaved_deleted_items', array());
-        echo json_encode(array("success" => 1, "errors" => $errors));
+        echo json_encode(array("success" => 1, "errors" => $errors , "emails_sent" => $emails ));
     }
     
      /**
@@ -1153,7 +1133,37 @@ class Admin extends CI_Controller
 		}
 		return $response;
 	}
-	
+	/**
+	 * Save general settings.
+	 * Accepts form as post, validates field and if no errors, saves data to database
+	 * @access admin
+	 * @uses input::post array containing form fields
+	 */
+	public function save_general_settings() {
+		//if not post request
+		if (!$this->input->server('REQUEST_METHOD') == 'POST') return;
+		//validation
+		$this->form_validation->set_rules('reservation_deadline', 'Reservation deadline', 'required|regex_match[(\d{2}:\d{2})]');
+		$this->form_validation->set_rules('reservation_timespan', 'Reservation timespan', 'required|is_natural_no_zero');
+		$this->form_validation->set_rules('interval', 'Interval (days, weeks or months)', 'required|callback_interval_check');
+		//Send error msg
+		if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo validation_errors();
+			return;
+		}
+		//Take time to HH:mm format	
+		$deadline = new DateTime( $this->input->post('reservation_deadline') );
+		$deadline = $deadline->format("H:i");
+		$settings = array();
+		$settings['reservation_deadline'] = $deadline;
+		$settings['reservation_timespan'] = $this->input->post('reservation_timespan');
+		$settings['interval'] = $this->input->post('interval');
+		//put settings to the db
+		$this->Admin_model->set_general_settings($settings);
+		redirect("/admin/moderate_general", "refresh");
+	}
 	/**
 	 * Save user data
 	 * Accepts form as post, validates field and if no errors, saves data to database
@@ -1537,5 +1547,37 @@ class Admin extends CI_Controller
 			}
 		}
 		return $groups;
+	}
+	/**
+	 * Send cancel email
+	 * Sends cancel email to a specific email address
+	 * @access admin
+	 * @input email
+	 *
+	 */
+	private function send_cancel_email($email, $data) {
+		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+		$this->email->to($email);
+		$this->email->subject("Supervision session has cancelled.");
+		$data['name'] = $this->aauth->config_vars['name'];
+		$email_content = $this->load->view("emails/cancel_email", $data, true);
+		$this->email->message($email_content);
+		$this->email->send();
+	}
+	/**
+	 * Check interval input. Possible values are: Days, Weeks, Months.
+	 */
+	public function interval_check($str) {
+		switch ($str) {
+			case "Days":
+				return true;
+			case "Months":
+				return true;
+			case "Weeks":
+				return true;
+			default:
+				$this->form_validation->set_message('interval', 'The %s field can not be the word ' . $str);
+				return false;
+		}
 	}
 }
