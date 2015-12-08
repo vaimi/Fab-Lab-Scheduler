@@ -239,7 +239,38 @@ class Reservations extends CI_Controller
 					$slot->end = $endpoints[$i+1];
 					$slot->machine = $machine->MachineID;
 					$slot->start = $endpoints[$i];
+					$slot->unsupervised = 0;
 					$free_slots[] = $slot;
+				}
+
+				if (count($free_slots) > 0) {
+					if (!$machine->NeedSupervision)
+					{
+						$setuptime = 60 * 30; //TODO get from settings
+						$treshold = 60 * 120; //TODO get from settings
+						$previous = end($free_slots);
+						if (($previous->end - $previous->start) > $setuptime)
+						{
+							$next_start = $this->Reservations_model->get_next_supervision_start($machine->MachineID, $previous->end);
+							$length = $next_start - $previous->end;
+							if ($length > $treshold)
+							{
+								$old_end = $previous->end;
+								$previous->end = $previous->end - $setuptime;
+								if ($previous->end == $previous->start)
+								{
+									array_pop($free_slots);
+								}
+								$slot = new stdClass();
+								$slot->end = $old_end;
+								$slot->machine = $machine->MachineID;
+								$slot->start = $previous->end;
+								$slot->unsupervised = 1;
+								$slot->next_start = $next_start;
+								$free_slots[] = $slot;
+							}
+						}
+					}
 				}
 
 			}

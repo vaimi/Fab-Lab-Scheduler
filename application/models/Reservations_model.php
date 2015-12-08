@@ -292,9 +292,7 @@ class Reservations_model extends CI_Model {
         {
             return strtotime($result->row()->StartTime);
         }
-        $now = new DateTime();
-        $now->add(new DateInterval('P2M'));
-        return $now->getTimestamp();
+        return -1;
     }
 
     public function get_previous_supervision_end($machine_id, $time) 
@@ -324,7 +322,7 @@ class Reservations_model extends CI_Model {
         $this->db->join("UserLevel as level", "level.aauth_usersID = session.aauth_usersID");
         $this->db->where("level.MachineID", $machine_id);
         $this->db->where("level.Level >", 3);
-        $this->db->where("session.StartTime >", $time);
+        $this->db->where("session.StartTime >=", date("Y-m-d H:i:s", $time));
         $this->db->order_by("session.StartTime", "asc");
         $this->db->limit(1);
         $result = $this->db->get();
