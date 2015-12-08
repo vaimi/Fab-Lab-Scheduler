@@ -267,11 +267,21 @@ class Admin extends CI_Controller
      * @uses _SESSION['sv_unsaved_deleted_items'] for removing duplicate entries
      * @uses _SESSION['sv_saved_items'] Fetched items are saved also to this variable
      * 
-     * @access admin
+     * @access public
      * @return echo events in json array //TODO example
      */
     public function timetable_fetch_supervision_sessions() {
-        // TODO check that request is in valid format
+    	// Validate input
+        $this->form_validation->set_data($this->input->get());
+		$this->form_validation->set_rules('start', 'start day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+		$this->form_validation->set_rules('end', 'end day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}
+
         // get calendar request
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
@@ -280,12 +290,16 @@ class Admin extends CI_Controller
         $slots = $this->Admin_model->timetable_get_supervision_slots($start_time, $end_time);
         
         $response = array();
+        
+        // Collect slot id's from arrays
         $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
         $modIDsDeleted = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items'));
         $modIDsSaved = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items'));
+        
+        // Go through database slots
         foreach($slots->result() as $slot)
 		{
-            // Check for duplicate
+            // Check if we have already these in some session variable
             if (!in_array($slot->SupervisionID, $modIDs) and !in_array($slot->SupervisionID, $modIDsDeleted))
             {
                 // Make array in output format
@@ -299,6 +313,8 @@ class Admin extends CI_Controller
                 	'color' => $slot->aauth_groupsID === PUBLIC_GROUP_ID ? "#f0ad4e" : "#5cb85c" //public : saved color.
                 );
                 array_push($response, $slot_array);
+
+                // If not already in sv_saved_items
                 if (!in_array($slot->SupervisionID, $modIDsSaved))
                 {
 	                //create saved slot
@@ -316,8 +332,7 @@ class Admin extends CI_Controller
 	                $current_saved_slots[$s->id] = $s;
 	                $this->session->set_userdata('sv_saved_items', $current_saved_slots);
                 }
-            }
-            
+            }          
         }
         echo json_encode($response);
     }
@@ -327,16 +342,27 @@ class Admin extends CI_Controller
      * 
      * Fetches supervision sessions from the new/modified session variables. 
      * 
-     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s. Currently not implemented.
-     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s.
+     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s.
      * @uses _SESSION['sv_unsaved_modified_items'] session variable for modified entries
      * @uses _SESSION['sv_unsaved_new_items'] session variable for new entries
      * 
-     * @access admin
+     * @access public
      * @return echo events in json array //TODO example
      */
     public function timetable_fetch_mod_and_new_sessions() {
-    	//TODO validation
+    	// Validate input
+        $this->form_validation->set_data($this->input->get());
+		$this->form_validation->set_rules('start', 'start day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+		$this->form_validation->set_rules('end', 'end day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}
+
+		// Get the request
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
         // Merge session variables for response
@@ -349,15 +375,26 @@ class Admin extends CI_Controller
      * 
      * Sessions aren't deleted before save is pressed. They are just marked as deleted before that. This functions fetches those events.
      * 
-     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s. Currently not implemented.
-     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s. Currently not implemented.
+     * @uses input::post 'start' Events that starts after this time are fetched, format Y-m-d H:i:s. 
+     * @uses input::post 'end'  Events that starts before this time are fetched, format Y-m-d H:i:s.
      * @uses _SESSION['sv_unsaved_deleted_items'] session variable for deleted entries
      * 
-     * @access admin
+     * @access public
      * @return echo events in json array //TODO example
      */
     public function timetable_fetch_deleted_sessions() {
-    	//TODO validation
+    	// Validate input
+        $this->form_validation->set_data($this->input->get());
+		$this->form_validation->set_rules('start', 'start day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+		$this->form_validation->set_rules('end', 'end day', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}
+
+		// Get request
         $start_time = $this->input->get('start');
         $end_time = $this->input->get('end');
         
@@ -369,7 +406,7 @@ class Admin extends CI_Controller
     
 	/**
 	 * Save events from session file to database
-	 * @access admin
+	 * @access public
 	 */
 	public function timetable_save() {
         $new_slots = $this->session->userdata('sv_unsaved_new_items');
@@ -399,18 +436,44 @@ class Admin extends CI_Controller
         echo json_encode(array("success" => 1, "errors" => $errors));
     }
     
+     /**
+     * New slot
+     * 
+     * Generate new slot for the calendar. New slots are assigned always with negative id.
+     * 
+     * @uses input::post 'start' Start of event, format Y-m-d H:i:s.
+     * @uses input::post 'end'  End of event, format Y-m-d H:i:s.
+     * @uses input::post 'assigned' int Assigned admin id.
+     * @uses _SESSION['sv_unsaved_new_items'] session variable for new entries
+     * 
+     * @access public
+     * @return echo events in json array //TODO example
+     */
     public function timetable_new_slot() {
-    	//TODO validation
+    	// Validate input
+        $this->form_validation->set_rules('assigned', 'assigned admin', 'required|numeric');
+		$this->form_validation->set_rules('start', 'start day', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+		$this->form_validation->set_rules('end', 'end day', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}
+
+		// Get request
         $assigned = $this->input->post("assigned");
         $start = $this->input->post("start");
         $end = $this->input->post("end");    
         
+        // Make new slot
         $slot = new stdClass();
         $slot->assigned = $assigned;
         $slot->group = 3;
         $slot->start = $start;
         $slot->end = $end;
         $slot->id = -1 - count($this->session->userdata('sv_unsaved_new_items'));
+        
         //Add original to slots for discarding changes.
         $slot->original = clone $slot;
         $slot->original->list = 'sv_unsaved_new_items';
@@ -422,12 +485,21 @@ class Admin extends CI_Controller
     }
     
     public function timetable_remove_slot() {
-    	//TODO validation
+    	// Validate input
+        $this->form_validation->set_data($this->input->get());
+		$this->form_validation->set_rules('id', 'slot id', 'required|numeric');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}
+
         $id = $this->input->post("id"); 
-        $assigned = $this->input->post("assigned");
-        $group = $this->input->post("group");
-        $start = $this->input->post("start");
-        $end = $this->input->post("end");  
+        //$assigned = $this->input->post("assigned");
+        //$group = $this->input->post("group");
+        //$start = $this->input->post("start");
+        //$end = $this->input->post("end");  
         
         if ($id < 0)
         {
@@ -479,7 +551,8 @@ class Admin extends CI_Controller
         }
         echo json_encode(array("success" => 1 ,$this->session->userdata('sv_unsaved_deleted_items')));
     }
-                    
+    
+    /*    
     public function timetable_restore_slot_old() {
     	//TODO validation
         $id = $this->input->post("id"); 
@@ -510,10 +583,17 @@ class Admin extends CI_Controller
                 break;
             }
         }
-    }
+    }*/
     
     public function timetable_restore_slot() {
-    	//TODO validation
+    	$this->form_validation->set_data($this->input->get());
+		$this->form_validation->set_rules('id', 'slot id', 'required|numeric');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}
     	$id = $this->input->post("id");
 
         $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
@@ -607,7 +687,19 @@ class Admin extends CI_Controller
     }
     
     public function timetable_modify_slot() {
-    	//TODO validation
+    	// Validate input
+        $this->form_validation->set_rules('assigned', 'assigned admin', 'required|numeric');
+        $this->form_validation->set_rules('id', 'slot id', 'required|numeric');
+        $this->form_validation->set_rules('group', 'target group', 'required|numeric');
+		$this->form_validation->set_rules('start', 'start day', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+		$this->form_validation->set_rules('end', 'end day', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}
+
         $id = $this->input->post("id"); 
         $assigned = $this->input->post("assigned");
         $group = $this->input->post("group");
@@ -678,7 +770,18 @@ class Admin extends CI_Controller
         echo json_encode(array("success" => 1));
     }
     public function timetable_confirm_slot() {
-    	//TODO validation
+    	// Validate input
+        $this->form_validation->set_rules('assigned', 'assigned admin', 'required|numeric');
+        $this->form_validation->set_rules('id', 'slot id', 'required|numeric');
+        $this->form_validation->set_rules('group', 'target group', 'required|numeric');
+		$this->form_validation->set_rules('start', 'start day', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+		$this->form_validation->set_rules('end', 'end day', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}
     	$id = $this->input->post("id");
     	$assigned = $this->input->post("assigned");
     	$group = $this->input->post("group");
@@ -874,7 +977,14 @@ class Admin extends CI_Controller
 	 * @return bool Delete fails/succeeds
 	 */
 	public function delete_user() {
-		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
+		// Validate input
+        /*$this->form_validation->set_rules('id', 'user id', 'required|numeric');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo json_encode(validation_errors());
+			die();
+		}*/
 		$user_id = $this->input->post('user_id');
 		
 		$response = "false";
