@@ -1521,6 +1521,101 @@ class Admin extends CI_Controller
 		}
 		$this->load->view('partials/footer');
 	}
+	
+	// moderate groups
+	public function groups()
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+			return;
+		}
+		$this->load->model('Group_model');
+		
+		$groups = $this->Group_model->get_group_list();
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		
+		$jdata['title'] = "Manage Groups";
+		$jdata['message'] = "Insert, Update or Delete user groups in the system";
+		$this->load->view('partials/jumbotron', $jdata);
+		
+		$this->load->view('admin/moderate_groups', array('groups' => $groups));
+		$this->load->view('partials/footer');
+	}
+	
+	// expect ajax post request
+	public function get_group_list()
+	{
+		$filter_text = $this->input->post('group_detail');
+		$this->load->model('Group_model');
+		$groups = $this->Group_model->get_group_list($filter_text);
+		
+		echo json_encode($groups);
+	}
+	
+	// expect ajax get request
+	public function get_group_detail($group_id=0)
+	{
+		if ($group_id==0)
+			return json_encode(array());
+		
+		$this->load->model('Group_model');
+		$group = $this->Group_model->get_group($group_id);
+		
+		if ($group == null)
+			echo json_encode(array());
+		else
+			echo json_encode($group);
+	}
+	
+	// expect ajax post request
+	public function update_group()
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
+		$group_id = $this->input->post('group_id');
+		$group_name = $this->input->post('group_name');
+		$group_description = $this->input->post('group_description');
+		$group_email_suffix = $this->input->post('group_email_suffix');
+	
+		$this->load->model('Group_model');
+		$result = $this->Group_model->update_group($group_id, $group_name, $group_description, $group_email_suffix);
+	
+		if ($result)
+		{
+			echo '{"result":true}';
+		}
+		else
+		{
+			echo '{"result":false}';
+		}
+	}
+	
+	public function delete_group()
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
+		$group_id = $this->input->post('group_id');
+		
+		
+		$this->load->model('Group_model');
+		$result = $this->Group_model->delete_group($group_id);
+		
+		if ($result)
+		{
+			echo '{"result":true}';
+		}
+		else
+		{
+			echo '{"result":false}';
+		}
+	}
+	
 
 	// Helper functions
 
