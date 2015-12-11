@@ -374,6 +374,7 @@ class Admin extends CI_Controller
         $deleted_slots = $this->session->userdata('sv_unsaved_deleted_items');
         
         $errors = array();
+        $emails = array();
         
         foreach($new_slots as $slot)
         {
@@ -381,16 +382,49 @@ class Admin extends CI_Controller
         }
         foreach($modified_slots as $slot)
         {
-        	//TODO What about modified slots?? Do we send email or what? (disable modifying).
-            $this->Admin_model->timetable_save_modified($slot);
+            //Get all reservation which is in the modified slot
+//             $reservations = $this->Admin_model->get_reservations_by_slot($slot, $slot->original->start, $slot->original->end);
+//             //Delete the reservation if it fulfills the requirements (Modification does not affect to the reservation)
+//             foreach ($reservations as $key => $reservation)
+//             {
+//             	//get levels
+//             	 $user_machine_lvl = $this->Admin_model->get_levels($reservation->aauth_usersID, $reservation->machineID );
+//             	 $supervisor_machine_lvl = $this->Admin_model->get_levels($slot->assigned, $reservation->machineID );
+//             	 $user_machine_lvl = isset($user_machine_lvl) ? $user_machine_lvl->Level : 1;
+//             	 $supervisor_machine_lvl = isset($supervisor_machine_lvl) ? $user_machine_lvl->Level : 1;
+//             	 //If NOT user level 1 or 2 and supervisor lvl is 4 then delete reservation so modification msg is not sended.
+//             	 if( !(($user_machine_lvl == USER_UNSKILLED || $user_machine_lvl == USER_NEEDS_SUPERVISOR) &&
+//             	 	$supervisor_machine_lvl == SUPERVISOR_CAN_SUPERVISE) ) 
+//             	 { 
+//             	 	unset($reservations[$key]);
+//             	 }
+            	 		
+//             }
+            
+//             //Get all reservation user ids
+//             $user_ids = array_map(function($o) { return $o['aauth_usersID']; }, $reservations);
+//             //remove duplicates.
+//             $user_ids = array_unique($user_ids);
+//             //send email to every user.
+//             foreach ($user_ids as $user_id)
+//             {
+//             	$user = $this->Admin_model->get_user_data($user_id)->row();
+//             	$email = $user->email;
+//             	array_push($emails, "<br>" . $email);
+//             	$data['fullname'] = $user->surname;
+//             	$data['slot_start'] = $slot->start;
+//             	$data['slot_end'] = $slot->end;
+//             	// Send email to associated reservations.
+//             	//$this->send_modified_email($email, $data);
+//             }
+            //$this->Admin_model->timetable_save_modified($slot);
         }
-        $emails = array();
         foreach($deleted_slots as $slot)
         {
-            if ($slot->id > 0)
+            if ($slot->id > 0) //slot is saved before ( fetched from db)
             {
             	//Get all reservation which is in the deleted slot
-            	$reservations = $this->Admin_model->get_reservations_by_slot($slot);
+            	$reservations = $this->Admin_model->get_reservations_by_slot($slot, $slot->start, $slot->end);
             	//Get all reservation user ids
             	$user_ids = array_map(function($o) { return $o['aauth_usersID']; }, $reservations);
             	//remove duplicates.
@@ -1561,6 +1595,15 @@ class Admin extends CI_Controller
 		$this->email->subject("Supervision session has cancelled.");
 		$data['name'] = $this->aauth->config_vars['name'];
 		$email_content = $this->load->view("emails/cancel_email", $data, true);
+		$this->email->message($email_content);
+		$this->email->send();
+	}
+	private function send_modified_email($email, $data) {
+		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+		$this->email->to($email);
+		$this->email->subject("Supervision session has been modified.");
+		$data['name'] = $this->aauth->config_vars['name'];
+		$email_content = $this->load->view("emails/modified_email", $data, true);
 		$this->email->message($email_content);
 		$this->email->send();
 	}

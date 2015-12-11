@@ -123,11 +123,8 @@ class Admin_model extends CI_Model {
 		$results = $this->db->query($sql,$user_id)->result_array();
 		return $results;
 	}
-	function get_reservations_by_slot($slot)
+	function get_reservations_by_slot($slot, $slot_start, $slot_end)
 	{
-		$slot_start = $slot->start;
-		$slot_end = $slot->end;
-		//$group = $slot->group;
 		$s_id = $slot->assigned;
 		$this->db->select('*');
 		$this->db->from("Reservation");
