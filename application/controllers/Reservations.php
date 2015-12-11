@@ -50,7 +50,7 @@ class Reservations extends CI_Controller
 		$this->load->model("Admin_model"); //TODO things relying from this should use functions from Reservation_model
 		$machines = $this->Admin_model->get_machines();
 		//Load available quota.
-		$data['quota'] = $this->session->userdata('quota');
+		$data['quota'] = $this->Reservations_model->get_user_quota($this->session->userdata('id'));
 		$data['machines'] = $machines->result();
 		$data['is_admin'] = $this->aauth->is_admin();
 		$deadline = $this->Reservations_model->get_reservation_deadline();
@@ -180,8 +180,8 @@ class Reservations extends CI_Controller
 			$endTime = new DateTime("@" . $end);
 			$endTime->setTime(0, 0, 0);
 			$now = new Datetime();
-
 			$start_limit = new DateTime();
+			date_add($start_limit,date_interval_create_from_date_string("1 days"));
 			$start_limit->setTime(0, 0, 0);
 			if ($startTime < $start_limit)
 			{
@@ -189,11 +189,11 @@ class Reservations extends CI_Controller
 				$start_limit->setTime($limit_array[0], $limit_array[1], 0);
 				if ($now < $start_limit)
 				{
-					date_add($now,date_interval_create_from_date_string("1 days"));
+					date_add($now,date_interval_create_from_date_string("2 days"));
 				}
 				else
 				{
-					date_add($now,date_interval_create_from_date_string("2 days"));
+					date_add($now,date_interval_create_from_date_string("3 days"));
 				}
 				$now->setTime(0, 0, 0);
 				$start = $now->getTimestamp();
@@ -886,13 +886,23 @@ class Reservations extends CI_Controller
 	        	$start_time = DateTime::createFromFormat('U', $free_slot->start);
 	        	$end_time = DateTime::createFromFormat('U', $free_slot->end);
 	        	$free = $end_time->diff($start_time);
-	        	$response[] = array(
-	        		"mid" => $free_slot->machine,
-	        		"start" => date('d.m.Y H:i', $free_slot->start),
-	        		"end" => date('d.m.Y H:i', $free_slot->end),
-	        		"title" => "Free " . $this->format_interval($free),
-	        		"unsupervised" => $free_slot->unsupervised
-	        	);
+	        	$row = array();
+        		$row["mid"] = $free_slot->machine;
+        		$row["start"] = date('d.m.Y H:i', $free_slot->start);
+        		$row["end"] = date('d.m.Y H:i', $free_slot->end);
+        		if ($free_slot->unsupervised == 1)
+        		{
+        			$next_dt = DateTime::createFromFormat('U', $free_slot->next_start);
+        			$start_dt = DateTime::createFromFormat('U', $free_slot->start);
+        			$row["title"] = "Night slot: Potential length " . $this->format_interval($start_dt->diff($next_dt));
+        			$row["next_start"] = date('d.m.Y H:i', $free_slot->next_start);
+        		}
+        		else
+        		{
+        			$row["title"] = "Free " . $this->format_interval($free);
+        		}
+        		$row["unsupervised"] = $free_slot->unsupervised;
+        		$response[] = $row;
 	        }
         }
         $this->output->set_output(json_encode($response));
@@ -1006,14 +1016,24 @@ class Reservations extends CI_Controller
 	        	$start_time = DateTime::createFromFormat('U', $free_slot->start);
 	        	$end_time = DateTime::createFromFormat('U', $free_slot->end);
 	        	$free = $end_time->diff($start_time);
-	        	$response[] = array(
-	        		"resourceId" => "mac_" . $free_slot->machine,
-	        		"start" => date('Y-m-d H:i:s', $free_slot->start),
-	        		"end" => date('Y-m-d H:i:s', $free_slot->end),
-	        		"title" => date('d.m.Y H:i', $free_slot->start) . " - " . date('d.m.Y H:i', $free_slot->end) . ": Free ". $this->format_interval($free),
-	        		"reserved" => 0,
-	        		"unsupervised" => $free_slot->unsupervised
-	        	);
+	        	$row = array();
+        		$row["resourceId"] = "mac_" . $free_slot->machine;
+        		$row["start"] = date('Y-m-d H:i:s', $free_slot->start);
+        		$row["end"] = date('Y-m-d H:i:s', $free_slot->end);
+        		$row["reserved"] = 0;
+        		$row["unsupervised"] = $free_slot->unsupervised;
+	        	if ($free_slot->unsupervised == 1)
+        		{
+        			$next_dt = DateTime::createFromFormat('U', $free_slot->next_start);
+        			$start_dt = DateTime::createFromFormat('U', $free_slot->start);
+        			$row["title"] = "Night slot: Potential length " . $this->format_interval($start_dt->diff($next_dt));
+        			$row["next_start"] = date('Y-m-d H:i:s', $free_slot->next_start);
+        		}
+        		else
+        		{
+        			$row["title"] = date('d.m.Y H:i', $free_slot->start) . " - " . date('d.m.Y H:i', $free_slot->end) . ": Free ". $this->format_interval($free);
+        		}
+        		$response[] = $row;
 	        }
         }
         $this->output->set_output(json_encode($response));
@@ -1260,9 +1280,9 @@ class Reservations extends CI_Controller
 			{
 				$start = $start_time->format('Y-m-d H:i:s');
 				$end = $end_time->format('Y-m-d H:i:s');
-				$now = new DateTime();
+				/*$now = new DateTime();
 		        $now = $this->round_time($now, 30);
-		        $now_u = $now->getTimestamp();
+		        $now_u = $now->getTimestamp();*/
 				$free_slot = $this->calculate_free_slots($start, $end, $m_id);
 				//$free_slot = $this->filter_free_slots($free_slot);
 				$is_overlapping = true;
@@ -1273,21 +1293,21 @@ class Reservations extends CI_Controller
 						$is_overlapping = false;
 					}
 				}
-				$diff = $start_time->diff($end_time);
+				/*$diff = $start_time->diff($end_time);
 				$hours = $diff->h;
 				$hours = $hours + ($diff->format('%d')*24);
 				$hours = $hours + ($diff->format('%i')/60);
-				$cost = number_format($hours,2);
+				$cost = number_format($hours,2);*/
 
 				if ($is_overlapping) 
 				{
 					$response['success'] = 0;
 					$response['errors'] =  array("Overlapping with other reservation or too low level");
 				}
-				else if ($cost > $this->Reservations_model->get_user_quota($this->session->userdata('id'))) //TODO this check should be done also on client side, this is just to double check it.
+				else if (!$this->Reservations_model->reduce_quota($this->session->userdata('id'))) //TODO this check should be done also on client side, this is just to double check it.
 				{
 					$response['success'] = 0;
-					$response['errors'] =  array("Required quota " . $cost);
+					$response['errors'] =  array("No tokens left");
 				}
 				else
 				{
@@ -1300,7 +1320,7 @@ class Reservations extends CI_Controller
 							'PassCode' => "dunno about this"
 					);
 					$reservation_id = $this->Reservations_model->set_new_reservation($data);
-					$this->Reservations_model->reduce_quota($this->session->userdata('id'), $cost);
+					
 					$response['success'] = 1;
 					$this->reserve_send_confirm_email($reservation_id);
 				}

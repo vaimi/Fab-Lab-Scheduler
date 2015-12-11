@@ -65,7 +65,7 @@
 						var resultText = "";
 						resultText += "<div class=\"list-group\">";
 						for (var result in message) {
-							resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-nightslot=\"" + message[result].unsupervised + "\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a>";
+							resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-next=\"" + message[result].next_start +  "\" data-nightslot=\"" + message[result].unsupervised + "\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a>";
 						}
 						$("#results").html(resultText);
 						resultText += "</div>";
@@ -76,9 +76,10 @@
 	        				var eStart = $(this).data("start");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 							var eEnd = $(this).data("end");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 							var nightslot = $(this).data("nightslot");
+							var next_start = $(this).data("next");
 							if (nightslot == 1) {
 								$(this).click(function(){ 
-					        		makeQtip_nightslot($(this), machine, eStart, eEnd);
+					        		makeQtip_nightslot($(this), machine, eStart, eEnd, next_start);
 					        	});
 							}
 							else {
@@ -131,9 +132,7 @@
 		sModal += "			        <\/div>";
 		sModal += "			    <\/div>";
 		sModal += "				<br>";
-		sModal += "				<p>Quota: <span class=\"quotaReserve\"></span> hours</p>";
-		sModal += "				<p>Cost: <span class=\"quotaCost\"></span> hours</p>";
-		sModal += "				<p>After: <span class=\"quotaLeft\"></span> hours</p>";    
+		sModal += "				<p>Tokens left: <span class=\"quotaReserve\"></span></p>";    
 		sModal += "				<br>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
 		sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
@@ -280,14 +279,52 @@
 		});
 	}
 
-	function makeQtip_nightslot(elementId, machine, e_Start, e_End) {
+	function makeQtip_nightslot(elementId, machine, e_Start, e_End, e_Potential) {
 		var sModal="";
-		sModal += "<p>Start time: " + e_Start + "</p>";
-		sModal += "<p>End time: " + e_End + "</p>";
-		sModal += "<br>";
+		sModal += "			<form class=\"reservation_form\" method=\"post\">";
+		sModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + machine + "\" />";
+		sModal += "				<div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";
+		sModal += "			        	<label>Preparation time from:<\/label>";
+		sModal += "			            <div class=\"input-group date text-center\">";
+		sModal += "			                <input disabled type=\"text\" class=\"form-control startInput\" value=\"" + e_Start + "\" \/>";	
+		sModal += "			            <\/div>";
+		sModal += "						<div class=\"row\">";
+		sModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse startpicker\"></div>";
+		sModal += "			            <\/div>";
+		sModal += "			        <\/div>";
+		sModal += "			    <\/div>";
+		sModal += "			    <div class=\"row text-center col-md-12\">";
+		sModal += "		    	<\/div>";
+		sModal += "			    <div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";
+		sModal += "			        	<label>Preparation time to:<\/label>";	
+		sModal += "			            <div class=\"input-group date text-center\">";
+		sModal += "			                <input disabled onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
+		sModal += "			            <\/div>";
+		sModal += "						<div class=\"row\">";
+		sModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
+		sModal += "			            <\/div>";
+		sModal += "			        <\/div>";
+		sModal += "			    <\/div>";
+		sModal += "			    <div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";
+		sModal += "			        	<label>Next supervision start:<\/label>";	
+		sModal += "			            <div class=\"input-group date text-center\">";
+		sModal += "			                <input disabled onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + e_Potential + "\" \/>";
+		sModal += "			            <\/div>";
+		sModal += "						<div class=\"row\">";
+		sModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
+		sModal += "			            <\/div>";
+		sModal += "			        <\/div>";
+		sModal += "			    <\/div>";
+		sModal += "				<br>";
+		sModal += "				<p>Tokens left: <span class=\"quotaReserve\"></span></p>";
+		sModal += "				<br>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
 		sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
 		sModal += "			    <\/div>";
+		sModal += "			</form>";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
 			show: { 
@@ -466,7 +503,7 @@
             ],
 			eventAfterRender : function( e, element, view ) { 
 // 				console.log(element);
-// 				console.log(e);
+ 				//console.log(e);
 				var machine = e.resourceId;
 				var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
@@ -484,8 +521,9 @@
 				}
 				if (e.unsupervised == 1)
 				{
+					var eNext = moment(e.next_start).format("DD.MM.YYYY, HH:mm");
 					$(element).click(function(){ 
-				        makeQtip_nightslot($(element), machine, eStart, eEnd);
+				        makeQtip_nightslot($(element), machine, eStart, eEnd, eNext);
 				    });
 				}
 				else
@@ -668,7 +706,7 @@
     }
 </style>
 <div class="container">
-	<h4>Available quota: <span id="quotaMain"><?php echo $quota; ?></span> hours.</h4>
+	<h4>Available tokens: <span id="quotaMain"><?php echo $quota; ?></span>.</h4>
 	<article>
 		<legend>Search by form</legend>
 		<form class="form-horizontal">

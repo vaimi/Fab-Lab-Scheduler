@@ -209,6 +209,31 @@ class Reservations_model extends CI_Model {
     }
 
     public function get_user_quota($user_id) {
+        $settings = $this->get_general_settings();
+        $limit = (int)$settings['default_tokens'];
+        $reservation_count = $this->get_user_active_reservation_count($user_id);
+        if ($reservation_count < $limit)
+        {
+            $this->db->select("quota");
+            $this->db->from("extended_users_information");
+            $this->db->where("id", $user_id);
+            $result = $this->db->get();
+            $quota = 0;
+            if ($result->num_rows() == 1)
+            {
+                $quota = $result->row()->quota;
+            }
+            if ($limit > $quota)
+            {
+                $quota_new = $limit - $reservation_count;
+                if ($quota_new > $quota) // If the user will benefit from the change.
+                {
+                    $this->db->update('extended_users_information', array('Quota' => $quota), array('id' => $user_id));
+                }
+            }
+            return $quota;
+        }
+        $this->db->flush_cache();
         $this->db->select("quota");
         $this->db->from("extended_users_information");
         $this->db->where("id", $user_id);
@@ -257,11 +282,23 @@ class Reservations_model extends CI_Model {
         return $response;
     }
 
-    public function reduce_quota($user_id, $amount) {
+    private function get_user_active_reservation_count($user_id)
+    {
+        $this->db->from("Reservation");
+        $this->db->where("NOW() < EndTime");
+        $this->db->where("aauth_usersID", $user_id);
+        return $this->db->count_all_results();
+    }
+
+    public function reduce_quota($user_id) {
         $quota = $this->get_user_quota($user_id);
-        $quota = $quota - $amount;
-        $this->db->update('extended_users_information', array('Quota' => $quota), array('id' => $user_id));
-        return True;
+        $quota = $quota-1;
+        if ($quota >= 0)
+        {
+            $this->db->update('extended_users_information', array('Quota' => $quota), array('id' => $user_id));
+            return True;
+        }
+        return false;
     }
 
     public function get_previous_reservation_end($machine_id, $time) 
