@@ -63,8 +63,10 @@ class Reservations_model extends CI_Model {
                 $this->db->flush_cache();
                 $this->db->select("StartTime, EndTime");
                 $this->db->from("Supervision");
-                $this->db->where("STR_TO_DATE(" . $this->db->escape(date('Y-m-d H:i:s', $end_time)) . ",'%Y-%m-%d %H:%i:%s') > StartTime");
-                $this->db->where("STR_TO_DATE(" . $this->db->escape(date('Y-m-d H:i:s', $start_time)) . ",'%Y-%m-%d %H:%i:%s') < EndTime");
+                $this->db->where("FROM_UNIXTIME(" . $this->db->escape($end_time) . ") > StartTime");
+                $this->db->where("FROM_UNIXTIME(" . $this->db->escape($start_time) . ") < EndTime");
+                //$this->db->where("StartTime >", date('Y-m-d H:i:s', $end_time));
+                //$this->db->where("EndTime >", date('Y-m-d H:i:s', $start_time));
                 $this->db->where_in("Aauth_usersID", $supervisor_ids);
                 $this->db->where_in("Aauth_groupsID", $groups);
                 $this->db->order_by("StartTime", "asc");

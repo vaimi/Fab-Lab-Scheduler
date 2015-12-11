@@ -164,24 +164,46 @@ class Reservations extends CI_Controller
 		return $response_hashmap;
 	}
 
-	private function calculate_free_slots($start, $end, $predefined_machine=false, $offset)
+	private function calculate_free_slots($start, $end, $predefined_machine=false, $offset, $length_limit=false)
 	{
 		// Array to hold the slot objects
 		$free_slots = array();
 
 		$start = strtotime($start);
 		$end = strtotime($end);
-		$offset = strtotime($offset);
 
-		// Offset
-		if ($offset > $end)
+		$settings = $this->Reservations_model->get_general_settings();
+		if(isset($settings['reservation_deadline']))
 		{
-			//return [];
+			$startTime = new DateTime("@" . $start);
+			$startTime->setTime(0, 0, 0);
+			$endTime = new DateTime("@" . $end);
+			$endTime->setTime(0, 0, 0);
+			$now = new Datetime();
+
+			$start_limit = new DateTime();
+			$start_limit->setTime(0, 0, 0);
+			if ($startTime < $start_limit)
+			{
+				$limit_array = explode(":", $settings['reservation_deadline']);
+				$start_limit->setTime($limit_array[0], $limit_array[1], 0);
+				if ($now < $start_limit)
+				{
+					date_add($now,date_interval_create_from_date_string("1 days"));
+				}
+				else
+				{
+					date_add($now,date_interval_create_from_date_string("2 days"));
+				}
+				$now->setTime(0, 0, 0);
+				$start = $now->getTimestamp();
+			}
 		}
-		if ($start < $offset)
+		if ($startTime > $endTime)
 		{
-			//$start = $offset;
+			return [];
 		}
+
 
 		$machines = $this->Reservations_model->reservations_get_active_machines_as_db_object();
 		foreach($machines->result() as $machine)
@@ -235,6 +257,14 @@ class Reservations extends CI_Controller
 				if ($endpoint_amount % 2 != 0) $endpoint_amount -= 1;
 				for($i=0; $i<$endpoint_amount; $i=$i+2)
 				{
+					if ($length_limit)
+					{
+						if ($length_limit > ($endpoints[$i+1] - $endpoints[$i]))
+						{	
+
+							continue;
+						}
+					}
 					$slot = new stdClass();
 					$slot->end = $endpoints[$i+1];
 					$slot->machine = $machine->MachineID;
@@ -266,7 +296,7 @@ class Reservations extends CI_Controller
 								$slot->machine = $machine->MachineID;
 								$slot->start = $previous->end;
 								$slot->unsupervised = 1;
-								$slot->next_start = $next_start;
+								$slot->next_start = $next_start; 
 								$free_slots[] = $slot;
 							}
 						}
@@ -609,7 +639,7 @@ class Reservations extends CI_Controller
 	 * Deletes free slots if user has not suitable level for the machine.
 	 * It combines free slots if supervisors have slots in same time.
 	 */
-	private function filter_free_slots($free_slots, $length=false)
+	/*private function filter_free_slots($free_slots, $length=false)
 	{
 		$tmp = $free_slots;
 		$user_id = $this->session->userdata('id');
@@ -750,7 +780,7 @@ class Reservations extends CI_Controller
 			}		
 		}
 		return $response;
-	}
+	}*/
 
 	 /**
      * Search slots
@@ -786,6 +816,7 @@ class Reservations extends CI_Controller
 
 		// If day is not set, use current + db interval limit.
 		$now = new DateTime();
+		$now->setTime(0,0,0);
 		$is_admin = $this->aauth->is_admin();
 		
 		if ($day == null)
@@ -829,20 +860,21 @@ class Reservations extends CI_Controller
 		}
 
 		// Give current time to slot finder
-		$limit = new DateTime();
-		$limit = $this->round_time($limit, 30);
-        $limit_u = $limit->getTimestamp();
+		//$limit = new DateTime();
+		//$limit = $this->round_time($limit, 30);
+        //$limit_u = $limit->getTimestamp();
         
-		$free_slots = $this->calculate_free_slots($start, $end, $machine, $limit_u);
+		//$free_slots = $this->calculate_free_slots($start, $end, $machine, null, null, );
 
 		// Check if length is set and filter results accordingly
-		if ($length == null)
+		if ($length == null or $length == 0)
 		{
-			$free_slots = $this->filter_free_slots($free_slots);
+			$free_slots = $this->calculate_free_slots($start, $end, $machine, null, false);
 		}
 		else
 		{
-			$free_slots = $this->filter_free_slots($free_slots, $length);
+			$length = $length * 3600;
+			$free_slots = $this->calculate_free_slots($start, $end, $machine, null, $length);
 		}
 
 		// Form response
@@ -931,7 +963,7 @@ class Reservations extends CI_Controller
         $result = $this->is_time_limit_exceeded($start, $end);
         $is_admin = $this->aauth->is_admin();
 		//check time limitation
-		if ( $result['failed'] && !$is_admin)
+		if ($result['failed'] && !$is_admin)
 		{	
 			$startTime = new DateTime($start);
 			$startTime->setTime(0, 0, 0);
@@ -943,6 +975,7 @@ class Reservations extends CI_Controller
 			{
 				return [];
 			}
+
 			if ($future_limit <= $endTime)
 			{
 				//Just reduce end time.
@@ -950,16 +983,16 @@ class Reservations extends CI_Controller
 			}
 		}
 		
-		// We don't allow search from history
+		/*// We don't allow search from history
 		$now = new DateTime();
 		//Round to nearest 30 minutes.
 		$now = $this->round_time($now, 30);
         //Get unix timestamp.
-        $now_u = $now->getTimestamp();
-        if ($now_u > strtotime($end)) return [];
+        $now_u = $now->getTimestamp();*/
+        //if ($now_u > strtotime($end)) return [];
 
         // Get unfiltered slots TODO BUG shows slots after endtime 
-        $free_slots = $this->calculate_free_slots($start, $end, null ,$now_u); //Takes a lot of time when searching for a month IF there is non-supervised machine
+        $free_slots = $this->calculate_free_slots($start, $end, null ,1); //Takes a lot of time when searching for a month IF there is non-supervised machine
         // Filter slots
 	    //$free_slots = $this->filter_free_slots($free_slots); //Takes a lot of time when searching for a month IF there is non-supervised machine
 
