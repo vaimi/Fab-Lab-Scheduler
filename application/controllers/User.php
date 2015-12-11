@@ -98,6 +98,11 @@ class User extends CI_Controller
 	public function login()
 	{
 		$this->load->library("Aauth");
+		if ($this->aauth->is_loggedin())
+		{
+			redirect(base_url(), 'refresh');
+			return;
+		}
 		if ($this->input->method() == 'post')
 		{
 			//TODO validation
@@ -118,8 +123,9 @@ class User extends CI_Controller
 				$this->session->set_userdata('phone_number', $row->phone_number);
 				$this->session->set_userdata('student_number', $row->student_number);
 				$this->session->set_userdata('quota', $row->quota);
-				$pos = strpos($current_url, 'user/logout');
-				if ($pos == false)
+				$pos_logout = strpos($current_url, 'user/logout');
+				$pos_login = strpos($current_url, 'user/login');
+				if ($pos_logout == false || $pos_login == false)
 					redirect($current_url, 'refresh');
 				else 
 					redirect(base_url(), 'refresh');
@@ -203,7 +209,6 @@ class User extends CI_Controller
 		}
 		
 		$this->User_model->update_user($new_user_info, $this->session->userdata['id']);
-		
 		
 		$this->session->set_userdata('name', $new_user_info['name']);
 		$this->session->set_userdata('surname', $new_user_info['surname']);
