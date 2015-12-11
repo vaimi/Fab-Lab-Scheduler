@@ -164,7 +164,7 @@ class Reservations extends CI_Controller
 		return $response_hashmap;
 	}
 
-	private function calculate_free_slots($start, $end, $predefined_machine=false, $offset, $length_limit=false)
+	private function calculate_free_slots($start, $end, $predefined_machine=false, $offset=false, $length_limit=false)
 	{
 		// Array to hold the slot objects
 		$free_slots = array();
@@ -890,7 +890,8 @@ class Reservations extends CI_Controller
 	        		"mid" => $free_slot->machine,
 	        		"start" => date('d.m.Y H:i', $free_slot->start),
 	        		"end" => date('d.m.Y H:i', $free_slot->end),
-	        		"title" => "Free " . $this->format_interval($free)
+	        		"title" => "Free " . $this->format_interval($free),
+	        		"unsupervised" => $free_slot->unsupervised
 	        	);
 	        }
         }
@@ -1011,6 +1012,7 @@ class Reservations extends CI_Controller
 	        		"end" => date('Y-m-d H:i:s', $free_slot->end),
 	        		"title" => date('d.m.Y H:i', $free_slot->start) . " - " . date('d.m.Y H:i', $free_slot->end) . ": Free ". $this->format_interval($free),
 	        		"reserved" => 0,
+	        		"unsupervised" => $free_slot->unsupervised
 	        	);
 	        }
         }
@@ -1261,8 +1263,8 @@ class Reservations extends CI_Controller
 				$now = new DateTime();
 		        $now = $this->round_time($now, 30);
 		        $now_u = $now->getTimestamp();
-				$free_slot = $this->calculate_free_slots($start, $end, $m_id, $now_u);
-				$free_slot = $this->filter_free_slots($free_slot);
+				$free_slot = $this->calculate_free_slots($start, $end, $m_id);
+				//$free_slot = $this->filter_free_slots($free_slot);
 				$is_overlapping = true;
 				if (isset($free_slot[0]))
 				{

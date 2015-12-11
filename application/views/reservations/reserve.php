@@ -65,7 +65,7 @@
 						var resultText = "";
 						resultText += "<div class=\"list-group\">";
 						for (var result in message) {
-							resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a>";
+							resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-nightslot=\"" + message[result].unsupervised + "\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a>";
 						}
 						$("#results").html(resultText);
 						resultText += "</div>";
@@ -75,9 +75,17 @@
 							var machine = $(this).data("machine");
 	        				var eStart = $(this).data("start");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 							var eEnd = $(this).data("end");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-							$(this).click(function(){ 
-				        		makeQtip($(this), machine, eStart, eEnd);
-				        	});
+							var nightslot = $(this).data("nightslot");
+							if (nightslot == 1) {
+								$(this).click(function(){ 
+					        		makeQtip_nightslot($(this), machine, eStart, eEnd);
+					        	});
+							}
+							else {
+								$(this).click(function(){ 
+				        			makeQtip($(this), machine, eStart, eEnd);
+				        		});
+							}
 						});
 					} else {
 						$("#results").html("No results.");
@@ -272,6 +280,45 @@
 		});
 	}
 
+	function makeQtip_nightslot(elementId, machine, e_Start, e_End) {
+		var sModal="";
+		sModal += "<p>Start time: " + e_Start + "</p>";
+		sModal += "<p>End time: " + e_End + "</p>";
+		sModal += "<br>";
+		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
+		sModal += "			    <\/div>";
+		
+		$(elementId).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: true,
+            	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Reservation",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
+		    },
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	}
+			}  
+		});
+	}
+
 	
 	function reserve() {
 		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
@@ -435,9 +482,18 @@
 					}
 					return; 
 				}
-				$(element).click(function(){ 
-			        makeQtip($(element), machine, eStart, eEnd);
-			    });
+				if (e.unsupervised == 1)
+				{
+					$(element).click(function(){ 
+				        makeQtip_nightslot($(element), machine, eStart, eEnd);
+				    });
+				}
+				else
+				{
+					$(element).click(function(){ 
+				        makeQtip($(element), machine, eStart, eEnd);
+				    });
+				}
 
 				/*var rModal="";
 				rModal += "			<form class=\"reservation_form\" method=\"post\">";
