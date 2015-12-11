@@ -12,14 +12,92 @@ class Reservations_model extends CI_Model {
         $sql = "SELECT * FROM Supervision WHERE StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                       EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s')";
         return $this->db->query($sql, array($end_time, $start_time));
+    }
+
+    public function reservations_get_machine_supervision_slots($start_time, $end_time, $user_id, $machine_id)
+    {
+        $this->db->select('group_id');
+        $this->db->from('aauth_user_to_group');
+        $this->db->where('user_id', $user_id);
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            $groups = array();
+            foreach ($result->result() as $group) {
+                $groups[] = $group->group_id;
+            }
+        }
+        else
+        {
+            return [];
+        }
+
+
+        $this->db->select('Level');
+        $this->db->from('UserLevel');
+        $this->db->where('Aauth_usersID', $user_id);
+        $this->db->where('MachineID', $machine_id);
+        $result = $this->db->get();
+        if ($result->num_rows() == 1)
+        {
+            $level = $result->row()->Level;
+            $this->db->flush_cache();
+            if ($level < 3)
+            {
+                $this->db->select('Aauth_usersID');
+                $this->db->from('UserLevel');
+                $this->db->where('MachineID', $machine_id);
+                $this->db->where('Level >', 3);
+            }
+            else
+            {
+                $this->db->select('Aauth_usersID');
+                $this->db->from('UserLevel');
+                $this->db->where('MachineID', $machine_id);
+                $this->db->where('Level >', 4);
+            }
+            $result = $this->db->get();
+            if ($result->num_rows() > 0)
+            {
+                $supervisor_ids = array_map(function($o) { return $o->Aauth_usersID; }, $result->result());
+                $this->db->flush_cache();
+                $this->db->select("StartTime, EndTime");
+                $this->db->from("Supervision");
+                $this->db->where("FROM_UNIXTIME(" . $this->db->escape($end_time) . ") > StartTime");
+                $this->db->where("FROM_UNIXTIME(" . $this->db->escape($start_time) . ") < EndTime");
+                //$this->db->where("StartTime >", date('Y-m-d H:i:s', $end_time));
+                //$this->db->where("EndTime >", date('Y-m-d H:i:s', $start_time));
+                $this->db->where_in("Aauth_usersID", $supervisor_ids);
+                $this->db->where_in("Aauth_groupsID", $groups);
+                $this->db->order_by("StartTime", "asc");
+                $result = $this->db->get();
+                if ($result->num_rows() > 0)
+                {
+                    return $result->result();
+                }
+                else
+                {
+                    return [];
+                }
+            }
+            else
+            {
+                return [];
+            }
+
+        }
+        else
+        {
+            return [];
+        }
 
     }
 
     public function reservations_get_reserved_slots($start_time, $end_time, $machine) 
     {
-        $sql = "SELECT * FROM Reservation WHERE StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
-                      EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? ORDER BY StartTime ASC";
-        $response = $this->db->query($sql, array($end_time, $start_time, $machine));
+        $sql = "SELECT * FROM Reservation WHERE StartTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
+                      EndTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? ORDER BY StartTime ASC";
+        $response = $this->db->query($sql, array(date('Y-m-d H:i:s', $end_time), date('Y-m-d H:i:s', $start_time), $machine));
         return $response->result();
     }
 
@@ -216,9 +294,7 @@ class Reservations_model extends CI_Model {
         {
             return strtotime($result->row()->StartTime);
         }
-        $now = new DateTime();
-        $now->add(new DateInterval('P2M'));
-        return $now->getTimestamp();
+        return -1;
     }
 
     public function get_previous_supervision_end($machine_id, $time) 
@@ -248,7 +324,7 @@ class Reservations_model extends CI_Model {
         $this->db->join("UserLevel as level", "level.aauth_usersID = session.aauth_usersID");
         $this->db->where("level.MachineID", $machine_id);
         $this->db->where("level.Level >", 3);
-        $this->db->where("session.StartTime >", $time);
+        $this->db->where("session.StartTime >=", date("Y-m-d H:i:s", $time));
         $this->db->order_by("session.StartTime", "asc");
         $this->db->limit(1);
         $result = $this->db->get();
