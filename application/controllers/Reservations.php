@@ -257,15 +257,15 @@ class Reservations extends CI_Controller
 				if ($endpoint_amount % 2 != 0) $endpoint_amount -= 1;
 				for($i=0; $i<$endpoint_amount; $i=$i+2)
 				{
+					$slot = new stdClass();
 					if ($length_limit)
 					{
 						if ($length_limit > ($endpoints[$i+1] - $endpoints[$i]))
 						{	
 
-							continue;
+							$slot->disqualified = true;
 						}
 					}
-					$slot = new stdClass();
 					$slot->end = $endpoints[$i+1];
 					$slot->machine = $machine->MachineID;
 					$slot->start = $endpoints[$i];
@@ -279,11 +279,19 @@ class Reservations extends CI_Controller
 						$setuptime = 60 * 30; //TODO get from settings
 						$treshold = 60 * 120; //TODO get from settings
 						$previous = end($free_slots);
-						if (($previous->end - $previous->start) > $setuptime)
+						if (($previous->end - $previous->start) >= $setuptime)
 						{
 							$next_start = $this->Reservations_model->get_next_supervision_start($machine->MachineID, $previous->end);
 							$length = $next_start - $previous->end;
-							if ($length > $treshold)
+							$length_flag = false;
+							if ($length_limit)
+							{
+								if ($length_limit > $length)
+								{	
+									$length_flag = true;
+								}
+							}
+							if ($length > $treshold and !$length_flag)
 							{
 								$old_end = $previous->end;
 								$previous->end = $previous->end - $setuptime;
@@ -883,6 +891,7 @@ class Reservations extends CI_Controller
 	    {
 	        foreach ($free_slots as $free_slot) 
 	        {
+	        	if (isset($free_slot->disqualified)) {continue;};
 	        	$start_time = DateTime::createFromFormat('U', $free_slot->start);
 	        	$end_time = DateTime::createFromFormat('U', $free_slot->end);
 	        	$free = $end_time->diff($start_time);
@@ -1013,6 +1022,7 @@ class Reservations extends CI_Controller
 	    {
 	        foreach ($free_slots as $free_slot) 
 	        {
+	        	if (isset($free_slot->disqualified)) {continue;};
 	        	$start_time = DateTime::createFromFormat('U', $free_slot->start);
 	        	$end_time = DateTime::createFromFormat('U', $free_slot->end);
 	        	$free = $end_time->diff($start_time);
@@ -1021,7 +1031,7 @@ class Reservations extends CI_Controller
         		$row["start"] = date('Y-m-d H:i:s', $free_slot->start);
         		$row["end"] = date('Y-m-d H:i:s', $free_slot->end);
         		$row["reserved"] = 0;
-        		$row["unsupervised"] = $free_slot->unsupervised;
+        		$row["nightslot"] = $free_slot->unsupervised;
 	        	if ($free_slot->unsupervised == 1)
         		{
         			$next_dt = DateTime::createFromFormat('U', $free_slot->next_start);
@@ -1031,7 +1041,16 @@ class Reservations extends CI_Controller
         		}
         		else
         		{
-        			$row["title"] = date('d.m.Y H:i', $free_slot->start) . " - " . date('d.m.Y H:i', $free_slot->end) . ": Free ". $this->format_interval($free);
+        			$startday = date("d.m.Y", $free_slot->start);
+        			$endday = date("d.m.Y", $free_slot->end);
+        			if ($startday == $endday){
+        				$time = date("H:i", $free_slot->start) . " - " . date("H:i", $free_slot->end);
+        			}
+        			else
+        			{
+        				$time = date('d.m.Y H:i', $free_slot->start) . " - " . date('d.m.Y H:i', $free_slot->end);
+        			}
+        			$row["title"] = $time . " : Free ". $this->format_interval($free);
         		}
         		$response[] = $row;
 	        }
@@ -1280,17 +1299,34 @@ class Reservations extends CI_Controller
 			{
 				$start = $start_time->format('Y-m-d H:i:s');
 				$end = $end_time->format('Y-m-d H:i:s');
+				$start_limit = clone $start_time;
+				$start_limit->setTime(0,0,0);
+				$end_limit = clone $end_time;
+				$end_limit->setTime(23,59,59);
 				/*$now = new DateTime();
 		        $now = $this->round_time($now, 30);
 		        $now_u = $now->getTimestamp();*/
-				$free_slot = $this->calculate_free_slots($start, $end, $m_id);
+				$free_slots = $this->calculate_free_slots($start_limit->format('Y-m-d H:i:s'), $end_limit->format('Y-m-d H:i:s'), $m_id);
 				//$free_slot = $this->filter_free_slots($free_slot);
 				$is_overlapping = true;
-				if (isset($free_slot[0]))
-				{
-					if ($free_slot[0]->start <= $start_time->getTimestamp() and $free_slot[0]->end >= $end_time->getTimestamp())
+				foreach ($free_slots as $free_slot) {
+					if ($free_slot->unsupervised == 1)
 					{
-						$is_overlapping = false;
+						if ($free_slot->start == $start_time->getTimestamp() and $free_slot->end == $end_time->getTimestamp())
+						{
+							$is_overlapping = false;
+							$nightslot = true;
+							break;
+						}
+					}
+					else
+					{
+						if ($free_slot->start <= $start_time->getTimestamp() and $free_slot->end >= $end_time->getTimestamp())
+						{
+							$is_overlapping = false;
+							$nightslot = false;
+							break;
+						}
 					}
 				}
 				/*$diff = $start_time->diff($end_time);

@@ -26,14 +26,18 @@
 		});
 	}
 
-	function disableForm(disable_bool) {
+	function disableForm(disable_bool, nightslot) {
 		if (disable_bool) {
-			$(".startInput").attr('disabled', true);
-			$(".endInput").attr('disabled', true);
+			if (nightslot == 0) {
+				$(".startInput").attr('disabled', true);
+				$(".endInput").attr('disabled', true);
+			}
 			$(".reserveButton").addClass('disabled');
 		} else {
-			$(".startInput").removeAttr('disabled');
-			$(".endInput").removeAttr('disabled');
+			if (nightslot == 0) {
+				$(".startInput").removeAttr('disabled');
+				$(".endInput").removeAttr('disabled');
+			}
 			$('.reserveButton').removeClass('disabled');
 		}
 	}
@@ -65,7 +69,14 @@
 						var resultText = "";
 						resultText += "<div class=\"list-group\">";
 						for (var result in message) {
-							resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-next=\"" + message[result].next_start +  "\" data-nightslot=\"" + message[result].unsupervised + "\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + message[result].start + " - " + message[result].end + " : " + message[result].title + "</a>";
+							var start = moment(message[result].start, "DD.MM.YYYY, HH:mm")
+							var end = moment(message[result].end, "DD.MM.YYYY, HH:mm")
+							if (moment(start).isSame(end, 'day')){
+								var time = start.format("DD.MM.YYYY, HH:mm") + " - " + end.format("HH:mm");
+							} else {
+								var time = start.format("DD.MM.YYYY, HH:mm") + " - " + end.format("DD.MM.YYYY, HH:mm");
+							}
+							resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-next=\"" + message[result].next_start +  "\" data-nightslot=\"" + message[result].unsupervised + "\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + time + " : " + message[result].title + "</a>";
 						}
 						$("#results").html(resultText);
 						resultText += "</div>";
@@ -100,12 +111,12 @@
 	function makeQtip(elementId, machine, e_Start, e_End) {
 		var sModal="";
 		sModal += "			<form class=\"reservation_form\" method=\"post\">";
-		sModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + machine + "\" />";
+		sModal += "			<input type=\"hidden\" name=\"mac_id\" data-nightslot=\"0\" value=\"" + machine + "\" />";
 		sModal += "				<div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";
 		sModal += "			        	<label>From (" + e_Start + "):<\/label>";
 		sModal += "			            <div class=\"input-group date text-center\">";
-		sModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control startInput\" value=\"" + e_Start + "\" \/>";
+		sModal += "			                <input onkeyup=\"lengthCalculation(false);\" type=\"text\" class=\"form-control startInput\" value=\"" + e_Start + "\" \/>";
 		sModal += "			                <a class=\"input-group-addon startExp\">";
 		sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
 		sModal += "			                <\/a>";		
@@ -121,7 +132,7 @@
 		sModal += "			        <div class=\"form-group col-md-12\">";
 		sModal += "			        	<label>To (" + e_End + "):<\/label>";	
 		sModal += "			            <div class=\"input-group date text-center\">";
-		sModal += "			                <input onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
+		sModal += "			                <input onkeyup=\"lengthCalculation(false);\" type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
 		sModal += "			                <a class=\"input-group-addon endExp\">";
 		sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
 		sModal += "			                <\/a>";
@@ -131,7 +142,7 @@
 		sModal += "			            <\/div>";
 		sModal += "			        <\/div>";
 		sModal += "			    <\/div>";
-		sModal += "				<br>";
+		sModal += "				<p>Length: <span class=\"reservationLength\"></span></p>";
 		sModal += "				<p>Tokens left: <span class=\"quotaReserve\"></span></p>";    
 		sModal += "				<br>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
@@ -168,8 +179,9 @@
 		    	},
 		    	show: function (event, api) {
 					$.when(getQuota()).done(function() {
-					    costCalculation()
+					    
 					});
+					lengthCalculation(false);
 
     				var eStart = moment(e_Start, "DD.MM.YYYY, HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 					var eEnd = moment(e_End, "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
@@ -222,19 +234,19 @@
 			        });
 
 			        $('.reserveButton').unbind("click").click(function(){ 
-			        	reserve();
+			        	reserve(0);
 			        });
 
 			        $('.startpicker').on('dp.change', function (e) {
 			            var mDate = new moment(e.date);
 			            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
-			            costCalculation();
+			            lengthCalculation(false);
 			        });
 
 			        $('.endpicker').on('dp.change', function (e) {
 			            var mDate = new moment(e.date);
 			            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
-			            costCalculation();
+			            lengthCalculation(false);
 			        });
 		    	}
 			}  
@@ -282,15 +294,12 @@
 	function makeQtip_nightslot(elementId, machine, e_Start, e_End, e_Potential) {
 		var sModal="";
 		sModal += "			<form class=\"reservation_form\" method=\"post\">";
-		sModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + machine + "\" />";
+		sModal += "			<input type=\"hidden\" name=\"mac_id\" data-nightslot=\"1\" value=\"" + machine + "\" />";
 		sModal += "				<div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";
 		sModal += "			        	<label>Preparation time from:<\/label>";
 		sModal += "			            <div class=\"input-group date text-center\">";
 		sModal += "			                <input disabled type=\"text\" class=\"form-control startInput\" value=\"" + e_Start + "\" \/>";	
-		sModal += "			            <\/div>";
-		sModal += "						<div class=\"row\">";
-		sModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse startpicker\"></div>";
 		sModal += "			            <\/div>";
 		sModal += "			        <\/div>";
 		sModal += "			    <\/div>";
@@ -300,10 +309,7 @@
 		sModal += "			        <div class=\"form-group col-md-12\">";
 		sModal += "			        	<label>Preparation time to:<\/label>";	
 		sModal += "			            <div class=\"input-group date text-center\">";
-		sModal += "			                <input disabled onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
-		sModal += "			            <\/div>";
-		sModal += "						<div class=\"row\">";
-		sModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
+		sModal += "			                <input disabled type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
 		sModal += "			            <\/div>";
 		sModal += "			        <\/div>";
 		sModal += "			    <\/div>";
@@ -311,14 +317,11 @@
 		sModal += "			        <div class=\"form-group col-md-12\">";
 		sModal += "			        	<label>Next supervision start:<\/label>";	
 		sModal += "			            <div class=\"input-group date text-center\">";
-		sModal += "			                <input disabled onkeyup=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + e_Potential + "\" \/>";
-		sModal += "			            <\/div>";
-		sModal += "						<div class=\"row\">";
-		sModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
+		sModal += "			                <input disabled type=\"text\" class=\"form-control nextInput\" value=\"" + e_Potential + "\" \/>";
 		sModal += "			            <\/div>";
 		sModal += "			        <\/div>";
 		sModal += "			    <\/div>";
-		sModal += "				<br>";
+		sModal += "				<p>Potential length: <span class=\"reservationLength\"></span></p>";
 		sModal += "				<p>Tokens left: <span class=\"quotaReserve\"></span></p>";
 		sModal += "				<br>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
@@ -351,17 +354,28 @@
 		    events: {
 		    	hide: function (event, api) {
 			        $(this).qtip('destroy');
-		    	}
+		    	},
+		    	show: function (event, api) {
+					$.when(getQuota()).done(function() {
+					    
+					});
+					lengthCalculation(true);
+
+					$('.reserveButton').unbind("click").click(function(){ 
+			        	reserve(1);
+			        });
+				}
 			}  
 		});
 	}
 
 	
-	function reserve() {
+	function reserve(nightslot) {
 		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
 		var end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
 		// Send form to controller 
 		var post_data = {
+			'nightslot': nightslot,
 			'mac_id': $(".reservation_form input[name='mac_id']").val(),
 			'syear': start.format('YYYY'),
 			'smonth': start.format('MM'),
@@ -375,14 +389,14 @@
 			'emin': end.format('mm'),
 		};
 
-		disableForm(true);
+		disableForm(true, nightslot);
 
 		$.ajax({
 			type: "POST",
 			url: "reserve_time",
 			data: post_data,
 			success: function(data) {
-				disableForm(false);
+				disableForm(false, $(".reservation_form").data("nightslot"));
 				if (data.length > 0) {
 				var message = $.parseJSON(data);
 					if (message.success == 1) {
@@ -416,10 +430,19 @@
 	}
 
 
-    function costCalculation () {
-    	end = moment($(".endInput").val(), "DD.MM.YYYY, HH:mm");
+    function lengthCalculation (nightslot) {
+		if (nightslot == true) {
+			end = moment($(".nextInput").val(), "DD.MM.YYYY, HH:mm");
+		}
+		else {
+			end = moment($(".endInput").val(), "DD.MM.YYYY, HH:mm");
+		}
     	start = moment($(".startInput").val(), "DD.MM.YYYY, HH:mm");
-    	if (end != null && start != null) {
+    	var ms = end.diff(start);
+		var d = moment.duration(ms);
+		var s = Math.floor(d.asHours()) + moment.utc(ms).format(":mm");
+		$(".reservationLength").text(s).trigger('change');;
+    	/*if (end != null && start != null) {
         	var duration = moment.duration(end.diff(start));
         	var hours = duration.asHours();
         	var left = userQuota - hours; 
@@ -436,7 +459,7 @@
         	} else {
         		$(".quotaCost").text(hours.toFixed(2));
         	}
-    	}
+    	}*/
     }
 
 	$(function() { // document ready
@@ -519,7 +542,7 @@
 					}
 					return; 
 				}
-				if (e.unsupervised == 1)
+				if (e.nightslot == 1)
 				{
 					var eNext = moment(e.next_start).format("DD.MM.YYYY, HH:mm");
 					$(element).click(function(){ 
