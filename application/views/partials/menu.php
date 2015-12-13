@@ -69,6 +69,10 @@
 				<li<?= set_active_nav('admin/moderate_timetables') ?>>
                   <?php echo anchor('admin/moderate_timetables', 'Timetables');?>
                 </li>
+                </li>
+                  <li<?= set_active_nav('admin/moderate_reservations') ?>>
+                  <?php echo anchor('admin/moderate_reservations', 'Reservations');?>
+                </li>
 				<li class="divider"></li>
 				<li class="dropdown-header">User control</li>
                 <li<?= set_active_nav('admin/moderate_users') ?>>

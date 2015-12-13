@@ -137,6 +137,16 @@
         box-shadow:inset 0px 0px 0px 2px #5cb85c;
     }
 
+    .calendar-supervisor-4 {
+    	background-color: #BECCD1 !important;
+    	border-color: #BECCD1 !important;
+    }
+
+    .calendar-supervisor-5 {
+    	background-color: #009FDE !important;
+    	border-color: #009FDE !important;
+    }
+
 	.form-group.required .control-label:after { 
 	   content:"*";
 	   color:red;

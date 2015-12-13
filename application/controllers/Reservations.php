@@ -1116,12 +1116,20 @@ class Reservations extends MY_Controller
 			$supervisor = $this->aauth->get_user($ssession->aauth_usersID);
 			foreach ($supervisor_levels->result() as $supervisor_level)
 			{
-				$response[] = array(
-					"resourceId" => "mac_" . $supervisor_level->MachineID,
-	        		"start" => $ssession->StartTime,
-	        		"end" => $ssession->EndTime,
-	        		"title" => $supervisor->name
-				);
+				$row = array();
+				$row["resourceId"] = "mac_" . $supervisor_level->MachineID;
+				$row["start"] = $ssession->StartTime;
+				$row["end"] = $ssession->EndTime;
+				$row["title"] = $supervisor->name;
+				if ($supervisor_level->Level == 4)
+				{
+					$row["className"] = "calendar-supervisor-4";
+				}
+				else
+				{
+					$row["className"] = "calendar-supervisor-5";
+				}
+				$response[] = $row;
 			}
 		}
   		$this->output->set_output(json_encode($response));

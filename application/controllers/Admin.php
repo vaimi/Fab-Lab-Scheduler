@@ -82,6 +82,25 @@ class Admin extends MY_Controller
 		$this->load->view('admin/timetable', $data);
 		$this->load->view('partials/footer');
 	}
+
+	public function moderate_reservations() 
+	{
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = "Reservations";
+		$jdata['message'] = "Manage and add reservations";
+		$this->load->view('partials/jumbotron', $jdata);
+		//Get admins (Supervisors) from db
+		$this->load->view('admin/reservations');
+		$this->load->view('partials/footer');
+	}
+
+	public function reservations_get_machines()
+	{
+		$this->load->model('Reservations_model');
+		$response = $this->Reservations_model->reservations_get_machines(true);
+		$this->output->set_output(json_encode($response));
+	}
 	
 	/**
 	 * Manage users
