@@ -1,5 +1,5 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
-class Reservations extends CI_Controller
+class Reservations extends MY_Controller
 {
 	public function __construct() {
 		parent::__construct();

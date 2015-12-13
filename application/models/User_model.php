@@ -145,4 +145,12 @@ class User_model extends CI_Model {
     	$results = $this->db->query($sql,$user_id)->result_array();
     	return $results;
     }
+
+    function get_session_data($user_id) 
+    {
+        $this->db->select("surname");
+        $this->db->from("extended_users_information");
+        $this->db->where("id", $user_id);
+        return $this->db->get()->row();
+    }
 }
