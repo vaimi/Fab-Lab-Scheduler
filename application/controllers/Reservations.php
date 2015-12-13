@@ -1152,24 +1152,50 @@ class Reservations extends MY_Controller
     	$start = $this->input->get('start');
         $end = $this->input->get('end');
 		//var_dump($this->calculate_free_slots($start, $end));
-		$reservations = $this->Reservations_model->reservations_get_all_reserved_slots($start, $end);
 		$response = array();
-		foreach ($reservations as $reservation) 
+		if($this->aauth->is_admin()) 
 		{
-			if( $this->aauth->is_admin() )
+			$reservations = $this->Reservations_model->reservations_get_reserved_slots_with_admin_info($start, $end);
+			foreach ($reservations as $reservation) 
 			{
-				$response[] = array(
-						"resourceId" => "mac_" . $reservation->MachineID,
-						"start" => $reservation->StartTime,
-						"end" => $reservation->EndTime,
-						"title" => "Reserved information",
-						"surname" => $reservation->surname,
-						"email" => $reservation->email,
-						"is_admin" => true,
-						"reserved" => 1
-				);
+				$row = array();
+				$row["resourceId"] = "mac_" . $reservation->MachineID;
+				$row["start"] = $reservation->StartTime;
+				$row["end"] = $reservation->EndTime;
+				$row["title"] = "Reserved information";
+				$row["surname"] = $reservation->surname;
+				$row["email"] = $reservation->email;
+				$row["is_admin"] = true;
+				$row["reserved"] = 1;
+				switch($reservation->Level)
+				{
+					case 1:
+						$row["className"] = "calendar-user-1";
+						break;
+					case 2:
+						$row["className"] = "calendar-user-2";
+						break;
+					case 3:
+						$row["className"] = "calendar-user-3";
+						break;
+					case 4:
+						$row["className"] = "calendar-user-admin";
+						break;
+					case 5:
+						$row["className"] = "calendar-user-admin";
+						break;
+					default:
+						$row["className"] = "calendar-user-1";
+						break;
+
+				}
+				$response[] = $row;
 			}
-			else
+		}
+		else
+		{
+			$reservations = $this->Reservations_model->reservations_get_all_reserved_slots($start, $end);
+			foreach ($reservations as $reservation) 
 			{
 				$response[] = array(
 						"resourceId" => "mac_" . $reservation->MachineID,

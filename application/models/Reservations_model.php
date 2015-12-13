@@ -109,8 +109,21 @@ class Reservations_model extends CI_Model {
         		WHERE EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                 StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND
         		Reservation.aauth_usersID = extended_users_information.id AND
-        		Reservation.aauth_usersID = aauth_users.id ";
+        		Reservation.aauth_usersID = aauth_users.id";
         $response = $this->db->query($sql, array($start_time, $end_time));
+        return $response->result();
+    }
+
+    public function reservations_get_reserved_slots_with_admin_info($start_time, $end_time)
+    {
+        $this->db->select("r.MachineID, r.ReservationID, r.StartTime, r.EndTime, e.surname, a.email, u.Level");
+        $this->db->from("Reservation as r");
+        $this->db->join("extended_users_information as e", "e.id = r.aauth_usersID");
+        $this->db->join("aauth_users as a", "a.id = e.id");
+        $this->db->join("UserLevel as u", "u.aauth_usersID = r.aauth_usersID AND r.MachineID = u.MachineID");
+        $this->db->where("STR_TO_DATE(" . $this->db->escape($end_time) . ", '%Y-%m-%d %H:%i:%s') > StartTime ");
+        $this->db->where("STR_TO_DATE(" . $this->db->escape($start_time) . ", '%Y-%m-%d %H:%i:%s') < EndTime ");
+        $response = $this->db->get();
         return $response->result();
     }
 
