@@ -42,6 +42,14 @@ class Admin_model extends CI_Model {
 		$this->db->where('main.id', $user_id);
 		return $this->db->get();
 	}
+
+	public function get_users() {
+		$this->db->select('main.id, extra.surname');
+		$this->db->from('aauth_users as main');
+		$this->db->join('extended_users_information as extra', 'main.id = extra.id');
+		return $this->db->get();
+	}
+
 	public function create_new_machine($data)
 	{
 		$this->db->insert('Machine', $data);

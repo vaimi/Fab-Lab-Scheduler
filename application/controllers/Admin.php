@@ -91,7 +91,11 @@ class Admin extends MY_Controller
 		$jdata['message'] = "Manage and add reservations";
 		$this->load->view('partials/jumbotron', $jdata);
 		//Get admins (Supervisors) from db
-		$this->load->view('admin/reservations');
+		$machines = $this->Admin_model->get_machines();
+		$users = $this->Admin_model->get_users();
+		$data['machines'] = $machines->result();
+		$data['users'] = $users->result();
+		$this->load->view('admin/reservations', $data);
 		$this->load->view('partials/footer');
 	}
 

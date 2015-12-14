@@ -84,11 +84,13 @@
 		}); 
 	}
 
-	var userQuota = 0;
-
 	$(function() { // document ready
 		$('#calendar').fullCalendar({
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+			snapDuration: '00:01',
+			selectable:true,
+			unselectAuto:false,
+			//selectHelper:true,
 			editable: false, // enable draggable events
 			allDaySlot: false,
 			firstDay: 1,
@@ -126,10 +128,187 @@
                     url: "<?=base_url('reservations/reserve_get_supervision_slots')?>",
                     rendering: 'background'
                 }
-            ]	
+            ],
+            select: function( start, end, jsEvent, view, resource )	{
+            	var machine = resource.id;
+            	var machineSplit = machine.split("_");
+            	if (machineSplit[0] == "mac") {
+            		var eStart = start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+					var eEnd = end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+					makeAdminQtip(jsEvent, machine, eStart, eEnd);
+            	} else {
+					$("#calendar").fullCalendar('unselect');
+				}
+            }
 		});//fullcalendar
 	});//$function
 
+	function makeAdminQtip(jsEvent, machine, e_Start, e_End) {
+		var sModal="";
+		sModal += "			<form class=\"reservation_form\" method=\"post\">";
+		sModal += "			<input type=\"hidden\" name=\"mac_id\" data-nightslot=\"0\" value=\"" + machine + "\" />";
+		sModal += "				<div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";
+		sModal += "			        	<label>From:<\/label>";
+		sModal += "			            <div class=\"input-group date text-center\">";
+		sModal += "			                <input onkeyup=\"lengthCalculation(false);\" type=\"text\" class=\"form-control startInput\" value=\"" + e_Start + "\" \/>";
+		sModal += "			                <a class=\"input-group-addon startExp\">";
+		sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
+		sModal += "			                <\/a>";		
+		sModal += "			            <\/div>";
+		sModal += "						<div class=\"row\">";
+		sModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse startpicker\"></div>";
+		sModal += "			            <\/div>";
+		sModal += "			        <\/div>";
+		sModal += "			    <\/div>";
+		sModal += "			    <div class=\"row text-center col-md-12\">";
+		sModal += "		    	<\/div>";
+		sModal += "			    <div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";
+		sModal += "			        	<label>To:<\/label>";	
+		sModal += "			            <div class=\"input-group date text-center\">";
+		sModal += "			                <input onkeyup=\"lengthCalculation(false);\" type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
+		sModal += "			                <a class=\"input-group-addon endExp\">";
+		sModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
+		sModal += "			                <\/a>";
+		sModal += "			            <\/div>";
+		sModal += "						<div class=\"row\">";
+		sModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
+		sModal += "			            <\/div>";
+		sModal += "			        <\/div>";
+		sModal += "			    <\/div>";
+		sModal += "			    <div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";	
+		sModal += "		  				<label>Machine</label>";
+		sModal += "  					<div class=\"input-group\">";
+		sModal += "							<select id=\"selectMachine\" data-size=\"5\" multiple data-live-search=\"true\" data-selected-text-format=\"count\" class=\"form-control selectpicker\">";
+		<?php foreach ($machines as $machine) {
+		echo "sModal += \"	<option value='" . $machine->MachineID . "'>" . $machine->MachineID . " " . $machine->Manufacturer . " " . $machine->Model . "</option>\";\n";
+		}?>
+		sModal += "							<\/select>";
+		sModal += "			                <a class=\"input-group-addon machineAll\">";
+		sModal += "			                    <span class=\"glyphicon glyphicon-check\"><\/span>";
+		sModal += "			                <\/a>";
+		sModal += "			                <a class=\"input-group-addon machineNone\">";
+		sModal += "			                    <span class=\"glyphicon glyphicon-unchecked\"><\/span>";
+		sModal += "			                <\/a>";
+		sModal += "  					<\/div>";
+		sModal += "			    	<\/div>";
+		sModal += "			    <\/div>";
+		sModal += "			    <div class=\"row\">";
+		sModal += "			        <div class=\"form-group col-md-12\">";	
+		sModal += "		  				<label>User</label>";
+		sModal += "  					<div>";
+		sModal += "							<select id=\"selectUser\" data-size=\"5\" data-live-search=\"true\" class=\"form-control selectpicker\">";
+		<?php foreach ($users as $user) {
+		echo "sModal += \"	<option value='" . $user->id . "'>" . $user->id . " " . $user->surname . "</option>\";\n";
+		}?>
+		sModal += "							<\/select>";
+		sModal += "  					<\/div>";
+		sModal += "			    	<\/div>";
+		sModal += "			    <\/div>";
+		sModal += "				<br>";
+		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
+		sModal += "			    <\/div>";
+		sModal += "			</form>";
+		$(jsEvent.target).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: true,
+            	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Reservation",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+		        //width: 'auto',
+			    //height: 'auto'
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
+		    },
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	},
+		    	show: function (event, api) {
+    				var eStart = moment(e_Start, "DD.MM.YYYY, HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+					var eEnd = moment(e_End, "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+					var machineSplit = machine.split("_");
+					$('.selectpicker').selectpicker();
+					$('#selectMachine').selectpicker('val', machineSplit[1]);
+					$('#selectUser').selectpicker('val', <?=$this->session->id?>);
+					$('.startpicker').datetimepicker({
+						locale: 'en-gb',
+						format: 'YYYY/MM/DD, HH:mm',
+				    	widgetPositioning: {
+							horizontal: "left",
+							vertical: "top"
+					    },
+	                    inline: true,
+        				sideBySide: false,
+        				defaultDate: eStart
+			        });
+
+			        $('.endpicker').datetimepicker({
+			        	locale: 'en-gb',
+			        	format: 'YYYY/MM/DD, HH:mm',
+				    	widgetPositioning: {
+							horizontal: "left",
+							vertical: "top"
+					    },
+					    inline: true,
+        				sideBySide: false,
+			            useCurrent: false, //Important! See issue #1075
+        				defaultDate: eEnd
+			        });
+
+			        $('.startExp').click(function(){ 
+			        	$('.startpicker').collapse('toggle'); 
+			        	return false; 
+			        });
+
+			        $('.endExp').click(function(){ 
+			        	$('.endpicker').collapse('toggle'); 
+			        	return false; 
+			        });
+
+			        $('.machineAll').click(function(){ 
+			        	$('#selectMachine').selectpicker('selectAll');
+			        	return false; 
+			        });
+
+			     	$('.machineNone').click(function(){ 
+			        	$('#selectMachine').selectpicker('deselectAll'); 
+			        	return false; 
+			        });
+
+			        $('.reserveButton').unbind("click").click(function(){ 
+			        	reserve(0);
+			        });
+
+			        $('.startpicker').on('dp.change', function (e) {
+			            var mDate = new moment(e.date);
+			            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+			        });
+
+			        $('.endpicker').on('dp.change', function (e) {
+			            var mDate = new moment(e.date);
+			            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+			        });
+		    	}
+			}  
+		});
+	}
 </script>
 <style>
     .collapse {
@@ -138,9 +317,14 @@
     .fc-timeline-event {
     	cursor: pointer;
     }
+    .qtip-content
+	{
+	    overflow: visible;
+	}
 </style>
 <div class="container">
 	<article>
+		<p>HINT: Unlike in user calendar, you can make reservation just by highlighting the area you want to make reservation.</p>
 		<div id="calendar" style="position:relative"><div id="loader" class="loader" style='position:absolute;display:none;margin:auto;left: 0;top: 0;right: 0;bottom: 0;'></div></div>
 	</article>	
 </div>
