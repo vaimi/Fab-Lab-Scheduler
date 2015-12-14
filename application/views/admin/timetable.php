@@ -63,6 +63,7 @@
             },
         	error: function(data) {
 	        	$('#save_button').removeClass("disabled");
+	        	alerter("error", "Sorry, error happened.");
 	        }
         });
     }
@@ -125,9 +126,9 @@
 
     //Schedule functions 
     function copySchedules() {
-		var sDate = $("#startDate").datepicker( "getDate" );
-		var eDate = $("#endDate").datepicker( "getDate" );
-		var csDate = $("#copyStartDate").datepicker( "getDate" );
+		var sDate = $("#startDate").data("DateTimePicker").date();
+		var eDate = $("#endDate").data("DateTimePicker").date();
+		var csDate = $("#copyStartDate").data("DateTimePicker").date();
         if ( sDate === null || eDate === null || csDate === null ) {
             alert("Dates cannot be empty.");
             return;
@@ -140,14 +141,16 @@
             alert("End date must be earlier Copy to date");
             return;
         }
-        sDate = moment($("#startDate").datepicker( "getDate" )).format("YYYY-MM-DD");
-		eDate = moment($("#endDate").datepicker( "getDate" )).format("YYYY-MM-DD");
-		csDate = moment($("#copyStartDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+        sDate = sDate.format("YYYY-MM-DD");
+		eDate = eDate.format("YYYY-MM-DD");
+		csDate = csDate.format("YYYY-MM-DD");
     	var post_data = {
               "startDate" : sDate,
               "endDate" : eDate,
               "copyStartDate" : csDate
         };
+		console.log(post_data);
+		return;
 		$.ajax({
         	type: "POST",
             url: "schedule_copy",
@@ -169,8 +172,9 @@
     	});
     }
     function removeSchedules() {
-		var sDate = $("#remove_startDate").datepicker( "getDate" );
-		var eDate = $("#remove_endDate").datepicker( "getDate" );
+		var sDate = $("#remove_startDate").data("DateTimePicker").date();
+		var eDate = $("#remove_endDate").data("DateTimePicker").date();
+
         if ( sDate === null || eDate === null) {
             alert("Dates cannot be empty.");
             return;
@@ -179,12 +183,14 @@
             alert("Start date must be earlier than end date");
             return;
         }
-        sDate = moment($("#remove_startDate").datepicker( "getDate" )).format("YYYY-MM-DD");
-		eDate = moment($("#remove_endDate").datepicker( "getDate" )).format("YYYY-MM-DD");
+        sDate = sDate.format("YYYY-MM-DD");
+		eDate = eDate.format("YYYY-MM-DD");
     	var post_data = {
               "startDate" : sDate,
               "endDate" : eDate
         };
+		console.log(post_data);
+		return;
 		$.ajax({
         	type: "POST",
             url: "schedule_delete",
@@ -251,11 +257,12 @@
 
 		/* initialize the Datepickers
 		-----------------------------------------------------------------*/
-		$( ".modaldate" ).datepicker();
-
+		$( ".modaldate" ).datetimepicker({
+			format: "LL"
+			});
 		/* initialize the external events
 		-----------------------------------------------------------------*/
-
+		
 		$('#external-events .fc-event').each(function() {
 
 			// store data so the calendar knows to render an event upon drop
@@ -416,10 +423,28 @@
 	        <h4 class="modal-title">Copy selected schedules</h4>
 	      </div>
 	      <div class="modal-body">
-	        <p>Select start date: <input type="text" class="modaldate" id="startDate"></p>
-	        <p>Select end date: <input type="text" class="modaldate" id="endDate"></p>
-	        <p>Copy to date and forth: <input type="text" class="modaldate" id="copyStartDate"></p>
-	        <p>Remember to save <b>before</b> copying!</p>
+		      <form class="form-horizontal">
+		      	<div class="form-group">
+		        <label class="control-label col-md-4" for="startDate">Select start date:</label> 
+		        <div class="col-md-8">
+		        	<input type="text" class="modaldate" id="startDate">
+		        </div>
+		        </div>
+		        <div class="form-group">
+			        <label class="control-label col-md-4" for="endDate">Select end date:</label>
+			        <div class="col-md-8">
+						<input type="text" class="modaldate" id="endDate">
+					</div>
+			        
+		        </div>
+		        <div class="form-group">
+			        <label class="control-label col-md-4" for="copyStartDate">Copy to date and forth:</label> 
+			        <div class="col-md-8">
+						<input type="text" class="modaldate" id="copyStartDate">
+					</div>
+			    </div>
+		        <p>Remember to save <b>before</b> copying!</p>
+		      </form>
 	      </div>
 	      <div class="modal-footer">
 		    <a type="button" class="btn btn-success" onclick="copySchedules();">Copy</a>
@@ -440,8 +465,20 @@
 	        <h4 class="modal-title">Remove selected schedules</h4>
 	      </div>
 	      <div class="modal-body">
-	        <p>Select start date: <input type="text" class="modaldate" id="remove_startDate"></p>
-	        <p>Select end date: <input type="text" class="modaldate" id="remove_endDate"></p>
+	      	<form class="form-horizontal">
+		      	<div class="form-group">
+		        <label class="control-label col-md-4" for="remove_startDate">Select start date:</label> 
+		        <div class="col-md-8">
+		        	<input type="text" class="modaldate" id="remove_startDate">
+		        </div>
+		        </div>
+		        <div class="form-group">
+			        <label class="control-label col-md-4" for="remove_endDate">Select end date:</label>
+			        <div class="col-md-8">
+						<input type="text" class="modaldate" id="remove_endDate">
+					</div>
+		        </div>
+		   </form>
 	      </div>
 	      <div class="modal-footer">
 	      	<a type="button" class="btn btn-danger" onclick="removeSchedules();">
