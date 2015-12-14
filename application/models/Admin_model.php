@@ -127,7 +127,7 @@ class Admin_model extends CI_Model {
 	{
 		$sql = "select r.MachineID, r.StartTime, r.EndTime, r.QRCode, r.PassCode, m.MachineName, m.Manufacturer, m.Model, m.Description
     			from Machine m, Reservation r
-    			where r.aauth_usersID=? and r.MachineID = m.MachineID";
+    			where r.aauth_usersID=? and r.MachineID = m.MachineID and r.State = 1";
 		$results = $this->db->query($sql,$user_id)->result_array();
 		return $results;
 	}
@@ -138,6 +138,7 @@ class Admin_model extends CI_Model {
 		$this->db->from("Reservation");
 		//Supervisor id
 		$this->db->where('aauth_usersID', $s_id);
+		$this->db->where("State", 1);
 		//Reservation start time is in slot
 		$this->db->where('StartTime >= ', $slot_start);
 		$this->db->where('StartTime <= ', $slot_end);

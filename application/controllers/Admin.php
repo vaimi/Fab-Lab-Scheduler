@@ -105,6 +105,74 @@ class Admin extends MY_Controller
 		$response = $this->Reservations_model->reservations_get_machines(true);
 		$this->output->set_output(json_encode($response));
 	}
+
+	public function reservations_reserve()
+	{
+		$this->load->model('Reservations_model');
+		$user = $this->input->post('user');
+		$machines = $this->input->post('machines');
+		$start = $this->input->post('start');
+		$end = $this->input->post('end');
+		//0 no force
+		//1 allow overlap
+		//2 delete overlapping reservations
+		$force = $this->input->post('force');
+
+		if($force == 0) {
+			// dry run
+			$is_overlapping = false;
+			foreach ($machines as $machine) 
+			{
+				$m_id = str_replace("mac_", "", $machine);
+				$overlaps = $this->Reservations_model->is_reserved($start, $end, (int)($m_id));
+				if ($overlaps)
+				{
+					$is_overlapping = true;
+				}
+			}
+			if ($is_overlapping) {
+				$response = array(
+					"success" => 0,
+					"errors" => array("Overlapping")
+				);
+				$this->output->set_output(json_encode($response));
+				return;
+			}
+			$force = 1;
+		}
+		if($force == 2)
+		{
+			//remove overlapping sessions
+			//$force = 1;
+		}
+		// allow overlap
+		if($force == 1) 
+		{
+			foreach ($machines as $machine) 
+			{
+				$m_id = str_replace("mac_", "", $machine);
+				$data = array(
+						'MachineID' => (int)$m_id,
+						'aauth_usersID' => (int)$user,
+						'StartTime' => $start,
+						'EndTime' => $end,
+						'QRCode' => "",
+						'PassCode' => ""
+				);
+				$reservation_id = $this->Reservations_model->set_new_reservation($data);
+					
+			}
+			$response = array(
+				"success" => 1,
+				"errors" => array()
+			);
+			$this->output->set_output(json_encode($response));
+			return;
+		}
+
+
+
+	}
 	
 	/**
 	 * Manage users

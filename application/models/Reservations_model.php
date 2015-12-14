@@ -96,7 +96,7 @@ class Reservations_model extends CI_Model {
     public function reservations_get_reserved_slots($start_time, $end_time, $machine) 
     {
         $sql = "SELECT * FROM Reservation WHERE StartTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
-                      EndTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? ORDER BY StartTime ASC";
+                      EndTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? AND State=1 ORDER BY StartTime ASC";
         $response = $this->db->query($sql, array(date('Y-m-d H:i:s', $end_time), date('Y-m-d H:i:s', $start_time), $machine));
         return $response->result();
     }
@@ -109,7 +109,7 @@ class Reservations_model extends CI_Model {
         		WHERE EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                 StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND
         		Reservation.aauth_usersID = extended_users_information.id AND
-        		Reservation.aauth_usersID = aauth_users.id";
+        		Reservation.aauth_usersID = aauth_users.id AND Reservation.State=1";
         $response = $this->db->query($sql, array($start_time, $end_time));
         return $response->result();
     }
@@ -123,6 +123,7 @@ class Reservations_model extends CI_Model {
         $this->db->join("UserLevel as u", "u.aauth_usersID = r.aauth_usersID AND r.MachineID = u.MachineID");
         $this->db->where("STR_TO_DATE(" . $this->db->escape($end_time) . ", '%Y-%m-%d %H:%i:%s') > StartTime ");
         $this->db->where("STR_TO_DATE(" . $this->db->escape($start_time) . ", '%Y-%m-%d %H:%i:%s') < EndTime ");
+        $this->db->where("State", 1);
         $response = $this->db->get();
         return $response->result();
     }
@@ -283,6 +284,7 @@ class Reservations_model extends CI_Model {
         $this->db->select("ReservationID");
         $this->db->from("Reservation");
         $this->db->where("MachineID", $machine);
+        $this->db->where("State", 1);
         $this->db->where("StartTime <", $end);
         $this->db->where("EndTime >", $start);
         $result = $this->db->get();
@@ -299,6 +301,7 @@ class Reservations_model extends CI_Model {
         $this->db->join("Machine as m", "m.MachineID = r.MachineID");
         $this->db->where("Aauth_usersID", $user);
         $this->db->where("EndTime >", date("Y-m-d H:i:s"));
+        $this->db->where("r.State", 1);
         $result = $this->db->get();
         $response = array();
         if ($result->num_rows() > 0)
@@ -320,6 +323,7 @@ class Reservations_model extends CI_Model {
         $this->db->from("Reservation");
         $this->db->where("NOW() < EndTime");
         $this->db->where("aauth_usersID", $user_id);
+        $this->db->where("State", 1);
         return $this->db->count_all_results();
     }
 
@@ -340,6 +344,7 @@ class Reservations_model extends CI_Model {
         $this->db->from("Reservation");
         $this->db->where("MachineID", $machine_id);
         $this->db->where("EndTime <=", $time);
+        $this->db->where("State", 1);
         $this->db->order_by("EndTime", "desc");
         $this->db->limit(1);
         $result = $this->db->get();
@@ -356,6 +361,7 @@ class Reservations_model extends CI_Model {
         $this->db->select("StartTime");
         $this->db->from("Reservation");
         $this->db->where("MachineID", $machine_id);
+        $this->db->where("State", 1);
         $this->db->where("StartTime >=", $time);
         $this->db->order_by("StartTime", "asc");
         $this->db->limit(1);

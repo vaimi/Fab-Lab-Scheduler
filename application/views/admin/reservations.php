@@ -42,32 +42,27 @@
 		}
 	}
 	
-	function reserve(nightslot) {
+	function reserve(force) {
 		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
 		var end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
 		// Send form to controller 
 		var post_data = {
 			'mac_id': $(".reservation_form input[name='mac_id']").val(),
-			'syear': start.format('YYYY'),
-			'smonth': start.format('MM'),
-			'sday': start.format('DD'),
-			'shour': start.format('HH'),
-			'smin': start.format('mm'),
-			'eyear': end.format('YYYY'),
-			'emonth': end.format('MM'),
-			'eday': end.format('DD'),
-			'ehour': end.format('HH'),
-			'emin': end.format('mm'),
+			'start': start.format('YYYY-MM-DD HH:mm'),
+			'end': end.format('YYYY-MM-DD HH:mm'),
+			'machines': $("#selectMachine").val(),
+			'user': $("#selectUser").val(),
+			'force': force
 		};
 
-		disableForm(true, nightslot);
+		//disableForm(true, nightslot);
 
 		$.ajax({
 			type: "POST",
-			url: "reserve_time",
+			url: "reservations_reserve",
 			data: post_data,
 			success: function(data) {
-				disableForm(false, $(".reservation_form").data("nightslot"));
+				//disableForm(false, $(".reservation_form").data("nightslot"));
 				if (data.length > 0) {
 				var message = $.parseJSON(data);
 					if (message.success == 1) {
@@ -75,8 +70,12 @@
 						$(".qtip").qtip('hide');
 						$('#calendar').fullCalendar('refetchEvents');
 					} else {
-						for(var error in message.errors) {
-							alerter("warning", message.errors[error]); 
+						if (message.errors[0] == "Overlapping") {
+							makeOverlapQtip($(".reserveButton"));
+						} else {
+							for(var error in message.errors) {
+								alerter("warning", message.errors[error]); 
+							}
 						}
 					}
 				}
@@ -141,12 +140,68 @@
 				}
             },
             eventAfterRender : function( e, element, view ) {
-            	$(element).click(function(){ 
-            		makeReservationQtip(element, e);
-				});
+            	if (e.reserved==1) {
+	            	$(element).click(function(){ 
+	            		makeReservationQtip(element, e);
+					});
+				}
             }
 		});//fullcalendar
 	});//$function
+
+	function makeOverlapQtip(elementId) {
+		var sModal="<p>What you want to do?</p>";
+		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "		<a class=\"btn btn-success cancelButton\" >Undo</a>";
+		sModal += "	<\/div>";
+		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "		<a class=\"btn btn-warning overlapButton\" >Overlap</a>";
+		sModal += "	<\/div>";
+		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "		<a class=\"btn btn-danger deleteButton\" >Delete</a>";
+		sModal += "	<\/div>";
+		
+		$(elementId).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: false,
+            	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Reservation is overlapping",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
+		    },
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	},
+		    	show: function (event, api) {
+		    		api.focus();
+		    		$('.cancelButton').unbind("click").click(function(){ 
+						api.toggle(false);
+			        });
+			        $('.overlapButton').unbind("click").click(function(){ 
+			        	reserve(1);
+			        });
+			        $('.deleteButton').unbind("click").click(function(){ 
+			        	reserve(2);
+			        });
+		    	}
+			}  
+		});
+	}
 
 	function makeReservationQtip(elementId, e) {
 		var machine = e.resourceId;
@@ -197,7 +252,7 @@
 	function makeAdminQtip(jsEvent, machine, e_Start, e_End) {
 		var sModal="";
 		sModal += "			<form class=\"reservation_form\" method=\"post\">";
-		sModal += "			<input type=\"hidden\" name=\"mac_id\" data-nightslot=\"0\" value=\"" + machine + "\" />";
+		sModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + machine + "\" />";
 		sModal += "				<div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";
 		sModal += "			        	<label>From:<\/label>";
@@ -231,18 +286,12 @@
 		sModal += "			    <div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";	
 		sModal += "		  				<label>Machine</label>";
-		sModal += "  					<div class=\"input-group\">";
-		sModal += "							<select id=\"selectMachine\" data-size=\"5\" multiple data-live-search=\"true\" data-selected-text-format=\"count\" class=\"form-control selectpicker\">";
+		sModal += "  					<div>";
+		sModal += "							<select id=\"selectMachine\" data-actions-box=\"true\" data-size=\"5\" multiple data-live-search=\"true\" data-selected-text-format=\"count\" class=\"form-control selectpicker\">";
 		<?php foreach ($machines as $machine) {
 		echo "sModal += \"	<option value='" . $machine->MachineID . "'>" . $machine->MachineID . " " . $machine->Manufacturer . " " . $machine->Model . "</option>\";\n";
 		}?>
 		sModal += "							<\/select>";
-		sModal += "			                <a class=\"input-group-addon machineAll\">";
-		sModal += "			                    <span class=\"glyphicon glyphicon-check\"><\/span>";
-		sModal += "			                <\/a>";
-		sModal += "			                <a class=\"input-group-addon machineNone\">";
-		sModal += "			                    <span class=\"glyphicon glyphicon-unchecked\"><\/span>";
-		sModal += "			                <\/a>";
 		sModal += "  					<\/div>";
 		sModal += "			    	<\/div>";
 		sModal += "			    <\/div>";
