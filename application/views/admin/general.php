@@ -1,5 +1,6 @@
 <?php 
 	$deadline = isset($settings['reservation_deadline']) ? $settings['reservation_deadline'] : "undefined"; 
+	$default_tokens = isset($settings['default_tokens']) ? $settings['default_tokens'] : "undefined";
 	$reservation_timespan = isset($settings['reservation_timespan']) ? $settings['reservation_timespan'] : "undefined";
 	$interval = isset($settings['interval']) ? $settings['interval'] : "undefined";
 ?>
@@ -21,7 +22,10 @@
 			<label class="radio-inline"><input type="radio" name="interval" value="Weeks" <?php  print $interval == "Weeks" ? "checked" : "" ?> >Weeks</label>
 			<label class="radio-inline"><input type="radio" name="interval" value="Months" <?php  print $interval == "Months" ? "checked" : "" ?> >Months</label>
 	   	</div>
-
+		<div class="form-group">
+        	<label for="default_tokens">Amount of default tokens:</label>
+        	<input type='number' min="1" value="<?php echo $default_tokens; ?>" class="form-control" name="default_tokens" />
+        </div>
 		<button type="submit" class='btn btn-success'>Save</button>
 	</form>
 </div>
