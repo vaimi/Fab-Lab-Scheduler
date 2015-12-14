@@ -139,9 +139,60 @@
             	} else {
 					$("#calendar").fullCalendar('unselect');
 				}
+            },
+            eventAfterRender : function( e, element, view ) {
+            	$(element).click(function(){ 
+            		makeReservationQtip(element, e);
+				});
             }
 		});//fullcalendar
 	});//$function
+
+	function makeReservationQtip(elementId, e) {
+		var machine = e.resourceId;
+		var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+		var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+
+		var sModal="<p>Reservation id: "+ e.reservation_id + "</p>";
+		sModal += "<p>Start time: " + e.start.format("DD.MM.YYYY, HH:mm") + "</p>";
+		sModal += "<p>End time: " + e.end.format("DD.MM.YYYY, HH:mm") + "</p><br>";
+		sModal += "<p>User id: " + e.user_id + "</p>";
+		sModal += "<p>Level: " + e.user_level + "</p>";		
+		sModal += "<p>Name: " + e.surname + "</p>";
+		sModal += "<p>Email: " + e.email + "</p>";
+		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "			    	<a data-id=" + e.reservation_id + "  class=\"btn btn-danger cancelButton\" >Cancel reservation</a>";
+		sModal += "			    <\/div>";
+		
+		$(elementId).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: true,
+            	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Reservation",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
+		    },
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	}
+			}  
+		});
+	}
 
 	function makeAdminQtip(jsEvent, machine, e_Start, e_End) {
 		var sModal="";
@@ -238,6 +289,7 @@
 		    },
 		    events: {
 		    	hide: function (event, api) {
+		    		$("#calendar").fullCalendar('unselect');
 			        $(this).qtip('destroy');
 		    	},
 		    	show: function (event, api) {
@@ -324,7 +376,7 @@
 </style>
 <div class="container">
 	<article>
-		<p>HINT: Unlike in user calendar, you can make reservation just by highlighting the area you want to make reservation.</p>
+		<p>HINT: Unlike in user calendar, you can make reservation just by dragging over the area you want to make reservation.</p>
 		<div id="calendar" style="position:relative"><div id="loader" class="loader" style='position:absolute;display:none;margin:auto;left: 0;top: 0;right: 0;bottom: 0;'></div></div>
 	</article>	
 </div>

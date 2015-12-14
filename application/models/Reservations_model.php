@@ -116,7 +116,7 @@ class Reservations_model extends CI_Model {
 
     public function reservations_get_reserved_slots_with_admin_info($start_time, $end_time)
     {
-        $this->db->select("r.MachineID, r.ReservationID, r.StartTime, r.EndTime, e.surname, a.email, u.Level");
+        $this->db->select("r.MachineID, r.ReservationID, r.StartTime, r.EndTime, e.surname, a.id, a.email, u.Level");
         $this->db->from("Reservation as r");
         $this->db->join("extended_users_information as e", "e.id = r.aauth_usersID");
         $this->db->join("aauth_users as a", "a.id = e.id");

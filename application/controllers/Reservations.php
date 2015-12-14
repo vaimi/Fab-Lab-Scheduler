@@ -1160,12 +1160,15 @@ class Reservations extends MY_Controller
 			{
 				$row = array();
 				$row["resourceId"] = "mac_" . $reservation->MachineID;
+				$row["reservation_id"] = $reservation->ReservationID;
 				$row["start"] = $reservation->StartTime;
 				$row["end"] = $reservation->EndTime;
-				$row["title"] = "Reserved information";
+				$row["title"] = "Reserved: " . $reservation->surname;
+				$row["user_id"] = $reservation->id;
 				$row["surname"] = $reservation->surname;
 				$row["email"] = $reservation->email;
 				$row["is_admin"] = true;
+				$row["user_level"] = $reservation->Level;
 				$row["reserved"] = 1;
 				switch($reservation->Level)
 				{
