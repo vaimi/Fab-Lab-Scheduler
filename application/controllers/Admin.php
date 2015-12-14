@@ -1314,6 +1314,8 @@ class Admin extends MY_Controller
 		$this->form_validation->set_rules('reservation_deadline', 'Reservation deadline', 'required|regex_match[(\d{2}:\d{2})]');
 		$this->form_validation->set_rules('reservation_timespan', 'Reservation timespan', 'required|is_natural_no_zero');
 		$this->form_validation->set_rules('default_tokens', 'Default tokens', 'required|is_natural_no_zero');
+		$this->form_validation->set_rules('nightslot_pre_time', 'Nightslot preparation time', 'required|is_natural_no_zero');
+		$this->form_validation->set_rules('nightslot_threshold', 'Nightslot threshold time', 'required|is_natural_no_zero');
 		$this->form_validation->set_rules('interval', 'Interval (days, weeks or months)', 'required|callback_interval_check');
 		//Send error msg
 		if ($this->form_validation->run() == FALSE)
@@ -1329,7 +1331,10 @@ class Admin extends MY_Controller
 		$settings['reservation_deadline'] = $deadline;
 		$settings['reservation_timespan'] = $this->input->post('reservation_timespan');
 		$settings['interval'] = $this->input->post('interval');
+		$settings['nightslot_pre_time'] = $this->input->post('nightslot_pre_time');
+		$settings['nightslot_threshold'] = $this->input->post('nightslot_threshold');
 		$settings['default_tokens'] = $this->input->post('default_tokens');
+		
 		//put settings to the db
 		$this->Admin_model->set_general_settings($settings);
 		redirect("/admin/moderate_general", "refresh");
