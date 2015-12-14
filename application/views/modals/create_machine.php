@@ -16,7 +16,7 @@
 			  		<input type="text" class="form-control focusedInput" id="manufacturer" name="manufacturer" placeholder="Manufacturer" aria-describedby="basic-addon1">
 			  		<input type="text" class="form-control focusedInput" id="model" name="model" placeholder="Model" aria-describedby="basic-addon1">
 			  		<label for="desc">Description:</label>
-					<textarea class="form-control" rows="5" id="desc" name="desc" ></textarea>
+					<textarea class="form-control summernote_desc" rows="5" id="desc" name="desc" ></textarea>
 					<div class="checkbox">
 			 			<label><input type="checkbox" id="needSupervision" name="needSupervisor" value="yes">Need supervision</label>
 					</div>

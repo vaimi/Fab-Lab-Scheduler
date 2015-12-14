@@ -149,8 +149,6 @@
               "endDate" : eDate,
               "copyStartDate" : csDate
         };
-		console.log(post_data);
-		return;
 		$.ajax({
         	type: "POST",
             url: "schedule_copy",
@@ -189,8 +187,6 @@
               "startDate" : sDate,
               "endDate" : eDate
         };
-		console.log(post_data);
-		return;
 		$.ajax({
         	type: "POST",
             url: "schedule_delete",
@@ -202,7 +198,7 @@
                 var deleted_ids = json['deleted_ids'];
                 for (var id in deleted_ids) {
                     var event = $('#calendar').fullCalendar( 'clientEvents', id)[0];
-                    event.color = "#660000"; // Red color
+                    event.color = ttColors.deleted; // Red color
                     $('#calendar').fullCalendar('updateEvent', event);
                 }
             }
@@ -258,7 +254,8 @@
 		/* initialize the Datepickers
 		-----------------------------------------------------------------*/
 		$( ".modaldate" ).datetimepicker({
-			format: "LL"
+			format: "LL",
+			locale: "en-gb"
 			});
 		/* initialize the external events
 		-----------------------------------------------------------------*/

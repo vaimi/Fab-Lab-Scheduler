@@ -248,19 +248,17 @@ class Admin extends MY_Controller
 			$description = $this->input->post('description');
 			// TODO: ??
 			$need_supervision = $this->input->post('need_supervision')?$this->input->post('need_supervision'):'';
-			
-			
 			if ($this->form_validation->run() == FALSE)
 			{
 				//echo errors.
 				echo validation_errors();
 				return;
 			}
-			
 			$errors = [];
 			if (trim($name) == '')
+			{
 				$errors[] = 'Name can not be blank';
-			
+			}
 			if (count($errors) > 0)
 			{
 				$data = array(
@@ -1040,8 +1038,14 @@ class Admin extends MY_Controller
      */
     public function schedule_delete() {
     	if ($this->input->server('REQUEST_METHOD') == 'POST') {
-    		//$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
-    		//$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[19]|regex_match[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})]');
+    		$this->form_validation->set_rules('startDate', 'Start Date', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+    		$this->form_validation->set_rules('endDate', 'End Date', 'required|exact_length[10]|regex_match[(\d{4}-\d{2}-\d{2})]');
+    		if ($this->form_validation->run() == FALSE)
+    		{
+    			//echo errors.
+    			echo validation_errors();
+    			die();
+    		}
     		$startDate = $this->input->post("startDate");
     		$endDate = $this->input->post("endDate");
     		$startDate = new DateTime($startDate);
@@ -1057,7 +1061,7 @@ class Admin extends MY_Controller
     		{
     			$sDate = new DateTime($slot->start);
     			$eDate = new DateTime($slot->end);
-    			if ($sDate > $startDate && $eDate < $endDate) 
+    			if ($sDate >= $startDate && $eDate <= $endDate) 
     			{
     				unset($tmp[$slot->id]);
     				$slots_current_deleted[$slot->id] = $slot;
@@ -1071,7 +1075,7 @@ class Admin extends MY_Controller
     		{
     			$sDate = new DateTime($slot->start);
     			$eDate = new DateTime($slot->end);
-    			if ($sDate > $startDate && $eDate < $endDate)
+    			if ($sDate >= $startDate && $eDate <= $endDate)
     			{
     				unset($tmp[$slot->id]);
     				$slots_current_deleted[$slot->id] = $slot;
@@ -1085,7 +1089,7 @@ class Admin extends MY_Controller
     		{
     			$sDate = new DateTime($slot->start);
     			$eDate = new DateTime($slot->end);
-    			if ($sDate > $startDate && $eDate < $endDate)
+    			if ($sDate >= $startDate && $eDate <= $endDate)
     			{
     				unset($tmp[$slot->id]);
     				$slots_current_deleted[$slot->id] = $slot;
@@ -1096,9 +1100,7 @@ class Admin extends MY_Controller
     		$this->session->set_userdata('sv_unsaved_deleted_items', $slots_current_deleted);
      		echo json_encode(array(
      		"deleted_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_deleted_items') ),
-     		"modified_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items') ),
-     		"new_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_new_items') ),
-     		"saved_ids" => array_map(function($o) { return $o->id; }, $this->session->userdata('sv_saved_items') )
+			"success" => true     		
      		));
     	}
     	else {
