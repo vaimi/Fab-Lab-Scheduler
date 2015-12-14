@@ -101,6 +101,14 @@ class Reservations_model extends CI_Model {
         return $response->result();
     }
 
+    public function set_reservation_state($id, $new_state) {
+        $data = array(
+           'State' => $new_state,
+        );
+        $this->db->where('ReservationID', $id);
+        $this->db->update('Reservation', $data);
+        return ($this->db->affected_rows() != 1) ? false : true;
+    }
 
     public function reservations_get_all_reserved_slots($start_time, $end_time) 
     {

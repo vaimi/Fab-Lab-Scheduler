@@ -106,6 +106,36 @@ class Admin extends MY_Controller
 		$this->output->set_output(json_encode($response));
 	}
 
+	public function reservations_cancel()
+	{
+		$this->load->model('Reservations_model');
+		$reservation = $this->input->post('id');
+		$this->Reservations_model->set_reservation_state($reservation, 3);
+		$this->cancellation_email($reservation);
+		$this->output->set_output(json_encode(array("success"=>1)));
+	}
+
+	private function cancellation_email($reservation_id){
+		$reservation = $this->Reservations_model->get_reservation_email_info($reservation_id);
+		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+		$this->email->to($reservation->email);
+		$this->email->subject("Fab Lab session cancellation");
+		$email_content = "Dear fabricator,<br>
+		<br>
+		We're sorry to inform that your reservation is cancelled. Here is your cancelled reservation details: <br>
+		<br>
+		Reservation id: " . $reservation->ReservationID . "<br>
+		Machine: " . $reservation->Manufacturer . " " . $reservation->Model . "<br>
+		Reservation starts: " . $reservation->StartTime . "<br>
+		Reservation ends: " . $reservation->EndTime . "<br>
+		<br>
+		Sincerely,<br>" .
+		$this->aauth->config_vars['name'];
+
+		$this->email->message($email_content);
+		$this->email->send();
+	}
+
 	public function reservations_reserve()
 	{
 		$this->load->model('Reservations_model');
@@ -142,8 +172,17 @@ class Admin extends MY_Controller
 		}
 		if($force == 2)
 		{
+			foreach ($machines as $machine)
+			{
+				$m_id = str_replace("mac_", "", $machine);
+				$reservations = $this->Reservations_model->reservations_get_reserved_slots(strtotime($start), strtotime($end), (int)$machine);
+				foreach ($reservations as $rs) {
+					$this->Reservations_model->set_reservation_state($rs->ReservationID, 3);
+					$this->cancellation_email($rs->ReservationID);
+				}
+			}
 			//remove overlapping sessions
-			//$force = 1;
+			$force = 1;
 		}
 		// allow overlap
 		if($force == 1) 

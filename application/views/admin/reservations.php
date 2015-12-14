@@ -28,18 +28,48 @@
 
 	function disableForm(disable_bool, nightslot) {
 		if (disable_bool) {
-			if (nightslot == 0) {
-				$(".startInput").attr('disabled', true);
-				$(".endInput").attr('disabled', true);
-			}
-			$(".reserveButton").addClass('disabled');
+			$(".startInput").attr('disabled', true);
+			$(".endInput").attr('disabled', true);
+			$(".formButton").addClass('disabled');
+			$('.selectpicker').prop('disabled', true);
+  			$('.selectpicker').selectpicker('refresh');
 		} else {
-			if (nightslot == 0) {
-				$(".startInput").removeAttr('disabled');
-				$(".endInput").removeAttr('disabled');
-			}
-			$('.reserveButton').removeClass('disabled');
+			$(".startInput").removeAttr('disabled');
+			$(".endInput").removeAttr('disabled');
+			$('.formButton').removeClass('disabled');
+			$('.selectpicker').prop('disabled', false);
+  			$('.selectpicker').selectpicker('refresh');
 		}
+	}
+
+	function cancel() {
+		// Send form to controller 
+		var post_data = {
+			'id': $(".cancelButton").data("id")
+		};
+
+		disableForm(true);
+
+		$.ajax({
+			type: "POST",
+			url: "reservations_cancel",
+			data: post_data,
+			success: function(data) {
+				//disableForm(false, $(".reservation_form").data("nightslot"));
+				if (data.length > 0) {
+				var message = $.parseJSON(data);
+					if (message.success == 1) {
+						alerter("success", "Cancellation successful");
+						$(".qtip").qtip('hide');
+						$('#calendar').fullCalendar('refetchEvents');
+					} else {
+						for(var error in message.errors) {
+							alerter("warning", message.errors[error]); 
+						}
+					}
+				}
+			}
+		}); 
 	}
 	
 	function reserve(force) {
@@ -55,14 +85,14 @@
 			'force': force
 		};
 
-		//disableForm(true, nightslot);
+		disableForm(true);
 
 		$.ajax({
 			type: "POST",
 			url: "reservations_reserve",
 			data: post_data,
 			success: function(data) {
-				//disableForm(false, $(".reservation_form").data("nightslot"));
+				disableForm(false);
 				if (data.length > 0) {
 				var message = $.parseJSON(data);
 					if (message.success == 1) {
@@ -152,13 +182,13 @@
 	function makeOverlapQtip(elementId) {
 		var sModal="<p>What you want to do?</p>";
 		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "		<a class=\"btn btn-success cancelButton\" >Undo</a>";
+		sModal += "		<a class=\"btn btn-success formButton undoButton\" >Undo</a>";
 		sModal += "	<\/div>";
 		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "		<a class=\"btn btn-warning overlapButton\" >Overlap</a>";
+		sModal += "		<a class=\"btn btn-warning formButton overlapButton\" >Overlap</a>";
 		sModal += "	<\/div>";
 		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "		<a class=\"btn btn-danger deleteButton\" >Delete</a>";
+		sModal += "		<a class=\"btn btn-danger formButton deleteButton\" >Delete</a>";
 		sModal += "	<\/div>";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
@@ -189,7 +219,7 @@
 		    	},
 		    	show: function (event, api) {
 		    		api.focus();
-		    		$('.cancelButton').unbind("click").click(function(){ 
+		    		$('.undoButton').unbind("click").click(function(){ 
 						api.toggle(false);
 			        });
 			        $('.overlapButton').unbind("click").click(function(){ 
@@ -216,7 +246,7 @@
 		sModal += "<p>Name: " + e.surname + "</p>";
 		sModal += "<p>Email: " + e.email + "</p>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "			    	<a data-id=" + e.reservation_id + "  class=\"btn btn-danger cancelButton\" >Cancel reservation</a>";
+		sModal += "			    	<a data-id=" + e.reservation_id + "  class=\"btn btn-danger formButton cancelButton\" >Cancel reservation</a>";
 		sModal += "			    <\/div>";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
@@ -244,7 +274,13 @@
 		    events: {
 		    	hide: function (event, api) {
 			        $(this).qtip('destroy');
+		    	},
+		    	show: function (event, api) {
+		    		$('.cancelButton').unbind("click").click(function(){ 
+			        	cancel();
+			        });
 		    	}
+
 			}  
 		});
 	}
@@ -309,7 +345,7 @@
 		sModal += "			    <\/div>";
 		sModal += "				<br>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
+		sModal += "			    	<a class=\"btn btn-primary formButton reserveButton\" >Reserve</a>";
 		sModal += "			    <\/div>";
 		sModal += "			</form>";
 		$(jsEvent.target).qtip({ // Grab some elements to apply the tooltip to
