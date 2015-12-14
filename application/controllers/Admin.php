@@ -1018,7 +1018,7 @@ class Admin extends MY_Controller
     		{
     			$sDate = new DateTime($slot->start);
     			$eDate = new DateTime($slot->end);
-    			if ($sDate > $startDate && $eDate < $endDate) 
+    			if ($sDate >= $startDate && $eDate <= $endDate) 
     			{
     				unset($tmp[$slot->id]);
     				$slots_current_deleted[$slot->id] = $slot;
@@ -1032,7 +1032,7 @@ class Admin extends MY_Controller
     		{
     			$sDate = new DateTime($slot->start);
     			$eDate = new DateTime($slot->end);
-    			if ($sDate > $startDate && $eDate < $endDate)
+    			if ($sDate >= $startDate && $eDate <= $endDate)
     			{
     				unset($tmp[$slot->id]);
     				$slots_current_deleted[$slot->id] = $slot;
@@ -1046,7 +1046,7 @@ class Admin extends MY_Controller
     		{
     			$sDate = new DateTime($slot->start);
     			$eDate = new DateTime($slot->end);
-    			if ($sDate > $startDate && $eDate < $endDate)
+    			if ($sDate >= $startDate && $eDate <= $endDate)
     			{
     				unset($tmp[$slot->id]);
     				$slots_current_deleted[$slot->id] = $slot;
