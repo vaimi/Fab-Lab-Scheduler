@@ -209,19 +209,17 @@ class Admin extends MY_Controller
 			$description = $this->input->post('description');
 			// TODO: ??
 			$need_supervision = $this->input->post('need_supervision')?$this->input->post('need_supervision'):'';
-			
-			
 			if ($this->form_validation->run() == FALSE)
 			{
 				//echo errors.
 				echo validation_errors();
 				return;
 			}
-			
 			$errors = [];
 			if (trim($name) == '')
+			{
 				$errors[] = 'Name can not be blank';
-			
+			}
 			if (count($errors) > 0)
 			{
 				$data = array(
