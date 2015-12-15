@@ -9,12 +9,13 @@ class Admin_model extends CI_Model {
 	
 	public function get_autocomplete($search_data, $offset=0)
     {
-		$this->db->select('main.id, main.email, main.name, extra.phone_number, extra.surname, extra.student_number');
+		$this->db->select('main.id, main.email, main.name, extra.phone_number, extra.first_name, extra.surname, extra.student_number');
 		$this->db->from('aauth_users as main');
 		$this->db->join('extended_users_information as extra', 'main.id = extra.id');
 		$this->db->like('main.email', $search_data);
         $this->db->or_like('main.name', $search_data);
 		$this->db->or_like('extra.phone_number', $search_data);
+		$this->db->or_like('extra.first_name', $search_data);
 		$this->db->or_like('extra.surname', $search_data);
 		$this->db->or_like('extra.student_number', $search_data);
 		$this->db->limit(10);
@@ -34,7 +35,7 @@ class Admin_model extends CI_Model {
 	public function get_user_data($user_id) 
     {
 		$this->db->select('main.id, main.email, main.name, 
-			main.banned, extra.phone_number, extra.surname, 
+			main.banned, extra.phone_number, extra.first_name, extra.surname, 
 			extra.student_number, extra.address_street, extra.address_postal_code, 
 			extra.company, extra.quota');
 		$this->db->from('aauth_users as main');
@@ -44,7 +45,7 @@ class Admin_model extends CI_Model {
 	}
 
 	public function get_users() {
-		$this->db->select('main.id, extra.surname');
+		$this->db->select('main.id, extra.first_name, extra.surname');
 		$this->db->from('aauth_users as main');
 		$this->db->join('extended_users_information as extra', 'main.id = extra.id');
 		return $this->db->get();
@@ -61,6 +62,7 @@ class Admin_model extends CI_Model {
 	public function update_user_data($user_data) 
     {
 		$data = array(
+			'first_name' => $user_data['first_name'],
 			'surname' => $user_data['surname'],
 			'address_street' => $user_data['address_street'],
 			'address_postal_code' => $user_data['address_postal_code'],
@@ -151,7 +153,7 @@ class Admin_model extends CI_Model {
 	// TODO: This query needs checking.
 	public function get_admins() 
     {
-		$this->db->select('u.id, u.name, u.email, e.surname');
+		$this->db->select('u.id, u.name, u.email, e.first_name, e.surname');
 		$this->db->distinct();
 		$this->db->from('aauth_users as u');
 		$this->db->join('aauth_user_to_group', 'u.id = aauth_user_to_group.user_id');	

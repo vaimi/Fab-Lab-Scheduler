@@ -38,6 +38,7 @@ function saveData(user) {
 		'user_id': user.id,
 		'email': $('#email_input').val(),
 		'username': $('#name_input').val(),
+		'first_name': $('#firstname_input').val(),
 		'surname': $('#surname_input').val(),
 		'phone_number': $('#phone_number_input').val(),
 		'address_street': $('#address_street_input').val(),

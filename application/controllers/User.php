@@ -52,8 +52,6 @@ class User extends MY_Controller
 
 	public function registration() 
 	{
-
-		
 		if ($this->input->method() == 'post')
 		{
 			$post_data = array
@@ -62,6 +60,7 @@ class User extends MY_Controller
 				'username' => $this->input->post('username'),
 				'first_password' => $this->input->post('first_password'),
 				'second_password' => $this->input->post('second_password'),
+				'first_name' => $this->input->post('first_name'),
 				'surname' => $this->input->post('surname'),
 				'email' => $this->input->post('email'),
 				'address_street' => $this->input->post('address_street'),
@@ -82,6 +81,7 @@ class User extends MY_Controller
 						'username' => '',
 						'first_password' => '',
 						'second_password' => '',
+						'first_name' => '',
 						'surname' => '',
 						'email' => '',
 						'phone_number' => '',
@@ -116,6 +116,7 @@ class User extends MY_Controller
 				//Call db query from model
  				$row = $this->User_model->get_extended_user_data($this->session->userdata('id')); 
 				// set extended user information into session 
+ 				$this->session->set_userdata('first_name', $row->first_name);
 				$this->session->set_userdata('surname', $row->surname);
 				$this->session->set_userdata('company', $row->company);
 				$this->session->set_userdata('address_street', $row->address_street);
@@ -180,7 +181,7 @@ class User extends MY_Controller
 		
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = $this->session->userdata('surname') . "'s Profile";
+		$jdata['title'] = $this->session->userdata('first_name') . " " . $this->session->userdata('surname') . "'s Profile";
 		$jdata['message'] = "";
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('user/profile');
@@ -197,6 +198,7 @@ class User extends MY_Controller
 		//TODO validation
 		$new_user_info = array(
 			'name'	=> $this->input->post('name'),
+			'first_name' => $this->input->post('first_name'),
 			'surname'	=> $this->input->post('surname'),
 			'phone_number'	=> $this->input->post('phone_number'),
 			'address_street'	=> $this->input->post('address_street'),
@@ -211,6 +213,7 @@ class User extends MY_Controller
 		$this->User_model->update_user($new_user_info, $this->session->userdata['id']);
 		
 		$this->session->set_userdata('name', $new_user_info['name']);
+		$this->session->set_userdata('first_name', $new_user_info['first_name']);
 		$this->session->set_userdata('surname', $new_user_info['surname']);
 		$this->session->set_userdata('phone_number', $new_user_info['phone_number']);
 		$this->session->set_userdata('address_street', $new_user_info['address_street']);
@@ -363,6 +366,7 @@ class User extends MY_Controller
 		$extended_data = array
 		(
 			'id' => $user_id,
+			'first_name' => $post_data['first_name'],
 			'surname' => $post_data['surname'],
 			'company' => $post_data['company'],
 			'address_street' => $post_data['address_street'],

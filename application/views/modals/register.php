@@ -21,14 +21,19 @@
 								style="width: 200px;" value="" required="" autofocus="" placeholder="Password" /></td>
 						</tr>
 						<tr>
-							<td><label for="password">Retype Password *</label></td>
+							<td><label for="password">Confirm Password *</label></td>
 							<td><input type="password" class="form-control" name="second_password" id="second_password"
 								style="width: 200px;" value="" required="" autofocus="" placeholder="Password" /></td>
 						</tr>
 						<tr>
-							<td><label for="surname">Full name *</label></td>
+							<td><label for="first_name">First name *</label></td>
+							<td><input type="text" class="form-control" name="first_name" id="first_name"
+								style="width: 200px;" value="" required="" autofocus="" placeholder="First name" /></td>
+						</tr>
+						<tr>
+							<td><label for="surname">Last name *</label></td>
 							<td><input type="text" class="form-control" name="surname" id="surname"
-								style="width: 200px;" value="" required="" autofocus="" placeholder="Full name" /></td>
+								style="width: 200px;" value="" required="" autofocus="" placeholder="Last name" /></td>
 						</tr>
 			
 						<tr>

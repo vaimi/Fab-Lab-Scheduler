@@ -5,11 +5,12 @@
 
 <script>
 
-	function makeQtip_admin(elementId, machine, e_Start, e_End, surname, email) {
+	function makeQtip_admin(elementId, machine, e_Start, e_End, firstname, surname, email) {
 		var sModal="";
 		sModal += "<p>Start time: " + e_Start + "</p>";
 		sModal += "<p>End time: " + e_End + "</p>";
-		sModal += "<p>Surname (Should be fullname) : " + surname + "</p>";
+		sModal += "<p>First name: " + firstname + "</p>";
+		sModal += "<p>Surname: " + surname + "</p>";
 		sModal += "<p>Email: " + email + "</p>";
 		sModal += "";
 		
@@ -94,11 +95,12 @@
 						var machine = e.resourceId;
 						var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 						var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						var firstname = e.first_name;
 						var surname = e.surname;
 						var email = e.email;
 						$(element).css("cursor", "pointer");
 						$(element).click(function(){ 
-					        makeQtip_admin($(element), machine, eStart, eEnd, surname, email);
+					        makeQtip_admin($(element), machine, eStart, eEnd, firstname, surname, email);
 					    });
 					}
 				}

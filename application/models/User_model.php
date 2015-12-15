@@ -40,9 +40,10 @@ class User_model extends CI_Model {
     	$extended_info = $query->row();
     	
     	$user_info = array(
-    		'id' => $basic_info->id,
+    			'id' => $basic_info->id,
     			'email' => $basic_info->email,
     			'name' => $basic_info->name,
+    			'first_name' => $extended_info->first_name,
     			'surname' => $extended_info->surname,
     			'company' => $extended_info->company,
     			'address_street' => $extended_info->address_street,
@@ -146,9 +147,10 @@ class User_model extends CI_Model {
     	return $results;
     }
 
+    //FIXME: NOT USED?
     function get_session_data($user_id) 
     {
-        $this->db->select("surname");
+        $this->db->select("first_name, surname");
         $this->db->from("extended_users_information");
         $this->db->where("id", $user_id);
         return $this->db->get()->row();

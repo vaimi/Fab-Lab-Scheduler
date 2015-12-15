@@ -1171,8 +1171,9 @@ class Reservations extends MY_Controller
 				$row["reservation_id"] = $reservation->ReservationID;
 				$row["start"] = $reservation->StartTime;
 				$row["end"] = $reservation->EndTime;
-				$row["title"] = "Reserved: " . $reservation->surname;
+				$row["title"] = "Reserved: " . $reservation->first_name . " " . $reservation->surname;
 				$row["user_id"] = $reservation->id;
+				$row["first_name"] = $reservation->first_name;
 				$row["surname"] = $reservation->surname;
 				$row["email"] = $reservation->email;
 				$row["is_admin"] = true;

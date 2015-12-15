@@ -663,7 +663,7 @@ class Admin extends MY_Controller
             	$user = $this->Admin_model->get_user_data($user_id)->row();
             	$email = $user->email;
             	array_push($emails, "<br>" . $email);
-            	$data['fullname'] = $user->surname;
+            	$data['fullname'] = $user->first_name . " ". $user->surname;
             	$data['slot_start'] = $slot->start;
             	$data['slot_end'] = $slot->end;
             	// Send email to associated reservations.
@@ -687,7 +687,7 @@ class Admin extends MY_Controller
             		$user = $this->Admin_model->get_user_data($user_id)->row();
             		$email = $user->email;
             		array_push($emails, "<br>" . $email);
-            		$data['fullname'] = $user->surname;
+            		$data['fullname'] = $user->first_name . " ". $user->surname;
             		$data['slot_start'] = $slot->start;
             		$data['slot_end'] = $slot->end;
             		// Send email to associated reservations.
@@ -1330,7 +1330,7 @@ class Admin extends MY_Controller
 		if (count($query->result()) > 0) {
 			foreach ($query->result() as $row) 
 			{
-				echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->surname . "</a>";
+				echo "<a class=\"list-group-item\" href=\"javascript:fetchUserData(" . $row->id . ");\">" . $row->first_name . " " .$row->surname . "</a>";
 			}
 		} 
 		else 
@@ -1474,6 +1474,7 @@ class Admin extends MY_Controller
 		//$this->form_validation->set_rules('user_id', 'User Id', 'required|is_natural');
 		//$this->form_validation->set_rules('username', 'User name', 'required|alpha_numeric');
 		//$this->form_validation->set_rules('password', 'Password', 'required|alpha_numeric');
+		//$this->form_validation->set_rules('first_name', 'First name', 'required|alpha');
 		//$this->form_validation->set_rules('surname', 'Last name', 'required|alpha');
 		//$this->form_validation->set_rules('password', 'Password', 'required|alpha_numeric');
 		//$this->form_validation->set_rules('email', 'Email', 'required|alpha_numeric');
@@ -1483,6 +1484,7 @@ class Admin extends MY_Controller
 		//$this->form_validation->set_rules('company', 'Company', '');
 		//$this->form_validation->set_rules('student_number', 'Student number', 'numeric');
 		$form_data = array (
+			'first_name' => $this->input->post('first_name'),
 			'user_id' => $this->input->post('user_id'),
 			'username' => $this->input->post('username'),
 			'password' => $this->input->post('password'),

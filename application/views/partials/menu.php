@@ -98,7 +98,7 @@
 		  else 
 		  {
 			echo '<a type="button" class="btn btn-primary" href=' . base_url('user/profile') . '>';
-			echo '<span class="glyphicon glyphicon-user" aria-hidden="true"></span> ' . $this->session->userdata('surname');
+			echo '<span class="glyphicon glyphicon-user" aria-hidden="true"></span> ' . $this->session->userdata('first_name') . " " . $this->session->userdata('surname');
 			echo '</a>';
 			echo anchor('user/logout', 'Log out', array('class' => 'btn btn-default'));
 		  }

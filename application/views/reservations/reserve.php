@@ -253,11 +253,12 @@
 		});
 	}
 	
-	function makeQtip_admin(elementId, machine, e_Start, e_End, surname, email) {
+	function makeQtip_admin(elementId, machine, e_Start, e_End, firstname, surname, email) {
 		var sModal="";
 		sModal += "<p>Start time: " + e_Start + "</p>";
 		sModal += "<p>End time: " + e_End + "</p>";
-		sModal += "<p>Surname (Should be fullname) : " + surname + "</p>";
+		sModal += "<p>First name: " + firstname + "</p>";
+		sModal += "<p>Surname: " + surname + "</p>";
 		sModal += "<p>Email: " + email + "</p>";
 		sModal += "";
 		
@@ -534,10 +535,11 @@
 				{
 					if(e.is_admin === true) 
 					{
+						var firstname = e.first_name;
 						var surname = e.surname;
 						var email = e.email;
 						$(element).click(function(){ 
-					        makeQtip_admin($(element), machine, eStart, eEnd, surname, email);
+					        makeQtip_admin($(element), machine, eStart, eEnd, firstname, surname, email);
 					    });
 					}
 					return; 

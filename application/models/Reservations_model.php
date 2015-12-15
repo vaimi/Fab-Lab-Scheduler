@@ -112,7 +112,7 @@ class Reservations_model extends CI_Model {
 
     public function reservations_get_all_reserved_slots($start_time, $end_time) 
     {
-        $sql = "SELECT MachineID, StartTime, EndTime, surname, email, State
+        $sql = "SELECT MachineID, StartTime, EndTime, first_name, surname, email, State
         		FROM Reservation, extended_users_information, aauth_users
         		WHERE EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                 StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND
@@ -124,7 +124,7 @@ class Reservations_model extends CI_Model {
 
     public function reservations_get_reserved_slots_with_admin_info($start_time, $end_time, $states=array(1,4))
     {
-        $this->db->select("r.MachineID, r.ReservationID, r.StartTime, r.EndTime, e.surname, a.id, a.email, u.Level, r.State");
+        $this->db->select("r.MachineID, r.ReservationID, r.StartTime, r.EndTime, e.first_name, e.surname, a.id, a.email, u.Level, r.State");
         $this->db->from("Reservation as r");
         $this->db->join("extended_users_information as e", "e.id = r.aauth_usersID");
         $this->db->join("aauth_users as a", "a.id = e.id");

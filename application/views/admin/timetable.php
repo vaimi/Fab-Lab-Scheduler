@@ -18,7 +18,6 @@
 	</div>
 	<hr>
 <script>
-    
     // Colors used in events
     var ttColors = {
         "saved": "#5cb85c",
@@ -577,7 +576,7 @@
             <h4>Supervisors</h4>
             <ul class="list-group" id='external-events'>
             <?php foreach ($admins as $row ) {?>
-                <li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1' data-assigned='<?=$row->id?>'><?php echo $row->id; ?> <?php echo$row->surname?></li>
+                <li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1' data-assigned='<?=$row->id?>' style="cursor:pointer;"><?php echo $row->id; ?> <?php echo$row->surname?></li>
             <?php }?>
             </ul>
         </div>
@@ -586,7 +585,6 @@
             <span class="label label-success">Saved</span>
             <span class="label label-info">Modified</span>
             <span class="label label-warning">Saved Public</span>
-<!--             <span class="label label-public-saved">Saved public</span> -->
             <span class="label label-danger">Unsaved deletion</span>
         </div>
 	</div>

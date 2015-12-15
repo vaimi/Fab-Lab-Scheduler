@@ -26,7 +26,7 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="control-label col-xs-2">Name:</label>
+					<label class="control-label col-xs-2">User name:</label>
 					<div class="col-xs-8">
 						<input type="text" class="form-control" id="name_input"
 							placeholder="First Name"
@@ -34,7 +34,15 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="control-label col-xs-2">Full name:</label>
+					<label class="control-label col-xs-2">First name:</label>
+					<div class="col-xs-8">
+						<input type="text" class="form-control" id="first_name_input"
+							placeholder="First Name"
+							value="<?php echo $first_name; ?>" >
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-2">Last name:</label>
 					<div class="col-xs-8">
 						<input type="text" class="form-control" id="surname_input"
 							placeholder="Last Name"
@@ -85,6 +93,7 @@ function update_user(user_id) {
 	var post_data = {
 		'email': $('#email_input').val(),
 		'name': $('#name_input').val(),
+		'first_name': $('#first_name_input').val(),
 		'surname': $('#surname_input').val(),
 		'phone_number': $('#phone_number_input').val(),
 		'address_street': $('#address_street_input').val(),
