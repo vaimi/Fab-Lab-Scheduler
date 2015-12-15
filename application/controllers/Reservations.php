@@ -276,8 +276,8 @@ class Reservations extends MY_Controller
 				if (count($free_slots) > 0) {
 					if (!$machine->NeedSupervision)
 					{
-						$setuptime = 60 * 30; //TODO get from settings
-						$treshold = 60 * 120; //TODO get from settings
+						$setuptime = isset($settings['nightslot_pre_time']) ? 60 * $settings['nightslot_pre_time'] : 60 * 30; //TODO: what if not in db?
+						$treshold = isset($settings['nightslot_threshold']) ? 60 * $settings['nightslot_threshold'] : 60 * 120; //TODO: what if not in db?
 						$previous = end($free_slots);
 						if (($previous->end - $previous->start) >= $setuptime)
 						{
