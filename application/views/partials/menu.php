@@ -18,8 +18,8 @@
                 <li<?= set_active_nav('info/floorplan') ?> class="disabled">
                   <?php echo anchor('info/floorplan', 'Floor plan', 'class="menu-disabled"');?>
                 </li>
-                <li<?= set_active_nav('info/machines') ?> class="disabled">
-                  <?php echo anchor('info/machines', 'Machines', 'class="menu-disabled"');?>
+                <li<?= set_active_nav('info/machines') ?> >
+                  <?php echo anchor('info/machines', 'Machines');?>
                 </li>
               </ul>
             </li>

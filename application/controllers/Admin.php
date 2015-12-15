@@ -31,8 +31,8 @@ class Admin extends MY_Controller
 	{
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Admin";
-		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$jdata['title'] = "Machine groups";
+		$jdata['message'] = "";
 		//Get machineGroups
 		$mGroups = 	$this->Admin_model->get_machine_groups()->result();
 		//Machines
