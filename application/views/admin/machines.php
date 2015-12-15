@@ -3,7 +3,7 @@
 	<?php echo '<a type="button" class="btn btn-primary" href=' . base_url('admin/create_machine_group') . '>'?>
 	  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New category
 	</a>
-
+	<hr>
 	<div class="panel-group" id="accordion" role="tablist">
 		<?php foreach($machineGroups as $mg): ?>
 			<div id="machine_group_<?=$mg['MachineGroupID']?>" class="panel panel-info">
