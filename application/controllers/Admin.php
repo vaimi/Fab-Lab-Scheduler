@@ -115,14 +115,22 @@ class Admin extends MY_Controller
 		$this->output->set_output(json_encode(array("success"=>1)));
 	}
 
-	private function cancellation_email($reservation_id){
+	private function cancellation_email($reservation_id, $repair=false){
 		$reservation = $this->Reservations_model->get_reservation_email_info($reservation_id);
 		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
 		$this->email->to($reservation->email);
 		$this->email->subject("Fab Lab session cancellation");
+		if ($repair) 
+		{
+			$reason = " due repair";
+		}
+		else
+		{
+			$reason = "";
+		}
 		$email_content = "Dear fabricator,<br>
 		<br>
-		We're sorry to inform that your reservation is cancelled. Here is your cancelled reservation details: <br>
+		We're sorry to inform that your reservation is cancelled" . $reason . ". Here is your cancelled reservation details: <br>
 		<br>
 		Reservation id: " . $reservation->ReservationID . "<br>
 		Machine: " . $reservation->Manufacturer . " " . $reservation->Model . "<br>
@@ -143,6 +151,8 @@ class Admin extends MY_Controller
 		$machines = $this->input->post('machines');
 		$start = $this->input->post('start');
 		$end = $this->input->post('end');
+		$repair = $this->input->post('repair');
+		$repair = ($repair === 'true');
 		//0 no force
 		//1 allow overlap
 		//2 delete overlapping reservations
@@ -160,7 +170,8 @@ class Admin extends MY_Controller
 					$is_overlapping = true;
 				}
 			}
-			if ($is_overlapping) {
+			if ($is_overlapping) 
+			{
 				$response = array(
 					"success" => 0,
 					"errors" => array("Overlapping")
@@ -176,9 +187,18 @@ class Admin extends MY_Controller
 			{
 				$m_id = str_replace("mac_", "", $machine);
 				$reservations = $this->Reservations_model->reservations_get_reserved_slots(strtotime($start), strtotime($end), (int)$machine);
-				foreach ($reservations as $rs) {
-					$this->Reservations_model->set_reservation_state($rs->ReservationID, 3);
-					$this->cancellation_email($rs->ReservationID);
+				if ($repair)
+				{
+					$state = 5;
+				}
+				else
+				{
+					$state = 3;
+				}
+				foreach ($reservations as $rs)
+				{ 
+					$this->Reservations_model->set_reservation_state($rs->ReservationID, $state);
+					$this->cancellation_email($rs->ReservationID, $reason);
 				}
 			}
 			//remove overlapping sessions
@@ -190,14 +210,15 @@ class Admin extends MY_Controller
 			foreach ($machines as $machine) 
 			{
 				$m_id = str_replace("mac_", "", $machine);
-				$data = array(
-						'MachineID' => (int)$m_id,
-						'aauth_usersID' => (int)$user,
-						'StartTime' => $start,
-						'EndTime' => $end,
-						'QRCode' => "",
-						'PassCode' => ""
-				);
+				$data['MachineID'] = (int)$m_id;
+				$data['aauth_usersID'] = (int)$user;
+				$data['StartTime'] = $start;
+				$data['EndTime'] = $end;
+				$data['QRCode'] = "";
+				$data['PassCode'] = "";
+				if ($repair) {
+					$data['State'] = 4;
+				} 
 				$reservation_id = $this->Reservations_model->set_new_reservation($data);
 					
 			}

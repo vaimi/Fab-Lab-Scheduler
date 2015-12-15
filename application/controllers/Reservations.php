@@ -1190,7 +1190,11 @@ class Reservations extends MY_Controller
 					default:
 						$row["className"] = "calendar-user-1";
 						break;
-
+				}
+				if ($reservation->State == 4)
+				{
+					$row["className"] = "calendar-repair";
+					$row["title"] = "Repair";
 				}
 				$response[] = $row;
 			}
@@ -1200,13 +1204,18 @@ class Reservations extends MY_Controller
 			$reservations = $this->Reservations_model->reservations_get_all_reserved_slots($start, $end);
 			foreach ($reservations as $reservation) 
 			{
-				$response[] = array(
-						"resourceId" => "mac_" . $reservation->MachineID,
-						"start" => $reservation->StartTime,
-						"end" => $reservation->EndTime,
-						"title" => "Reserved",
-						"reserved" => 1
-				);
+				$row = array();
+				$row["resourceId"] = "mac_" . $reservation->MachineID;
+				$row["start"] = $reservation->StartTime;
+				$row["end"] = $reservation->EndTime;
+				$row["title"] = "Reserved";
+				$row["reserved"] = 1;
+				if ($reservation->State == 4)
+				{
+					$row["className"] = "calendar-repair";
+					$row["title"] = "Repair";
+				}
+				$response[] = $row;
 			}
 		}
 		$this->output->set_output(json_encode($response));

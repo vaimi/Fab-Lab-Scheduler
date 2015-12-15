@@ -96,7 +96,7 @@ class Reservations_model extends CI_Model {
     public function reservations_get_reserved_slots($start_time, $end_time, $machine) 
     {
         $sql = "SELECT * FROM Reservation WHERE StartTime < STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
-                      EndTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? AND State=1 ORDER BY StartTime ASC";
+                      EndTime > STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND MachineID=? AND State IN (1,4) ORDER BY StartTime ASC";
         $response = $this->db->query($sql, array(date('Y-m-d H:i:s', $end_time), date('Y-m-d H:i:s', $start_time), $machine));
         return $response->result();
     }
@@ -112,26 +112,26 @@ class Reservations_model extends CI_Model {
 
     public function reservations_get_all_reserved_slots($start_time, $end_time) 
     {
-        $sql = "SELECT MachineID, StartTime, EndTime, surname, email 
+        $sql = "SELECT MachineID, StartTime, EndTime, surname, email, State
         		FROM Reservation, extended_users_information, aauth_users
         		WHERE EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                 StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND
         		Reservation.aauth_usersID = extended_users_information.id AND
-        		Reservation.aauth_usersID = aauth_users.id AND Reservation.State=1";
+        		Reservation.aauth_usersID = aauth_users.id AND Reservation.State IN (1,4)";
         $response = $this->db->query($sql, array($start_time, $end_time));
         return $response->result();
     }
 
     public function reservations_get_reserved_slots_with_admin_info($start_time, $end_time)
     {
-        $this->db->select("r.MachineID, r.ReservationID, r.StartTime, r.EndTime, e.surname, a.id, a.email, u.Level");
+        $this->db->select("r.MachineID, r.ReservationID, r.StartTime, r.EndTime, e.surname, a.id, a.email, u.Level, r.State");
         $this->db->from("Reservation as r");
         $this->db->join("extended_users_information as e", "e.id = r.aauth_usersID");
         $this->db->join("aauth_users as a", "a.id = e.id");
         $this->db->join("UserLevel as u", "u.aauth_usersID = r.aauth_usersID AND r.MachineID = u.MachineID");
         $this->db->where("STR_TO_DATE(" . $this->db->escape($end_time) . ", '%Y-%m-%d %H:%i:%s') > StartTime ");
         $this->db->where("STR_TO_DATE(" . $this->db->escape($start_time) . ", '%Y-%m-%d %H:%i:%s') < EndTime ");
-        $this->db->where("State", 1);
+        $this->db->where_in("State", array(1,4));
         $response = $this->db->get();
         return $response->result();
     }

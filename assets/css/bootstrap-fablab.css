@@ -154,6 +154,26 @@
     	border-color: #555 !important;
     }
 
+    .calendar-repair {
+    	background: 
+		  /* On "top" */
+		  repeating-linear-gradient(
+		    45deg,
+		    transparent,
+		    transparent 10px,
+		    #f0ad4e 10px,
+		    #f0ad4e 20px
+		  ),
+		  /* on "bottom" */
+		  linear-gradient(
+		    to bottom,
+		    #eee,
+		    #999
+		  );
+		  border-color: #f0ad4e !important;
+		  color: black !important;
+    }
+
 	.form-group.required .control-label:after { 
 	   content:"*";
 	   color:red;

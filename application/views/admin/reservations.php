@@ -82,7 +82,8 @@
 			'end': end.format('YYYY-MM-DD HH:mm'),
 			'machines': $("#selectMachine").val(),
 			'user': $("#selectUser").val(),
-			'force': force
+			'force': force,
+			'repair': $(".repairCheck").is(':checked')
 		};
 
 		disableForm(true);
@@ -342,6 +343,13 @@
 		sModal += "							<\/select>";
 		sModal += "  					<\/div>";
 		sModal += "			    	<\/div>";
+		sModal += "			    <\/div>";
+		sModal += "			    <div class=\"row\">";
+		sModal += "			  		<div class=\"form-group col-md-12 checkbox\">";
+		sModal += "    					<label>";
+		sModal += "    						<input class=\"repairCheck\" type=\"checkbox\"> Repair?";
+		sModal += "    					</label>";
+  		sModal += "			    	<\/div>";
 		sModal += "			    <\/div>";
 		sModal += "				<br>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
