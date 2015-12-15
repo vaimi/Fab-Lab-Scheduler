@@ -1155,7 +1155,15 @@ class Reservations extends MY_Controller
 		$response = array();
 		if($this->aauth->is_admin()) 
 		{
-			$reservations = $this->Reservations_model->reservations_get_reserved_slots_with_admin_info($start, $end);
+			if ($this->session->userdata('reservations_states') == null)
+			{
+				$reservations = $this->Reservations_model->reservations_get_reserved_slots_with_admin_info($start, $end);
+			}
+			else
+			{	
+				$reservations = $this->Reservations_model->reservations_get_reserved_slots_with_admin_info($start, $end, $this->session->userdata('reservations_states'));
+			}
+			
 			foreach ($reservations as $reservation) 
 			{
 				$row = array();
@@ -1196,6 +1204,12 @@ class Reservations extends MY_Controller
 					$row["className"] = "calendar-repair";
 					$row["title"] = "Repair";
 				}
+				if (in_array($reservation->State, array(2,3,5))) {
+					$row["className"] = $row["className"] . " calendar-cancelled";
+					$row["title"] = "Cancelled: " . $reservation->surname;
+					$row["reserved"] = 2;
+				}
+
 				$response[] = $row;
 			}
 		}

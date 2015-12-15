@@ -122,7 +122,7 @@ class Reservations_model extends CI_Model {
         return $response->result();
     }
 
-    public function reservations_get_reserved_slots_with_admin_info($start_time, $end_time)
+    public function reservations_get_reserved_slots_with_admin_info($start_time, $end_time, $states=array(1,4))
     {
         $this->db->select("r.MachineID, r.ReservationID, r.StartTime, r.EndTime, e.surname, a.id, a.email, u.Level, r.State");
         $this->db->from("Reservation as r");
@@ -131,7 +131,7 @@ class Reservations_model extends CI_Model {
         $this->db->join("UserLevel as u", "u.aauth_usersID = r.aauth_usersID AND r.MachineID = u.MachineID");
         $this->db->where("STR_TO_DATE(" . $this->db->escape($end_time) . ", '%Y-%m-%d %H:%i:%s') > StartTime ");
         $this->db->where("STR_TO_DATE(" . $this->db->escape($start_time) . ", '%Y-%m-%d %H:%i:%s') < EndTime ");
-        $this->db->where_in("State", array(1,4));
+        $this->db->where_in("State", $states);
         $response = $this->db->get();
         return $response->result();
     }

@@ -7,6 +7,8 @@
 <link rel="stylesheet" type="text/css" href="<?=asset_url()?>css/animate.css"/>
 <script type="text/javascript" src="<?=asset_url()?>js/bootstrap-select.min.js"></script>
 <link rel="stylesheet" type="text/css" href="<?=asset_url()?>css/bootstrap-select.min.css"/>
+<link href="<?=asset_url()?>css/bootstrap-switch.css" rel="stylesheet">
+<script src="<?=asset_url()?>js/bootstrap-switch.min.js"></script>
 
 <script>
 	function alerter(alert_type, alert_message) {
@@ -42,6 +44,36 @@
 		}
 	}
 
+	function restore_slot() {
+		// Send form to controller 
+		var post_data = {
+			'id': $(".restoreButton").data("id")
+		};
+
+		disableForm(true);
+
+		$.ajax({
+			type: "POST",
+			url: "reservations_restore",
+			data: post_data,
+			success: function(data) {
+				disableForm(false);
+				if (data.length > 0) {
+				var message = $.parseJSON(data);
+					if (message.success == 1) {
+						alerter("success", "Restore successful");
+						$(".qtip").qtip('hide');
+						$('#calendar').fullCalendar('refetchEvents');
+					} else {
+						for(var error in message.errors) {
+							alerter("warning", message.errors[error]); 
+						}
+					}
+				}
+			}
+		}); 
+	}
+
 	function cancel(restore) {
 		// Send form to controller 
 		var post_data = {
@@ -70,6 +102,39 @@
 							for(var error in message.errors) {
 								alerter("warning", message.errors[error]); 
 							}
+						}
+					}
+				}
+			}
+		}); 
+	}
+
+	function state() {
+		var post_data = {
+			'1': $("#state_1").is(':checked'),
+			'2': $("#state_2").is(':checked'),
+			'3': $("#state_3").is(':checked'),
+			'4': $("#state_4").is(':checked'),
+			'5': $("#state_5").is(':checked')
+		};
+		$(".state-switch").bootstrapSwitch('disabled', true);
+		$("#refreshButton").addClass('disabled');
+		$.ajax({
+			type: "POST",
+			url: "reservations_set_state_filtration",
+			data: post_data,
+			success: function(data) {
+				if (data.length > 0) {
+				$(".state-switch").bootstrapSwitch('disabled', false);
+				$("#refreshButton").removeClass('disabled');
+				var message = $.parseJSON(data);
+					if (message.success == 1) {
+						alerter("success", "Update successful");
+						$(".qtip").qtip('hide');
+						$('#calendar').fullCalendar('refetchEvents');
+					} else {
+						for(var error in message.errors) {
+							alerter("warning", message.errors[error]); 
 						}
 					}
 				}
@@ -120,6 +185,10 @@
 	}
 
 	$(function() { // document ready
+		$(".state-switch").bootstrapSwitch();
+		$('#refreshButton').unbind("click").click(function(){ 
+        	state();
+		});
 		$('#calendar').fullCalendar({
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			snapDuration: '00:01',
@@ -179,6 +248,11 @@
             	if (e.reserved==1) {
 	            	$(element).click(function(){ 
 	            		makeReservationQtip(element, e);
+					});
+				}
+				if (e.reserved==2) {
+	            	$(element).click(function(){ 
+	            		makeReservationQtip(element, e, true);
 					});
 				}
             }
@@ -289,11 +363,17 @@
 		});
 	}
 
-	function makeReservationQtip(elementId, e) {
+	function makeReservationQtip(elementId, e, restore) {
 		var machine = e.resourceId;
 		var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 		var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-
+		if (restore == true) {
+			var text="Restore";
+			var task="restoreButton";
+		} else {
+			var text="Cancel";
+			var task="cancelButton";
+		}
 		var sModal="<p>Reservation id: "+ e.reservation_id + "</p>";
 		sModal += "<p>Start time: " + e.start.format("DD.MM.YYYY, HH:mm") + "</p>";
 		sModal += "<p>End time: " + e.end.format("DD.MM.YYYY, HH:mm") + "</p><br>";
@@ -302,7 +382,7 @@
 		sModal += "<p>Name: " + e.surname + "</p>";
 		sModal += "<p>Email: " + e.email + "</p>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "			    	<a data-id=" + e.reservation_id + "  class=\"btn btn-danger formButton cancelButton\" >Cancel reservation</a>";
+		sModal += "			    	<a data-id=" + e.reservation_id + "  class=\"btn btn-danger formButton " + task + "\" >" + text + " reservation</a>";
 		sModal += "			    <\/div>";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
@@ -334,6 +414,9 @@
 		    	show: function (event, api) {
 		    		$('.cancelButton').unbind("click").click(function(){ 
 			        	cancel(0);
+			        });
+			        $('.restoreButton').unbind("click").click(function(){ 
+			        	restore_slot();
 			        });
 		    	}
 
@@ -523,8 +606,20 @@
 	}
 </style>
 <div class="container">
+
 	<article>
 		<p>HINT: Unlike in user calendar, you can make reservation just by dragging over the area you want to make reservation.</p>
+		<div class="btn-toolbar well well-sm" role="toolbar" aria-label="...">
+			<label>Show slots:</label>
+			<input data-label-text="active" class="state-switch" type="checkbox" id="state_1" <?php if (in_array(1, $states)) echo "checked";?>>
+			<input data-label-text="user cancel" class="state-switch" type="checkbox" id="state_2" <?php if (in_array(2, $states)) echo "checked";?>>
+			<input data-label-text="admin cancel" class="state-switch" type="checkbox" id="state_3" <?php if (in_array(3, $states)) echo "checked";?>>
+			<input data-label-text="repair" class="state-switch" type="checkbox" id="state_4" <?php if (in_array(4, $states)) echo "checked";?>>
+			<input data-label-text="repair cancel" class="state-switch" type="checkbox" id="state_5" <?php if (in_array(5, $states)) echo "checked";?>>			
+			<a type="button" id="refreshButton" class="btn btn-primary pull-right">
+			  <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh
+			</a>
+		</div>
 		<div id="calendar" style="position:relative"><div id="loader" class="loader" style='position:absolute;display:none;margin:auto;left: 0;top: 0;right: 0;bottom: 0;'></div></div>
-	</article>	
+	</article>
 </div>

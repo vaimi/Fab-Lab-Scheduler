@@ -90,11 +90,15 @@ class Admin extends MY_Controller
 		$jdata['title'] = "Reservations";
 		$jdata['message'] = "Manage and add reservations";
 		$this->load->view('partials/jumbotron', $jdata);
-		//Get admins (Supervisors) from db
 		$machines = $this->Admin_model->get_machines();
 		$users = $this->Admin_model->get_users();
 		$data['machines'] = $machines->result();
 		$data['users'] = $users->result();
+		if ($this->session->userdata('reservations_states') == null)
+		{
+			$this->session->set_userdata('reservations_states', array(1,4));
+		}
+		$data['states'] = $this->session->userdata('reservations_states');
 		$this->load->view('admin/reservations', $data);
 		$this->load->view('partials/footer');
 	}
@@ -106,8 +110,36 @@ class Admin extends MY_Controller
 		$this->output->set_output(json_encode($response));
 	}
 
+	public function reservations_set_state_filtration(){
+		$states = array();
+		$s_1 = $this->input->post('1');
+		$s_2 = $this->input->post('2');
+		$s_3 = $this->input->post('3');
+		$s_4 = $this->input->post('4');
+		$s_5 = $this->input->post('5');
+		if ($s_1 === 'true') $states[] = 1;
+		if ($s_2 === 'true') $states[] = 2;
+		if ($s_3 === 'true') $states[] = 3;
+		if ($s_4 === 'true') $states[] = 4;
+		if ($s_5 === 'true') $states[] = 5;
+		$this->session->set_userdata('reservations_states', $states);
+		$this->output->set_output(json_encode(array("success"=>1)));
+	}
+
 	public function reservations_cancel()
 	{
+        $this->form_validation->set_rules('id', 'slot id', 'required|is_natural');
+        $this->form_validation->set_rules('restore', 'restore choice', 'required|in_list[0,1,2]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			$response = array(
+				"success" => 0,
+				"errors" => $this->form_validation->error_array()
+			);
+			$this->output->set_output(json_encode($response));
+			return;
+		}
 		$this->load->model('Reservations_model');
 		$reservation = $this->input->post('id');
 		$restore = $this->input->post('restore');
@@ -131,6 +163,26 @@ class Admin extends MY_Controller
 			$this->Reservations_model->set_reservation_state($reservation, 3);
 			$this->output->set_output(json_encode(array("success"=>1)));
 		}
+	}
+
+	public function reservations_restore()
+	{
+        $this->form_validation->set_rules('id', 'slot id', 'required|is_natural');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			$response = array(
+				"success" => 0,
+				"errors" => $this->form_validation->error_array()
+			);
+			$this->output->set_output(json_encode($response));
+			return;
+		}
+		$this->load->model('Reservations_model');
+		$reservation = $this->input->post('id');
+		$this->Reservations_model->set_reservation_state($reservation, 1);
+		$this->restore_email($reservation);
+		$this->output->set_output(json_encode(array("success"=>1)));
 	}
 
 	private function restore_email($reservation_id){
@@ -187,6 +239,17 @@ class Admin extends MY_Controller
 
 	public function reservations_reserve()
 	{
+		$this->form_validation->set_rules('user', 'user id', 'required|is_natural');
+        //$this->form_validation->set_rules('machines', 'restore choice', 'required|in_list[0,1,2]');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			$response = array(
+				"success" => 0,
+				"errors" => $this->form_validation->error_array()
+			);
+			echo json_encode($response);
+			return;
+		}
 		$this->load->model('Reservations_model');
 		$user = $this->input->post('user');
 		$machines = $this->input->post('machines');
