@@ -3,6 +3,8 @@ class Info extends MY_Controller
 {
 	public function __construct() {
 		parent::__construct();
+		
+		$this->load->model('Info_model');
 	}
 	
 	public function index() {
@@ -37,13 +39,13 @@ class Info extends MY_Controller
 		}
 		else 
 		{
-		$mdata = array (
-			# TODO: These need to be of course loaded from the db
-			array("id"=>"1", "image"=>"no_image.png","title"=>"Example printer", "description"=>"Very good and fast!"),
-			array("id"=>"2", "image"=>"no_image.png","title"=>"Example printer", "description"=>"Very good and fast!"),
-			array("id"=>"3", "image"=>"no_image.png","title"=>"Example printer", "description"=>"Very good and fast!"),
-			array("id"=>"4", "image"=>"no_image.png","title"=>"Example printer", "description"=>"Very good and fast!")
-		);
+		/*Load machine data from db.
+		 * example array
+		 *	$mdata = array (
+		 *		array("MachineID"=>"1", "MachineName"=>"Example printer", "Description"=>"Very good and fast!"),
+	  	 * 	);
+		 */
+		$mdata = $this->Info_model->get_machine_data();
 		$this->load->view('info/machines', array("mdata"=>$mdata));
 		}
 		$this->load->view('partials/footer');
