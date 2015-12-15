@@ -42,10 +42,11 @@
 		}
 	}
 
-	function cancel() {
+	function cancel(restore) {
 		// Send form to controller 
 		var post_data = {
-			'id': $(".cancelButton").data("id")
+			'id': $(".cancelButton").data("id"),
+			'restore': restore
 		};
 
 		disableForm(true);
@@ -55,7 +56,7 @@
 			url: "reservations_cancel",
 			data: post_data,
 			success: function(data) {
-				//disableForm(false, $(".reservation_form").data("nightslot"));
+				disableForm(false);
 				if (data.length > 0) {
 				var message = $.parseJSON(data);
 					if (message.success == 1) {
@@ -63,8 +64,12 @@
 						$(".qtip").qtip('hide');
 						$('#calendar').fullCalendar('refetchEvents');
 					} else {
-						for(var error in message.errors) {
-							alerter("warning", message.errors[error]); 
+						if (message.errors[0] == "restoreable") {
+							makeRestoreQtip($(".cancelButton"));
+						} else {
+							for(var error in message.errors) {
+								alerter("warning", message.errors[error]); 
+							}
 						}
 					}
 				}
@@ -180,6 +185,58 @@
 		});//fullcalendar
 	});//$function
 
+	function makeRestoreQtip(elementId) {
+		var sModal="<p>What you want to do?</p>";
+		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "		<a class=\"btn btn-success formButton undoButton\" >Undo</a>";
+		sModal += "	<\/div>";
+		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		sModal += "		<a class=\"btn btn-warning formButton restoreButton\" >Restore</a>";
+		sModal += "		<a class=\"btn btn-danger formButton ignoreButton\" >Ignore</a>";
+		sModal += "	<\/div>";
+		
+		$(elementId).qtip({ // Grab some elements to apply the tooltip to
+			show: { 
+				effect: function() { $(this).slideDown(); },
+				solo: false,
+            	ready: true
+	        },
+	        hide: { 
+	        	event: false
+	        },
+		    content: {
+			    title: "Restoreable reservations",
+		        text: sModal,
+		        button: true
+		    },
+		    style: {
+		        classes: 'qtip-bootstrap qtip_width'
+			},
+		    position: {
+				at: 'center center',
+				my: 'left center',
+				viewport: jQuery(window) // Keep the tooltip on-screen at all times
+		    },
+		    events: {
+		    	hide: function (event, api) {
+			        $(this).qtip('destroy');
+		    	},
+		    	show: function (event, api) {
+		    		api.focus();
+		    		$('.undoButton').unbind("click").click(function(){ 
+						api.toggle(false);
+			        });
+			        $('.restoreButton').unbind("click").click(function(){ 
+			        	cancel(1);
+			        });
+			        $('.ignoreButton').unbind("click").click(function(){ 
+			        	cancel(2);
+			        });
+		    	}
+			}  
+		});
+	}
+
 	function makeOverlapQtip(elementId) {
 		var sModal="<p>What you want to do?</p>";
 		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
@@ -187,9 +244,7 @@
 		sModal += "	<\/div>";
 		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
 		sModal += "		<a class=\"btn btn-warning formButton overlapButton\" >Overlap</a>";
-		sModal += "	<\/div>";
-		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "		<a class=\"btn btn-danger formButton deleteButton\" >Delete</a>";
+		sModal += "		<a class=\"btn btn-danger formButton deleteButton\" >Cancel</a>";
 		sModal += "	<\/div>";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
@@ -278,7 +333,7 @@
 		    	},
 		    	show: function (event, api) {
 		    		$('.cancelButton').unbind("click").click(function(){ 
-			        	cancel();
+			        	cancel(0);
 			        });
 		    	}
 

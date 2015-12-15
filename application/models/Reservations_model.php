@@ -422,7 +422,7 @@ class Reservations_model extends CI_Model {
 
     public function get_reservation_email_info($reservation)
     {
-        $this->db->select("r.ReservationID, r.StartTime, r.EndTime, m.Manufacturer, m.Model, u.email");
+        $this->db->select("r.ReservationID, r.StartTime, r.EndTime, r.State, m.Manufacturer, m.Model, u.email");
         $this->db->from("Reservation as r");
         $this->db->join("Machine as m", "r.MachineID = m.MachineID");
         $this->db->join("aauth_users as u", "r.aauth_usersID = u.id");
@@ -445,5 +445,27 @@ class Reservations_model extends CI_Model {
     		return $result->row()->SettingValue;
     	}
     	return null;
+    }
+
+    public function get_oncoming_slots_cancelled_by_repair($reservation_id) {
+        $this->db->select("StartTime, EndTime");
+        $this->db->from("Reservation");
+        $this->db->where("ReservationID", $reservation_id);
+        $this->db->where("State", 4);
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            $repair_slot = $result->row();
+            $this->db->flush_cache();
+            $this->db->select("ReservationID");
+            $this->db->from("Reservation");
+            $this->db->where("State", 5);
+            $this->db->where("StartTime > NOW()");
+            $this->db->where("StartTime <", $repair_slot->EndTime);
+            $this->db->where("EndTime >", $repair_slot->StartTime);
+            $result = $this->db->get();
+            return $result->result();
+        }
+        return [];
     }
 }

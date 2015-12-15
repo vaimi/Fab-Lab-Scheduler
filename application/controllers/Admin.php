@@ -110,13 +110,54 @@ class Admin extends MY_Controller
 	{
 		$this->load->model('Reservations_model');
 		$reservation = $this->input->post('id');
-		$this->Reservations_model->set_reservation_state($reservation, 3);
-		$this->cancellation_email($reservation);
-		$this->output->set_output(json_encode(array("success"=>1)));
+		$restore = $this->input->post('restore');
+		$cancelled_reservations = $this->Reservations_model->get_oncoming_slots_cancelled_by_repair($reservation);
+		if (count($cancelled_reservations) > 0 and $restore == 0)
+		{
+			$this->output->set_output(json_encode(array("success"=>0, "errors"=>array("restoreable"))));
+			return;
+		}
+		if ($restore == 1)
+		{
+			foreach ($cancelled_reservations as $rs) {
+				$this->Reservations_model->set_reservation_state($rs->ReservationID, 1);
+				$this->restore_email($rs->ReservationID);
+			}
+			$restore = 2;
+		}
+		if ($restore == 2 or count($cancelled_reservations) == 0)
+		{
+			$this->cancellation_email($reservation);
+			$this->Reservations_model->set_reservation_state($reservation, 3);
+			$this->output->set_output(json_encode(array("success"=>1)));
+		}
+	}
+
+	private function restore_email($reservation_id){
+		$reservation = $this->Reservations_model->get_reservation_email_info($reservation_id);
+		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+		$this->email->to($reservation->email);
+		$this->email->subject("Fab Lab session restore");
+		$email_content = "Dear fabricator,<br>
+		<br>
+		We're happy to inform that your reservation is restored. Here is reservation details: <br>
+		<br>
+		Reservation id: " . $reservation->ReservationID . "<br>
+		Machine: " . $reservation->Manufacturer . " " . $reservation->Model . "<br>
+		Reservation starts: " . $reservation->StartTime . "<br>
+		Reservation ends: " . $reservation->EndTime . "<br>
+		<br>
+		Sincerely,<br>" .
+		$this->aauth->config_vars['name'];
+
+		$this->email->message($email_content);
+		$this->email->send();
 	}
 
 	private function cancellation_email($reservation_id, $repair=false){
 		$reservation = $this->Reservations_model->get_reservation_email_info($reservation_id);
+		// We don't want to spam admin about repair cancellation
+		if ($reservation->State == 4) return;
 		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
 		$this->email->to($reservation->email);
 		$this->email->subject("Fab Lab session cancellation");
@@ -157,7 +198,6 @@ class Admin extends MY_Controller
 		//1 allow overlap
 		//2 delete overlapping reservations
 		$force = $this->input->post('force');
-
 		if($force == 0) {
 			// dry run
 			$is_overlapping = false;
@@ -198,7 +238,7 @@ class Admin extends MY_Controller
 				foreach ($reservations as $rs)
 				{ 
 					$this->Reservations_model->set_reservation_state($rs->ReservationID, $state);
-					$this->cancellation_email($rs->ReservationID, $reason);
+					$this->cancellation_email($rs->ReservationID, $repair);
 				}
 			}
 			//remove overlapping sessions
