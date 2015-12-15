@@ -65,12 +65,18 @@ class Reservations extends MY_Controller
 		$jdata['message'] = "Rember to reserve time before " . $deadline .
 		" today. Also you can reserve time " . $settings['reservation_timespan'] . " " . $settings['interval'] . " forward.";
 
-		if ( $data['is_admin'] || $this->is_reservation_deadline_exceeded() ) //Admin can reserve time anytime or User is not admin and deadline is not exceeded.
+		if ( $data['is_admin'] ) //Admin can reserve time anytime or User is not admin and deadline is not exceeded.
 		{
 			$this->load->view('partials/jumbotron', $jdata);
 			$this->load->view('reservations/reserve',$data);
 		}
-		else //Deadline is exceeded, return error.
+		elseif ( !$data['is_admin'] && !$this->is_reservation_deadline_exceeded() ) //Deadline is exceeded, return error.
+		{
+			
+			$this->load->view('partials/jumbotron', $jdata);
+			$this->load->view('reservations/reserve',$data);
+		}
+		else 
 		{
 			$d = array(
 					"message" => "Deadline is exceeded. You have to reserve time before " . $deadline . " server time.",
@@ -85,7 +91,7 @@ class Reservations extends MY_Controller
 		//Timezone must be correct in the server.
 		$now = date ("H:i");
 		$deadline = date( $this->Reservations_model->get_reservation_deadline() );
-		return  $now < $deadline;
+		return  $now > $deadline;
 	}
 
 	private function slot_merger($slot_array)
