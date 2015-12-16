@@ -143,8 +143,8 @@
 	}
 	
 	function reserve(force) {
-		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
-		var end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
+		var start = moment($(".startInput").val(), "DD.MM.YYYY, HH:mm");
+		var end = moment($(".endInput").val(), "DD.MM.YYYY, HH:mm");
 		// Send form to controller 
 		var post_data = {
 			'mac_id': $(".reservation_form input[name='mac_id']").val(),
@@ -379,7 +379,7 @@
 		sModal += "<p>End time: " + e.end.format("DD.MM.YYYY, HH:mm") + "</p><br>";
 		sModal += "<p>User id: " + e.user_id + "</p>";
 		sModal += "<p>Level: " + e.user_level + "</p>";		
-		sModal += "<p>Name: " + e.surname + "</p>";
+		sModal += "<p>Name: " + e.first_name + " " + e.surname + "</p>";
 		sModal += "<p>Email: " + e.email + "</p>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
 		sModal += "			    	<a data-id=" + e.reservation_id + "  class=\"btn btn-danger formButton " + task + "\" >" + text + " reservation</a>";
@@ -476,7 +476,7 @@
 		sModal += "  					<div>";
 		sModal += "							<select id=\"selectUser\" data-size=\"5\" data-live-search=\"true\" class=\"form-control selectpicker\">";
 		<?php foreach ($users as $user) {
-		echo "sModal += \"	<option value='" . $user->id . "'>" . $user->id . " " . $user->surname . "</option>\";\n";
+		echo "sModal += \"	<option value='" . $user->id . "'>" . $user->id . " " . $user->first_name . " " . $user->surname . "</option>\";\n";
 		}?>
 		sModal += "							<\/select>";
 		sModal += "  					<\/div>";
@@ -525,7 +525,7 @@
 		    	},
 		    	show: function (event, api) {
     				var eStart = moment(e_Start, "DD.MM.YYYY, HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-					var eEnd = moment(e_End, "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+					var eEnd = moment(e_End, "DD.MM.YYYY, HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 					var machineSplit = machine.split("_");
 					$('.selectpicker').selectpicker();
 					$('#selectMachine').selectpicker('val', machineSplit[1]);
@@ -580,13 +580,13 @@
 			        });
 
 			        $('.startpicker').on('dp.change', function (e) {
-			            var mDate = new moment(e.date);
-			            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+			            var mDate = new moment(e.date, "YYYY/MM/DD, HH:mm");
+			            $(".startInput").val(mDate.format('DD.MM.YYYY, HH:mm'));
 			        });
 
 			        $('.endpicker').on('dp.change', function (e) {
-			            var mDate = new moment(e.date);
-			            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+			            var mDate = new moment(e.date, "YYYY/MM/DD, HH:mm");
+			            $(".endInput").val(mDate.format('DD.MM.YYYY, HH:mm'));
 			        });
 		    	}
 			}  
