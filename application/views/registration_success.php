@@ -9,7 +9,8 @@
 	<p>You have now successfully registered at University of Oulu's Fab Lab Scheduler. Please refer to the following details:</p>
 	<br/>
 	<p>Username: <?php echo $username;?></p>
-	<p>Fullname: <?php echo $surname;?></p>
+	<p>First name: <?php echo $first_name;?></p>
+	<p>Last name: <?php echo $surname;?></p>
 	<p>Email: <?php echo $email;?></p>
 	<?php if ($phone_number != '') {?>
 		<p>Phone number: <?php echo $phone_number;?></p>
