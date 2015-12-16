@@ -576,7 +576,9 @@
             <h4>Supervisors</h4>
             <ul class="list-group" id='external-events'>
             <?php foreach ($admins as $row ) {?>
-                <li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1' data-assigned='<?=$row->id?>' style="cursor:pointer;"><?php echo $row->id; ?> <?php echo$row->surname?></li>
+                <li class='fc-event list-group-item' id="<?php echo $row->id ?>" data-event='1'
+                 data-assigned='<?=$row->id?>' style="cursor:pointer;">
+                 <?php echo $row->id; ?> <?php echo $row->first_name . " " . $row->surname;?></li>
             <?php }?>
             </ul>
         </div>

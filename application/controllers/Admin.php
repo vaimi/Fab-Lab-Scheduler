@@ -257,7 +257,7 @@ class Admin extends MY_Controller
 		$end = $this->input->post('end');
 		$repair = $this->input->post('repair');
 		$repair = ($repair === 'true');
-		//0 no force
+		//0 no force TODO: constants?
 		//1 allow overlap
 		//2 delete overlapping reservations
 		$force = $this->input->post('force');
