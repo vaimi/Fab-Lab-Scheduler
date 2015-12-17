@@ -62,6 +62,7 @@
 	}
 
 	.loader {
+		z-index: 999999;
 		margin: 100px auto;
 		font-size: 25px;
 		width: 1em;
