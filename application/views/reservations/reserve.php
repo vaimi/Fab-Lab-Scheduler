@@ -260,7 +260,6 @@
 		sModal += "<p>First name: " + firstname + "</p>";
 		sModal += "<p>Surname: " + surname + "</p>";
 		sModal += "<p>Email: " + email + "</p>";
-		sModal += "";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
 			show: { 
