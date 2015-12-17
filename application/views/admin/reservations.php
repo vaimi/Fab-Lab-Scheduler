@@ -200,15 +200,27 @@
 			firstDay: 1,
             timeFormat: 'HH:mm',
             slotLabelFormat: 'HH:mm',
-			aspectRatio: 1.8,
+			aspectRatio: 2.5,
 			scrollTime: '08:00', // undo default 6am scrollTime
 			header: {
 				left: 'today prev,next',
 				center: 'title',
-				right: 'timelineDay, agendaWeek, month'
+				right: 'timelineDay, timelineSevenDays, month'
 			},
+			views: {
+        			timelineSevenDays: {
+		            type: 'timeline',
+		            duration: { days: 7 },
+		            slotDuration: '02:00',
+		            slotLabelFormat: [
+					    'MMM DD', // top level of text
+					    'HH:mm'        // lower level of text
+					]
+		        }
+		    },
 			resourceLabelText: 'Machines',
 			defaultView: 'timelineDay',
+			resourceGroupField: 'groupText',
 			resources: { // you can also specify a plain string like 'json/resources.json'
 				url: '<?php echo base_url('admin/reservations_get_machines')?>',
 				error: function() {

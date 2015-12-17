@@ -491,13 +491,24 @@
 			firstDay: 1,
             timeFormat: 'HH:mm',
             slotLabelFormat: 'HH:mm',
-			aspectRatio: 1.8,
+			aspectRatio: 2.5,
 			scrollTime: '08:00', // undo default 6am scrollTime
 			header: {
 				left: 'today prev,next',
 				center: 'title',
-				right: 'timelineDay, agendaWeek, month'
+				right: 'timelineDay, timelineSevenDays, month'
 			},
+			views: {
+        			timelineSevenDays: {
+		            type: 'timeline',
+		            duration: { days: 7 },
+		            slotDuration: '02:00',
+		            slotLabelFormat: [
+					    'MMM DD', // top level of text
+					    'HH:mm'        // lower level of text
+					]
+		        }
+		    },
 			resourceLabelText: 'Machines',
 			defaultView: 'timelineDay',
 			resources: { // you can also specify a plain string like 'json/resources.json'
@@ -513,7 +524,7 @@
 	                $("#loader").hide()
 	            }
 	        },
-
+	        resourceGroupField: 'groupText',
             eventSources: [
             // your event source
                 {
@@ -741,8 +752,7 @@
 		  <div class="col-md-4">
 			<select id="selectMachine" class="form-control selectpicker">
 			<?php foreach ($machines as $machine): ?>
-			<option value="<?php echo $machine->MachineID?>"><?php echo $machine->MachineID . " " . $machine->MachineName
-			. " " . $machine->Manufacturer . " " . $machine->Model ?></option>
+			<option value="<?php echo $machine->MachineID?>"><?php echo $machine->MachineID . " " . $machine->Manufacturer . " " . $machine->Model ?></option>
 			<?php endforeach; ?>
 			</select>
 		  </div>

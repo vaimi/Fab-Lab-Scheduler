@@ -161,6 +161,17 @@ class Reservations_model extends CI_Model {
         return $this->db->get();
     }
 
+    public function reservations_get_machines_basic_info($group_id = false) {
+        $this->db->select('MachineID, Manufacturer, Model');
+        $this->db->from('Machine');
+        $this->db->where('active', 1);
+        if ($group_id != false)
+        {
+            $this->db->where('MachineGroupID', $group_id);
+        }
+        return $this->db->get();
+    }
+
     public function reservations_get_machines($all=false)
     {
         $this->db->select('MachineGroupID, Name, active');
@@ -172,25 +183,24 @@ class Reservations_model extends CI_Model {
         $groups = $this->db->get();
         $response = array();
         if ($groups->num_rows() > 0) {
+            $i = 0;
             foreach($groups->result() as $group)
             {
-                $group_array = array();
-                $group_array["id"] = "cat_" . $group->MachineGroupID;
-                if ($all and $group->active == 0)
-                {
-                    $group_array["title"] = "DEACT ". $group->Name;
-                }
-                else
-                {
-                    $group_array["title"] = $group->Name;
-                }
-                $group_array["children"] = array();
+                $i++;
                 $machines = $this->reservations_get_group_machines($group->MachineGroupID, $all);
                 if ($machines->num_rows() > 0)
                 {
                     foreach($machines->result() as $machine)
                     {
                         $child = array();
+                        if ($all and $group->active == 0)
+                        {
+                            $child["groupText"] = $i . " DEACT " . $group->Name;
+                        }
+                        else
+                        {
+                            $child["groupText"] = $i . " " . $group->Name;
+                        }
                         $child["id"] = "mac_" . $machine->MachineID;
                         if ($all and $machine->active == 0)
                         {
@@ -200,14 +210,13 @@ class Reservations_model extends CI_Model {
                         {
                             $child["title"] = $machine->Manufacturer . " " . $machine->Model;
                         }
-                        $group_array['children'][] = $child;
+                        $group_array[] = $child;
 
                     }
-                    $response[] = $group_array;
                 }
             }
         }
-        return $response;
+        return $group_array;
     }
 
     public function reservations_get_active_machines_as_db_object() {

@@ -47,8 +47,7 @@ class Reservations extends MY_Controller
 		$this->load->view('partials/menu');
 
 		//Load available machines
-		$this->load->model("Admin_model"); //TODO things relying from this should use functions from Reservation_model
-		$machines = $this->Admin_model->get_machines();
+		$machines = $this->Reservations_model->reservations_get_machines_basic_info();
 		//Load available quota.
 		$data['quota'] = $this->Reservations_model->get_user_quota($this->session->userdata('id'));
 		$data['machines'] = $machines->result();
