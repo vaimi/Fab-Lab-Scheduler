@@ -1017,9 +1017,9 @@ class Reservations extends MY_Controller
         //if ($now_u > strtotime($end)) return [];
 
         // Get unfiltered slots TODO BUG shows slots after endtime 
-        $free_slots = $this->calculate_free_slots($start, $end, null ,1); //Takes a lot of time when searching for a month IF there is non-supervised machine
+        $free_slots = $this->calculate_free_slots($start, $end, null ,1); 
         // Filter slots
-	    //$free_slots = $this->filter_free_slots($free_slots); //Takes a lot of time when searching for a month IF there is non-supervised machine
+	    //$free_slots = $this->filter_free_slots($free_slots);
 
 	    // Make response
         $response = array();

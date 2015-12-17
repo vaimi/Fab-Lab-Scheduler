@@ -642,15 +642,16 @@ class Admin extends MY_Controller
             	//get levels
             	 $user_machine_lvl = $this->Admin_model->get_levels($reservation['aauth_usersID'], $reservation['MachineID'] );
             	 $supervisor_machine_lvl = $this->Admin_model->get_levels($slot->assigned, $reservation['MachineID'] );
-            	 $user_machine_lvl = isset($user_machine_lvl) ? $user_machine_lvl->row()->Level : 1;
-            	 $supervisor_machine_lvl = isset($supervisor_machine_lvl) ? $supervisor_machine_lvl->row()->Level : 1;
-            	 //If NOT user level 1 or 2 and supervisor lvl is 4 then delete reservation so modification msg is not sended.
-            	 if( !(($user_machine_lvl == USER_UNSKILLED || $user_machine_lvl == USER_NEEDS_SUPERVISOR) &&
-            	 	$supervisor_machine_lvl == SUPERVISOR_CAN_SUPERVISE) ) 
+            	 $user_machine_lvl = isset($user_machine_lvl) ? $user_machine_lvl->row()->Level : USER_UNSKILLED;
+            	 $supervisor_machine_lvl = isset($supervisor_machine_lvl) ? $supervisor_machine_lvl->row()->Level : USER_UNSKILLED;
+            	 //If NOT user level 0, 1 or 2 and supervisor lvl is 4 then delete reservation so modification msg is not sended.
+            	 if( !(($user_machine_lvl == USER_UNSKILLED || $user_machine_lvl == USER_NEEDS_SUPERVISOR 
+            	 		|| $user_machine_lvl == 0) && $supervisor_machine_lvl == SUPERVISOR_CAN_SUPERVISE) ) 
             	 { 
             	 	unset($reservations[$key]);
             	 }
-            	 		
+            	 //TODO: what if target group is changing?
+            	 //TODO: what if time is changing?	
             }
             
             //Get all reservation user ids
@@ -667,7 +668,7 @@ class Admin extends MY_Controller
             	$data['slot_start'] = $slot->start;
             	$data['slot_end'] = $slot->end;
             	// Send email to associated reservations.
-            	$this->send_modified_email($email, $data);
+            	$this->send_email($email, "Changes have done in supervisor timeslot", "modify_email", $data);
             }
             $this->Admin_model->timetable_save_modified($slot);
         }
@@ -691,7 +692,7 @@ class Admin extends MY_Controller
             		$data['slot_start'] = $slot->start;
             		$data['slot_end'] = $slot->end;
             		// Send email to associated reservations.
-            		$this->send_cancel_email($email, $data);
+            		$this->send_email($email, "Reservations have cancelled", "cancel_email", $data);
             	}
                 $this->Admin_model->timetable_save_deleted($slot);
             }
@@ -1945,27 +1946,21 @@ class Admin extends MY_Controller
 		return $groups;
 	}
 	/**
-	 * Send cancel email
+	 * Send email
 	 * Sends cancel email to a specific email address
 	 * @access admin
-	 * @input email
+	 * @input email address
+	 * @input subject of the email
+	 * @input type of the email. Basically filename in the views/emails folder. e.g. cancel_email
+	 * @input data which is populated in the view
 	 *
 	 */
-	private function send_cancel_email($email, $data) {
+	private function send_email($email, $subject, $type, $data) {
 		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
 		$this->email->to($email);
-		$this->email->subject("Supervision session has cancelled.");
+		$this->email->subject($subject);
 		$data['name'] = $this->aauth->config_vars['name'];
-		$email_content = $this->load->view("emails/cancel_email", $data, true);
-		$this->email->message($email_content);
-		$this->email->send();
-	}
-	private function send_modified_email($email, $data) {
-		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
-		$this->email->to($email);
-		$this->email->subject("Supervision session has been modified.");
-		$data['name'] = $this->aauth->config_vars['name'];
-		$email_content = $this->load->view("emails/modified_email", $data, true);
+		$email_content = $this->load->view("emails/" . $type, $data, true);
 		$this->email->message($email_content);
 		$this->email->send();
 	}

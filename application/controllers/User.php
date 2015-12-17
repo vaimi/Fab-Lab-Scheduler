@@ -2,9 +2,10 @@
 class User extends MY_Controller
 {
 	public function __construct() {
-		parent::__construct();
+		parent::__construct();	
 		$this->load->model('User_model');
 		$this->load->library("Aauth");
+		$this->load->library('form_validation');
 	}
 	
 	public function reset_password($user_id, $verification_code)
@@ -54,6 +55,25 @@ class User extends MY_Controller
 	{
 		if ($this->input->method() == 'post')
 		{
+			//TODO: need to discuss about these
+			$this->form_validation->set_rules('username', 'Username', 'required|trim|min_length[5]|max_length[12]|is_unique[aauth_users.name]');
+			$this->form_validation->set_rules('first_password', 'First password', 'required|matches[second_password]');
+			$this->form_validation->set_rules('second_password', 'Password Confirmation', 'required');
+			$this->form_validation->set_rules('first_name', 'First name', 'trim|required');
+			$this->form_validation->set_rules('surname', 'Last name', 'trim|required');
+			$this->form_validation->set_rules('email', 'Email', 'required|valid_email|is_unique[aauth_users.email]');
+			$this->form_validation->set_rules('address_street', 'Street address', 'trim');
+			$this->form_validation->set_rules('address_postal_code', 'Zip code', 'trim');
+			$this->form_validation->set_rules('phone_number', 'Phone number', 'required|is_natural');
+			$this->form_validation->set_rules('company', 'Company', 'trim');
+			$this->form_validation->set_rules('student_number', 'Student number', 'trim');
+			
+			if ($this->form_validation->run() == FALSE)
+			{
+				echo validation_errors();
+				return;
+			}
+			
 			$post_data = array
 			(
 				//TODO validation
