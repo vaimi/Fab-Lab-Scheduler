@@ -215,9 +215,25 @@ class User extends MY_Controller
 			$this->load->view('page_not_found_404');
 			return;
 		}
-		//TODO validation
+		// validation
+		//$this->form_validation->set_rules('name', 'Username', 'required|trim|min_length[5]|max_length[12]');
+		$this->form_validation->set_rules('first_password', 'First password', 'trim|matches[second_password]');
+		$this->form_validation->set_rules('second_password', 'Password Confirmation', 'trim');
+		$this->form_validation->set_rules('first_name', 'First name', 'trim|required');
+		$this->form_validation->set_rules('surname', 'Last name', 'trim|required');
+		$this->form_validation->set_rules('address_street', 'Street address', 'trim');
+		$this->form_validation->set_rules('address_postal_code', 'Zip code', 'trim');
+		$this->form_validation->set_rules('phone_number', 'Phone number', 'required|is_natural');
+		$this->form_validation->set_rules('student_number', 'Student number', 'trim');
+			
+		if ($this->form_validation->run() == FALSE)
+		{
+			echo validation_errors();
+			return;
+		}
 		$new_user_info = array(
-			'name'	=> $this->input->post('name'),
+			//FIXME: Username is not allowed to update?
+			//'name'	=> $this->input->post('name'),
 			'first_name' => $this->input->post('first_name'),
 			'surname'	=> $this->input->post('surname'),
 			'phone_number'	=> $this->input->post('phone_number'),
@@ -225,21 +241,21 @@ class User extends MY_Controller
 			'address_postal_code'	=> $this->input->post('address_postal_code'),
 			'student_number'	=> $this->input->post('student_number')
 		);
-		if ($this->input->post('first_password') === $this->input->post('second_password'))
+		if ($this->input->post('first_password') === $this->input->post('second_password') && $this->input->post('first_password') !== "")
 		{
-			$this->aauth->update_user($this->session->userdata['id'], false, $this->input->post('first_password'), $this->input->post('name'));
+			$this->aauth->update_user($this->session->userdata['id'], false, $this->input->post('first_password'), false);
 		}
 		
 		$this->User_model->update_user($new_user_info, $this->session->userdata['id']);
 		
-		$this->session->set_userdata('name', $new_user_info['name']);
+		//$this->session->set_userdata('name', $new_user_info['name']);
 		$this->session->set_userdata('first_name', $new_user_info['first_name']);
 		$this->session->set_userdata('surname', $new_user_info['surname']);
 		$this->session->set_userdata('phone_number', $new_user_info['phone_number']);
 		$this->session->set_userdata('address_street', $new_user_info['address_street']);
 		$this->session->set_userdata('address_postal_code', $new_user_info['address_postal_code']);
 		$this->session->set_userdata('student_number', $new_user_info['student_number']);
-		
+	
 		$this->load->view('user/profile_form', $this->User_model->get_user_data($this->session->userdata('id')));
 	}
 	

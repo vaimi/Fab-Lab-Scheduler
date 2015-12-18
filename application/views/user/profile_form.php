@@ -12,24 +12,24 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="control-label col-xs-2" for="email_input">Password:</label>
+					<label class="control-label col-xs-2" for="first_password">Password:</label>
 					<div class="col-xs-8">
-						<input type="password" class="form-control" id="first_password"
+						<input type="password" class="form-control" id="first_password" name="first_password"
 							placeholder="Password">
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="control-label col-xs-2" for="email_input">Repeat Password:</label>
+					<label class="control-label col-xs-2" for="second_password">Confirm Password:</label>
 					<div class="col-xs-8">
-						<input type="password" class="form-control" id="second_password"
-							placeholder="Repeat Password">
+						<input type="password" class="form-control" id="second_password" name="second_password"
+							placeholder="Confirm Password">
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="control-label col-xs-2">User name:</label>
 					<div class="col-xs-8">
 						<input type="text" class="form-control" id="name_input"
-							placeholder="First Name"
+							placeholder="First Name" readonly
 							value="<?php echo $name; ?>" >
 					</div>
 				</div>

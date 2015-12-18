@@ -108,5 +108,8 @@
         <!--/.navbar-collapse -->
       </div>
     </div>
-	<?php $this->load->view('modals/login'); ?>
-	<?php $this->load->view('modals/register'); ?>
+    <?php if (!$this->aauth->is_loggedin()) 
+    {
+    	$this->load->view('modals/login');
+    	$this->load->view('modals/register'); 
+    }?>
