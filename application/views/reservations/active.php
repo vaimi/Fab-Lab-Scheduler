@@ -1,4 +1,25 @@
 <script src="<?php echo asset_url();?>js/sortable.min.js"></script>
+<<script type="text/javascript">
+	//triggered when modal is about to be shown
+	$( document ).ready(function() {
+		$('#cancelModal').on('show.bs.modal', function(e) {
+			$('#cancelModal').data("id", $(e.relatedTarget).data("reservation-id"));
+		});
+	});
+	function cancelReservation() 
+	{
+		var id = $('#cancelModal').data("id");
+		console.log(id);
+		var d = { "id" : id };
+		$.ajax({
+			type: "POST",
+			url: "cancel_reservation",
+			data: d,
+			success: function(data) {
+			}
+		}); 
+	}
+</script>
 <div class="container">
 	<table class="sortable-theme-bootstrap table table-striped" data-sortable>
 		<thead>
@@ -35,7 +56,7 @@
 	        <p>Do you really want to cancel reservation?</p>
 	      </div>
 	      <div class="modal-footer">
-	      	<button type="button" class="btn btn-danger" data-dismiss="modal">Confirm</button>
+	      	<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="cancelReservation();">Confirm</button>
 	      	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 	      </div>
 	    </div>

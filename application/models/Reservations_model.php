@@ -100,7 +100,11 @@ class Reservations_model extends CI_Model {
         $response = $this->db->query($sql, array(date('Y-m-d H:i:s', $end_time), date('Y-m-d H:i:s', $start_time), $machine));
         return $response->result();
     }
-
+    public function reservations_update_reserved_slot_by_reservation_id($id, $state)
+    {
+    	$this->db->where('ReservationID', $id);
+		$this->db->update('State', $state); 
+    }
     public function set_reservation_state($id, $new_state) {
         $data = array(
            'State' => $new_state,

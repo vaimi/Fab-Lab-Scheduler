@@ -956,6 +956,18 @@ class Reservations extends MY_Controller
 			return array( "failed" => false, "future_limit" => $future_limit );
 		}
 	}
+	public function cancel_reservation()
+	{
+		$this->form_validation->set_rules('id', 'Reservation id', 'required|is_natural_no_zero');
+		if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			echo validation_errors();
+			die();
+		}
+		$id = $this->input->post('id');
+		//$this->Reservations_model->reservations_update_reserved_slot_by_reservation_id($id, $state); // cancel
+	}
 	/**
      * Get calendar free slots
      * 
