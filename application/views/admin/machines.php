@@ -153,9 +153,19 @@
 				if (data.result == true) 
 				{
 					if (old_status)
-						$('#activate_button_' + machine_group_id.toString()).html('<button type="button" class="btn btn-success" onclick="activate_deactivate_machine_group(' + + machine_group_id.toString() + ', false);"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Activate</button>');
+					{
+						$('#activate_button_' + machine_group_id.toString()).html('<button type="button" class="btn btn-success" onclick="activate_deactivate_machine_group(' + + machine_group_id.toString() + ', false);"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Activate</button>');
+						var go_to_email = confirm('Do you want to send email to affected users?');
+						if (go_to_email)
+						{
+							window.open('<?php echo base_url('admin/send_emails'); ?>/machine_group/'+machine_group_id.toString());
+						}
+					}
 					else
+					{
 						$('#activate_button_' + machine_group_id.toString()).html('<button type="button" class="btn btn-warning" onclick="activate_deactivate_machine_group(' + + machine_group_id.toString() + ', true);"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Deactivate</button>');
+						
+					}
 				}
 				else
 				{
@@ -200,9 +210,19 @@
 				if (data.result == true) 
 				{
 					if (old_status)
+					{
 						$('#activate_machine_button_' + machine_id.toString()).html('<button type="button" class="btn btn-success" onclick="activate_deactivate_machine(' + + machine_id.toString() + ', false);"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Activate</button>');
+						var go_to_email = confirm('Do you want to send email to affected users?');
+						if (go_to_email)
+						{
+							window.open('<?php echo base_url('admin/send_emails'); ?>/machine/'+machine_id.toString());
+						}
+					}
 					else
-						$('#activate_machine_button_' + machine_id.toString()).html('<button type="button" class="btn btn-warning" onclick="activate_deactivate_machine(' + + machine_id.toString() + ', true);"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Deactivate</button>');
+					{
+						$('#activate_machine_button_' + machine_id.toString()).html('<button type="button" class="btn btn-warning" onclick="activate_deactivate_machine(' + + machine_id.toString() + ', true);"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Deactivate</button>');
+						
+					}
 				}
 				else
 				{

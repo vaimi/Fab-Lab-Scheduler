@@ -1590,6 +1590,8 @@ class Admin extends MY_Controller
 		{
 			redirect('404');
 		}
+		$action = strtolower($action);
+		
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		if ($this->input->method() != 'post')
