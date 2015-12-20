@@ -2,7 +2,11 @@
 	<?php if ($action == 'test') { ?>
 	<div class="row"><p style="color:red">Test email has been sent to your address, please check your inbox</p></div>
 	<?php } else if ($action == 'confirmed') { ?>
+	<?php if ($send_all) { ?>
 	<div class="row"><p style="color:red">Email has been sent to all users of the website</p></div>
+	<?php } else {?>
+	<div class="row"><p style="color:red">Email has been sent to selected recipients</p></div>
+	<?php }?>
 	<?php } ?>
 	<form name="login" method="post" action="<?php echo base_url();?>admin/send_emails">
 		<div class="row"><p>Email Subject (*)</p></div>
@@ -15,7 +19,7 @@
 			<div class="row"><p>
 			<div class="btn-toolbar">
 				<button type="submit" class='btn btn-info'>Send test</button>
-				<button type="submit" onclick="$('#action').val('confirmed');" class='btn btn-success'>Send email</button>
+				<button type="submit" onclick="$('#action').val('confirmed'); return confirm('Do you want to send email?');" class='btn btn-success'>Send email</button>
 				<button type="button" class='btn' <?php echo "onclick=\"location.href =", "'" , site_url("admin/send_emails") , "'" , "\""; ?> >Cancel</button>
 			</div></div>
 			

@@ -1627,7 +1627,7 @@ class Admin extends MY_Controller
 				}
 			}
 			$jdata = array();
-			$data = array('email_content' => '', 'email_subject' => '', 'action' => 'form', 'recipients' => $recipients);
+			$data = array('email_content' => '', 'email_subject' => '', 'action' => 'form', 'recipients' => $recipients, 'send_all' => false);
 			$jdata['title'] = "Send emails to users";
 			$jdata['message'] = "This function allow admins to send emails to all registered users.";
 			$this->load->view('partials/jumbotron', $jdata);
