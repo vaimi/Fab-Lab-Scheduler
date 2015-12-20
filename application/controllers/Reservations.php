@@ -966,7 +966,22 @@ class Reservations extends MY_Controller
 			die();
 		}
 		$id = $this->input->post('id');
-		//$this->Reservations_model->reservations_update_reserved_slot_by_reservation_id($id, $state); // cancel
+		if ( $this->aauth->is_admin() )
+		{
+			$new_state = 3; //admin cancellation
+		}
+		else {
+			$new_state = 2; //user cancellation	
+		}
+		$success = $this->Reservations_model->set_reservation_state($id, $new_state); // FIXME cancel state???
+		if ($success)
+		{
+			echo json_encode(array("success" => true));
+		}
+		else {
+			echo json_encode(array("success" => false));
+		}
+		return;
 	}
 	/**
      * Get calendar free slots
