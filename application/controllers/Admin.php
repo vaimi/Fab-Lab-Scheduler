@@ -1854,11 +1854,38 @@ class Admin extends MY_Controller
 	
 		if ($result)
 		{
-			echo '{"result":true}';
+			$this->output->set_status_header('200');
+			echo json_encode(array('result' => true, 'group_id' => $group_id));
 		}
 		else
 		{
-			echo '{"result":false}';
+			$this->output->set_status_header('400');
+			echo json_encode(array('result' => false, 'group_id' => $group_id));
+		}
+	}
+	
+	public function create_group()
+	{
+		if (!$this->aauth->is_admin())
+		{
+			redirect('404');
+		}
+		$group_name = $this->input->post('group_name');
+		$group_description = $this->input->post('group_description');
+		$group_email_suffix = $this->input->post('group_email_suffix');
+	
+		$this->load->model('Group_model');
+		$result = $this->Group_model->insert_new_group($group_name, $group_description, $group_email_suffix);
+	
+		if ($result)
+		{
+			$this->output->set_status_header('201');
+			echo json_encode(array('result' => true, 'group_id' => $result));
+		}
+		else
+		{
+			$this->output->set_status_header('400');
+			echo json_encode(array('result' => false));
 		}
 	}
 	

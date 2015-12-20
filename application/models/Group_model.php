@@ -39,8 +39,15 @@ class Group_model extends CI_Model {
 		$data['name'] = $name;
 		$data['definition'] = $description;
 		$data['email_prefixes'] = $email_suffix;
-		$this->db->insert('aauth_groups', $data);
-		return ($this->db->affected_rows() != 1) ? false : true;
+		try 
+		{
+			$this->db->insert('aauth_groups', $data);
+			return ($this->db->affected_rows() != 1) ? 0 : $this->db->insert_id();
+		}
+		catch (Exception $e)
+		{
+			return 0;
+		}
 	}
 	
 	function update_group($id, $name, $description, $email_suffix)
@@ -48,8 +55,15 @@ class Group_model extends CI_Model {
 		$sql = 'update aauth_groups 
     			set name=?, definition=?, email_prefixes=?
     			where id=?';
-    	$this->db->query($sql, array($name, $description, $email_suffix, $id));
-    	return ($this->db->affected_rows() != 1) ? false : true;
+		try
+		{
+	    	$this->db->query($sql, array($name, $description, $email_suffix, $id));
+	    	return ($this->db->affected_rows() != 1) ? false : true;
+		}
+		catch (Exception $e)
+		{
+			return false;
+		}
 	}
 	
 	function delete_group($id)
