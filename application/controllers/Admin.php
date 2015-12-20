@@ -1584,7 +1584,7 @@ class Admin extends MY_Controller
 		}
 	}
 	
-	public function send_emails()
+	public function send_emails($action='', $id='')
 	{
 		if (!$this->aauth->is_admin())
 		{
@@ -1594,9 +1594,40 @@ class Admin extends MY_Controller
 		$this->load->view('partials/menu');
 		if ($this->input->method() != 'post')
 		{
-			
+			$recipients = '';
+			if ($action == 'machine')
+			{
+				if ($id != '' && is_numeric($id))
+				{
+					$this->load->model('Reservations_model');
+					$emails = $this->Reservations_model->get_machine_user_emails($id);
+					foreach ($emails as $email)
+					{
+						$recipients .= $email['email']. ';';
+					}
+				}
+			}
+			else if ($action == 'machine_group')
+			{
+				if ($id != '' && is_numeric($id))
+				{
+					$this->load->model('Reservations_model');
+					$emails = $this->Reservations_model->get_machine_groups_user_emails($id);
+					foreach ($emails as $email)
+					{
+						$recipients .= $email['email']. ';';
+					}
+				}
+			}
+			else if ($action == 'DAY')
+			{
+				if ($id != '')
+				{
+						
+				}
+			}
 			$jdata = array();
-			$data = array('email_content' => '', 'email_subject' => '', 'action' => 'form');
+			$data = array('email_content' => '', 'email_subject' => '', 'action' => 'form', 'recipients' => $recipients);
 			$jdata['title'] = "Send emails to users";
 			$jdata['message'] = "This function allow admins to send emails to all registered users.";
 			$this->load->view('partials/jumbotron', $jdata);
@@ -1609,9 +1640,11 @@ class Admin extends MY_Controller
 			$email_subject = $this->input->post('email_subject');
 			$email_content = $this->input->post('email_content');
 			$action = $this->input->post('action');
+			$recipients = $this->input->post('recipients');
+			$send_all = $this->input->post('send_all');
 			
 			$jdata = array();
-			$data = array('email_content' => $email_content, 'email_subject' => $email_subject, 'action' => $action);
+			$data = array('email_content' => $email_content, 'email_subject' => $email_subject, 'action' => $action, 'recipients' => $recipients, 'send_all' => $send_all);
 			$jdata['title'] = "Send emails to users";
 			$jdata['message'] = "This function allow admins to send emails to all registered users.";
 			$this->load->view('partials/jumbotron', $jdata);
@@ -1620,6 +1653,7 @@ class Admin extends MY_Controller
 			
 			if ($action == 'test')
 			{
+				$this->email->clear();
 				$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
 				$this->email->to($this->session->userdata('email'));
 				$this->email->subject($email_subject);
@@ -1628,15 +1662,46 @@ class Admin extends MY_Controller
 			}
 			else if ($action == 'confirmed')
 			{
-				$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
-				$this->email->subject($email_subject);
-				$this->email->message($email_content);
-				
-				
-				$this->load->model('User_model');
-				$users = $this->User_model->get_all_users();
+				$users = [];
+				if ($send_all)
+				{
+					$this->load->model('User_model');
+					$users = $this->User_model->get_all_users();
+				}
+				else
+				{
+					$emails = explode (';', $recipients);
+					foreach($emails as $email)
+					{
+						$users[] = array('email' => $email);
+					}
+				}
+				// send to users
 				foreach($users as $user)
 				{
+					
+					$this->email->clear();
+					
+					$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+					$this->email->subject($email_subject);
+					$this->email->message($email_content);
+					$this->email->to($user['email']);
+					$this->email->send();
+				}
+				
+				// bcc to admins
+				$this->load->model('Admin_model');
+				$admin_emails = $this->Admin_model->get_admin_emails();
+				$admin_email_subject = '[BCC to admins]'.$email_subject;
+				
+				foreach($admin_emails as $user)
+				{
+						
+					$this->email->clear();
+						
+					$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
+					$this->email->subject($admin_email_subject);
+					$this->email->message($email_content);
 					$this->email->to($user['email']);
 					$this->email->send();
 				}

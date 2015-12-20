@@ -7,6 +7,8 @@
 	<form name="login" method="post" action="<?php echo base_url();?>admin/send_emails">
 		<div class="row"><p>Email Subject (*)</p></div>
 		<div class="row"><p><input type="email_subject" name="email_subject" class="form-control" value="<?php echo $email_subject;?>"/></p></div>
+		<div class="row"><p>Recipients:  (To all users: <input type="checkbox" name="send_all" value="send_all" <?php if ($send_all) {echo 'checked';} ?>>)</p> </div>
+		<div class="row"><p><textarea id="recipients" class="form-control"  name="recipients" required=""><?php echo $recipients;?></textarea></p></div>
 		<div class="row"><p>Email Content (*)</p></div>
 		<div class="row"><p><textarea id="email_content" name="email_content" required=""><?php echo $email_content;?></textarea></p></div>
 		<input type="hidden" id="action" name="action" value="test" />

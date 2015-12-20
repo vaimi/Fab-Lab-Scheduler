@@ -6,6 +6,29 @@ class Reservations_model extends CI_Model {
         // Call the Model constructor
         parent::__construct();
     }
+    
+    public function get_machine_user_emails($machine_id)
+    {
+    	$sql = "SELECT distinct `aauth_users`.`email`
+				FROM `Reservation`
+				inner join `aauth_users` on `Reservation`.`aauth_usersID` = `aauth_users`.`id`
+				where `Reservation`.`MachineID` = ?
+				and `Reservation`.`StartTime` > now()";
+    	return $this->db->query($sql, array($machine_id))->result_array();
+    	
+    }
+    
+    public function get_machine_groups_user_emails($machine_group_id)
+    {
+    	$sql = "SELECT distinct `aauth_users`.`email`
+				FROM `Reservation`
+				inner join `aauth_users` on `Reservation`.`aauth_usersID` = `aauth_users`.`id`
+				inner join `Machine` on `Machine`.`MachineID` = `Reservation`.`MachineID`
+				where `Machine`.`MachineGroupID` = 1
+				and `Reservation`.`StartTime` > now()";
+    	return $this->db->query($sql, array($machine_group_id))->result_array();
+    	 
+    }
 
     public function reservations_get_supervision_slots($start_time, $end_time) 
     {

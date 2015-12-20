@@ -6,6 +6,15 @@ class Admin_model extends CI_Model {
         // Call the Model constructor
         parent::__construct();
     }
+    
+    public function get_admin_emails()
+    {
+    	$sql = 'select distinct `aauth_users`.`email` 
+    			from `aauth_users` 
+    			inner join `aauth_user_to_group` on `aauth_users`.`id` = `aauth_user_to_group`.`user_id`
+    			where `aauth_user_to_group`.`group_id`=1';
+    	return $this->db->query($sql)->result_array();
+    }
 	
 	public function get_autocomplete($search_data, $offset=0)
     {
