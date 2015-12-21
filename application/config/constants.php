@@ -83,3 +83,27 @@ define('EXIT_USER_INPUT', 7); // invalid user input
 define('EXIT_DATABASE', 8); // database error
 define('EXIT__AUTO_MIN', 9); // lowest automatically-assigned error code
 define('EXIT__AUTO_MAX', 125); // highest automatically-assigned error code
+
+/*
+ |--------------------------------------------------------------------------
+ | FabLab constants DEFINE THESE BEFORE USING THE SERVER
+ |--------------------------------------------------------------------------
+ |
+ */
+//User skill levels
+define('USER_UNSKILLED', 1);
+define('USER_NEEDS_SUPERVISOR', 2);
+define('USER_SKILLED', 3);
+//Admin skill levels
+define('SUPERVISOR_CAN_SUPERVISE', 4);
+define('SUPERVISOR_CAN_TEACH', 5);
+//Database id for public group
+define('PUBLIC_GROUP_ID', "2");
+
+// Reservation states
+define('RES_ACTIVE', 1); //active reservation
+define('RES_CANCEL_USER', 2); //user canceled reservation
+define('RES_CANCEL_ADMIN', 3); //admin canceled reservation (or old repair session)
+define('RES_REPAIR', 4); //repair session
+define('RES_REPAIR_CANCEL', 5); //sessions canceled automatically by placing repair session and therefore 
+// also automatically recoverable if the repair is done earlier than expected.

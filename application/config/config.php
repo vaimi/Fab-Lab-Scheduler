@@ -502,18 +502,3 @@ $config['rewrite_short_tags'] = FALSE;
 | Array:		array('10.0.1.200', '192.168.5.0/24')
 */
 $config['proxy_ips'] = '';
-/*
- |--------------------------------------------------------------------------
- | FabLab constants DEFINE THESE BEFORE USING THE SERVER
- |--------------------------------------------------------------------------
- |
- */
-//User skill levels
-define('USER_UNSKILLED', 1);
-define('USER_NEEDS_SUPERVISOR', 2);
-define('USER_SKILLED', 3);
-//Admin skill levels
-define('SUPERVISOR_CAN_SUPERVISE', 4);
-define('SUPERVISOR_CAN_TEACH', 5);
-//Database id for public group
-define('PUBLIC_GROUP_ID', "2");
