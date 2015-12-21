@@ -1622,11 +1622,16 @@ class Admin extends MY_Controller
 					}
 				}
 			}
-			else if ($action == 'DAY')
+			else if ($action == 'no_supervision_day')
 			{
 				if ($id != '')
 				{
-						
+					$this->load->model('Reservations_model');
+					$emails = $this->Reservations_model->get_reservation_emails_by_day($id);
+					foreach ($emails as $email)
+					{
+						$recipients .= $email['email']. ';';
+					}
 				}
 			}
 			$jdata = array();

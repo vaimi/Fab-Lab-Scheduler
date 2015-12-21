@@ -24,10 +24,21 @@ class Reservations_model extends CI_Model {
 				FROM `Reservation`
 				inner join `aauth_users` on `Reservation`.`aauth_usersID` = `aauth_users`.`id`
 				inner join `Machine` on `Machine`.`MachineID` = `Reservation`.`MachineID`
-				where `Machine`.`MachineGroupID` = 1
-				and `Reservation`.`StartTime` > now()";
+				where `Machine`.`MachineGroupID` = ?
+				and `Reservation`.`StartTime` > now()"; 
     	return $this->db->query($sql, array($machine_group_id))->result_array();
-    	 
+    }
+    
+    // date format: yyyy.mm.dd
+    public function get_reservation_emails_by_day($date)
+    {
+    	$sql = "SELECT distinct `aauth_users`.`email`
+				FROM `Reservation`
+				inner join `aauth_users` on `Reservation`.`aauth_usersID` = `aauth_users`.`id`
+				where `Machine`.`MachineGroupID` = 1
+				and `Reservation`.`StartTime` > STR_TO_DATE(?, '%Y.%m.%d')
+    			and `Reservation`.`StartTime` < DATE_ADD(STR_TO_DATE(?, '%Y.%m.%d'), INTERVAL 1 DAY)";
+    	return $this->db->query($sql, array($machine_group_id))->result_array();
     }
 
     public function reservations_get_supervision_slots($start_time, $end_time) 
