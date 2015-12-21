@@ -103,6 +103,7 @@ class Admin_model extends CI_Model {
 		$this->db->replace('UserLevel', $data);
 	}
 	
+	//this function should be moved to Machine_model
 	public function get_machines($group_id = false) {
 		$this->db->select('*');
 		$this->db->from('Machine');
@@ -113,6 +114,7 @@ class Admin_model extends CI_Model {
 		return $this->db->get();
 	}
 	
+	//this function should be moved to Machinegroup_model
 	public function get_machine_groups() 
     {
 		$this->db->select('*');

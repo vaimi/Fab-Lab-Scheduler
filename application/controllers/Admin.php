@@ -44,9 +44,10 @@ class Admin extends MY_Controller
 					"MachineGroupID" => $mGroup->MachineGroupID,
 					"Name" => $mGroup->Name,
 					'active' => $mGroup->active,
-					'machines' => array()
-// 					"Description" => $mGroup->Description,
-// 					"NeedSupervision" => $mGroup->NeedSupervision
+					'machines' => array(),
+ 					"Description" => $mGroup->Description,
+ 					"NeedSupervision" => $mGroup->NeedSupervision,
+					'active'	=> $mGroup->active
 			);
 			foreach ($ms as $m) 
 			{

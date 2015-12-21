@@ -26,33 +26,41 @@ class Info extends MY_Controller
 		$this->load->view('partials/footer');
 	}
 	
-	public function machines($id = null) {
+	public function machines($id = null) 
+	{
+		$this->load->model('Admin_model');
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-
-		if(isset($id))
+		$jdata['title'] = "Machine groups";
+		$jdata['message'] = "";
+		//Get machineGroups
+		$mGroups = 	$this->Admin_model->get_machine_groups()->result();
+		//Machines
+		$ms = $this->Admin_model->get_machines()->result();
+		$results = array();
+		foreach ($mGroups as $mGroup) 
 		{
-			$mdata = $this->Info_model->get_machine_data($id);
-			
-			$jdata['title'] = "Detailed information";
-			$jdata['message'] = "";
-			$this->load->view('partials/jumbotron', $jdata);
-			$this->load->view('info/machineinfo', array("mdata"=>$mdata) );
+			$tmp = array(
+					"MachineGroupID" => $mGroup->MachineGroupID,
+					"Name" => $mGroup->Name,
+					'active' => $mGroup->active,
+					'machines' => array(),
+ 					"Description" => $mGroup->Description,
+ 					"NeedSupervision" => $mGroup->NeedSupervision
+			);
+			foreach ($ms as $m) 
+			{
+				if ($mGroup->MachineGroupID == $m->MachineGroupID) 
+				{
+					$tmp['machines'][] = $m;
+				}
+			}
+			array_push($results,$tmp);
 		}
-		else 
-		{
-			/*Load machine data from db.
-			 * example array
-			 *	$mdata = array (
-			 *		array("MachineID"=>"1", "MachineName"=>"Example printer", "Description"=>"Very good and fast!"),
-		  	 * 	);
-			 */
-			$jdata['title'] = "Fab Lab's available machines";
-			$jdata['message'] = "";
-			$this->load->view('partials/jumbotron', $jdata);
-			$mdata = $this->Info_model->get_machine_data();
-			$this->load->view('info/machines', array("mdata"=>$mdata));
-		}
+		$d['machineGroups'] = $results;
+		$d['machine_groups'] = $mGroups;
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('info/machines', $d);
 		$this->load->view('partials/footer');
 	}
 	
