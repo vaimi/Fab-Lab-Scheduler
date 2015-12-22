@@ -518,7 +518,7 @@ class Admin extends MY_Controller
                 // Make array in output format
                 $slot_array = array (
                     'id' => $slot->SupervisionID,
-                    'title' => "uid: ". $slot->aauth_usersID. " sid: ". $slot->SupervisionID,
+                    'title' => $slot->first_name . " " . $slot->surname,
                     'group' => $slot->aauth_groupsID,
                     'assigned' => $slot->aauth_usersID,
                     'start' => $slot->StartTime,
@@ -538,6 +538,7 @@ class Admin extends MY_Controller
 	                $s->start = $slot->StartTime;
 	                $s->end = $slot->EndTime;
 	                $s->id = $slot->SupervisionID;
+	                $s->title = $slot->first_name . " " . $slot->surname;
 	                //Save another copy for discard changes.
 	                $s->original = clone $s;
 	                $s->original->list = "sv_saved_items";
@@ -878,6 +879,7 @@ class Admin extends MY_Controller
     		$tmp2[$id]->group = $tmp[$id]->original->group;
     		$tmp2[$id]->start = $tmp[$id]->original->start;
     		$tmp2[$id]->end = $tmp[$id]->original->end;
+    		$tmp2[$id]->title = $tmp[$id]->original->title;
     		//Delete slot in previous list
     		unset($tmp[$id]);
     		$this->session->set_userdata($new_list, $tmp2);
@@ -887,6 +889,7 @@ class Admin extends MY_Controller
     				"group" => $tmp2[$id]->group,
     				"start" => $tmp2[$id]->start, 
     				"end" => $tmp2[$id]->end, 
+    				"title" => $tmp2[$id]->title,
     				"color" => $tmp2[$id]->original->color));
     		return;
     	}
@@ -972,7 +975,11 @@ class Admin extends MY_Controller
         $assigned = $this->input->post("assigned");
         $group = $this->input->post("group");
         $start = $this->input->post("start");
-        $end = $this->input->post("end");    
+        $end = $this->input->post("end");
+
+        $admin_data = $this->Admin_model->get_user_data($assigned)->row();
+        $title = $admin_data->first_name . " " . $admin_data->surname;
+
         $event = array();
         $modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
         //Modify if in sv_unsaved_modified_items
@@ -1019,6 +1026,7 @@ class Admin extends MY_Controller
             $slot->start = $start;
             $slot->end = $end;
             $slot->id = $id;
+            $slot->title = $title;
             $slots = $this->session->userdata('sv_unsaved_modified_items');
             $slots[$id] = $slot;
             $this->session->set_userdata('sv_unsaved_modified_items', $slots);
@@ -1031,11 +1039,12 @@ class Admin extends MY_Controller
             $slot->start = $start;
             $slot->end = $end;
             $slot->id = $id;
+            $slot->title = $title;
             $slots = $this->session->userdata('sv_unsaved_new_items');
             $slots[$id] = $slot;
             $this->session->set_userdata('sv_unsaved_new_items', $slots);
         }
-        echo json_encode(array("success" => 1));
+        echo json_encode(array("success" => 1, "title" => $title));
     }
     public function timetable_confirm_slot() {
     	// Validate input
@@ -1055,6 +1064,10 @@ class Admin extends MY_Controller
     	$group = $this->input->post("group");
     	$start = $this->input->post("start");
     	$end = $this->input->post("end");
+
+    	$admin_data = $this->Admin_model->get_user_data($assigned)->row();
+        $title = $admin_data->first_name . " " . $admin_data->surname;
+
     	$color = "#000000";
     	$modIDs = array_map(function($o) { return $o->id; }, $this->session->userdata('sv_unsaved_modified_items'));
     	//Modify if in sv_unsaved_modified_items
@@ -1065,6 +1078,7 @@ class Admin extends MY_Controller
     		$tmp[$id]->group = $group;
     		$tmp[$id]->start = $start;
     		$tmp[$id]->end = $end;
+    		$tmp[$id]->title = $title;
     		$this->session->set_userdata('sv_unsaved_modified_items', $tmp);
     		$color = "#5bc0de";
     	}
@@ -1077,6 +1091,7 @@ class Admin extends MY_Controller
     		$tmp[$id]->group = $group;
     		$tmp[$id]->start = $start;
     		$tmp[$id]->end = $end;
+    		$tmp[$id]->title = $title;
     		$this->session->set_userdata('sv_unsaved_new_items', $tmp);
     		$color = "#5bc0de";
     	}
@@ -1102,7 +1117,7 @@ class Admin extends MY_Controller
     		$tmp[$id]->group = $group;
     		$tmp[$id]->start = $start;
     		$tmp[$id]->end = $end;
-    		
+    		$tmp[$id]->title = $title;
     		$tmp2 = $this->session->userdata('sv_unsaved_modified_items');
     		$tmp2[$id] = $tmp[$id];
     		unset($tmp[$id]);
@@ -1110,7 +1125,7 @@ class Admin extends MY_Controller
     		$this->session->set_userdata('sv_unsaved_modified_items', $tmp2);
     		$color = "#5bc0de";
     	}
-    	echo json_encode(array("success" => 1 , "assigned" => $assigned, "group" => $group,"start" => $start, "end" => $end, "color" => $color));
+    	echo json_encode(array("success" => 1 , "assigned" => $assigned, "group" => $group,"start" => $start, "end" => $end, "color" => $color, "title" => $title));
     }
 	//Schedules 
 	
