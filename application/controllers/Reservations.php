@@ -968,15 +968,15 @@ class Reservations extends MY_Controller
 		$id = $this->input->post('id');
 		if ( $this->aauth->is_admin() )
 		{
-			$new_state = 3; //admin cancellation
+			$new_state = RES_CANCEL_ADMIN; //admin cancellation
 		}
 		else {
-			$new_state = 2; //user cancellation	
+			$new_state = RES_CANCEL_USER; //user cancellation	
 			$now = new DateTime();
 			$res_start_time = new DateTime($this->Reservations_model->get_reservation_by_id($id)->StartTime);
 			if ($now >= $res_start_time)
 			{
-				echo json_encode(array("success" => false, "error" => "You cannot cancel past or ongoing reservation."));
+				echo json_encode(array("success" => false, "error" => "Cannot cancel past or ongoing reservation."));
 				return;
 			}
 		}
@@ -986,7 +986,7 @@ class Reservations extends MY_Controller
 			echo json_encode(array("success" => true));
 		}
 		else {
-			echo json_encode(array("success" => false));
+			echo json_encode(array("success" => false , "error" => "Cannot cancel reservation."));
 		}
 		return;
 	}
