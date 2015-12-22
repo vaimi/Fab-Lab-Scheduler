@@ -134,11 +134,6 @@ class Reservations_model extends CI_Model {
         $response = $this->db->query($sql, array(date('Y-m-d H:i:s', $end_time), date('Y-m-d H:i:s', $start_time), $machine));
         return $response->result();
     }
-    public function reservations_update_reserved_slot_by_reservation_id($id, $state)
-    {
-    	$this->db->where('ReservationID', $id);
-		$this->db->update('State', $state); 
-    }
     public function set_reservation_state($id, $new_state) {
         $data = array(
            'State' => $new_state,
@@ -480,6 +475,18 @@ class Reservations_model extends CI_Model {
             return $result->row();
         }
         return null;
+    }
+    public function get_reservation_by_id($id)
+    {
+    	$this->db->select("*");
+    	$this->db->from("Reservation as r");
+    	$this->db->where("ReservationID", $id);
+    	$result = $this->db->get();
+    	if ($result->num_rows() > 0)
+    	{
+    		return $result->row();
+    	}
+    	return null;
     }
     public function get_reservation_deadline()
     {

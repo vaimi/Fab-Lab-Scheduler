@@ -972,6 +972,13 @@ class Reservations extends MY_Controller
 		}
 		else {
 			$new_state = 2; //user cancellation	
+			$now = new DateTime();
+			$res_start_time = new DateTime($this->Reservations_model->get_reservation_by_id($id)->StartTime);
+			if ($now >= $res_start_time)
+			{
+				echo json_encode(array("success" => false, "error" => "You cannot cancel past or ongoing reservation."));
+				return;
+			}
 		}
 		$success = $this->Reservations_model->set_reservation_state($id, $new_state); // FIXME cancel state???
 		if ($success)
