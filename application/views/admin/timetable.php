@@ -62,7 +62,7 @@
             },
         	error: function(data) {
 	        	$('#save_button').removeClass("disabled");
-	        	alerter("error", "Sorry, error happened.");
+	        	alerter("danger", "Sorry, error happened.");
 	        }
         });
     }

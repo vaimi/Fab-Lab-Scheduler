@@ -1,11 +1,28 @@
 <script src="<?php echo asset_url();?>js/sortable.min.js"></script>
-<<script type="text/javascript">
+<script type="text/javascript" src="<?=asset_url()?>js/bootstrap-notify.min.js"></script>
+<script type="text/javascript">
 	//triggered when modal is about to be shown
 	$( document ).ready(function() {
 		$('#cancelModal').on('show.bs.modal', function(e) {
 			$('#cancelModal').data("id", $(e.relatedTarget).data("reservation-id"));
 		});
 	});
+	function alerter(alert_type, alert_message) {
+		// alerter function for on-screen alerts
+		$.notify({
+		// options
+		message: alert_message 
+		},{
+			// settings
+			type: alert_type,
+			mouse_over: "pause",
+			timer: 5000,
+			animate: {
+				enter: 'animated fadeInDown',
+				exit: 'animated fadeOutUp'
+			}
+		});
+	}
 	function cancelReservation() 
 	{
 		var id = $('#cancelModal').data("id");
@@ -16,6 +33,16 @@
 			url: "cancel_reservation",
 			data: d,
 			success: function(data) {
+				var json = JSON.parse(data);
+				console.log(json);
+				if(json.success)
+				{
+					alerter("success", "Cancellation succeeded.");
+				}
+				else 
+				{
+					alerter("danger", "error: " + json.error);
+				}
 			}
 		}); 
 	}
