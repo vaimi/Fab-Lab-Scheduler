@@ -313,9 +313,9 @@ class Reservations_model extends CI_Model {
                 if ($quota_new > $quota) // If the user will benefit from the change.
                 {
                     $this->db->update('extended_users_information', array('Quota' => $quota), array('id' => $user_id));
+                    return $quota_new;
                 }
             }
-            return $quota;
         }
         $this->db->flush_cache();
         $this->db->select("quota");
@@ -373,7 +373,7 @@ class Reservations_model extends CI_Model {
         $this->db->from("Reservation");
         $this->db->where("NOW() < EndTime");
         $this->db->where("aauth_usersID", $user_id);
-        $this->db->where("State", 1);
+        $this->db->where("State", RES_ACTIVE);
         return $this->db->count_all_results();
     }
 
