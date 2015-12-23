@@ -104,6 +104,17 @@ class Admin extends MY_Controller
 		$this->load->view('partials/footer');
 	}
 
+	/**
+     * Get machines
+     * 
+	 * Similar to reservations get machines, but enchanced with admin capabilities.
+	 * (shows also deactivated machines/groups)
+     * 
+     * @see Reservations/reserve_get_machines
+     * @access public
+     * @return [{"groupText":group_identier_text,"id":machine id,"title":title text},...] 
+     *  
+     */
 	public function reservations_get_machines()
 	{
 		$this->load->model('Reservations_model');
@@ -111,18 +122,49 @@ class Admin extends MY_Controller
 		$this->output->set_output(json_encode($response));
 	}
 
+	/**
+     * Set states for slot reserved slot fetching.
+     * 
+	 * Sets session variable for state filtering so admin can select states he wants to see on calendar. 
+     * 
+     * @uses input::post '1' true/false show active reservations
+     * @uses input::post '2' true/false show user cancelled reservations
+     * @uses input::post '3' true/false show admin cancelled reservations
+     * @uses input::post '4' true/false show repair sessions
+     * @uses input::post '5' true/false show reservations cancelled due repair
+     *
+     * @see Reservations/reserve_get_reserved_slots
+     * @access public
+     * @return {"success":1} on success, {"success":0, "errors":[text,...]} on errors
+     *  
+     */
 	public function reservations_set_state_filtration(){
+		$this->form_validation->set_rules('1', 'active reservations', 'required');
+        $this->form_validation->set_rules('2', 'user cancelled reservations', 'required');
+        $this->form_validation->set_rules('3', 'admin cancelled reservations', 'required');
+        $this->form_validation->set_rules('4', 'repair sessions', 'required');
+        $this->form_validation->set_rules('5', 'reservations cancelled due repair', 'required');
+	    if ($this->form_validation->run() == FALSE)
+		{
+			//echo errors.
+			$response = array(
+				"success" => 0,
+				"errors" => $this->form_validation->error_array()
+			);
+			$this->output->set_output(json_encode($response));
+			return;
+		}
 		$states = array();
 		$s_1 = $this->input->post('1');
 		$s_2 = $this->input->post('2');
 		$s_3 = $this->input->post('3');
 		$s_4 = $this->input->post('4');
 		$s_5 = $this->input->post('5');
-		if ($s_1 === 'true') $states[] = 1;
-		if ($s_2 === 'true') $states[] = 2;
-		if ($s_3 === 'true') $states[] = 3;
-		if ($s_4 === 'true') $states[] = 4;
-		if ($s_5 === 'true') $states[] = 5;
+		if ($s_1 === 'true') $states[] = RES_ACTIVE;
+		if ($s_2 === 'true') $states[] = RES_CANCEL_USER;
+		if ($s_3 === 'true') $states[] = RES_CANCEL_ADMIN;
+		if ($s_4 === 'true') $states[] = RES_REPAIR;
+		if ($s_5 === 'true') $states[] = RES_REPAIR_CANCEL;
 		$this->session->set_userdata('reservations_states', $states);
 		$this->output->set_output(json_encode(array("success"=>1)));
 	}

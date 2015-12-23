@@ -1281,8 +1281,8 @@ class Reservations extends MY_Controller
 	 * Used to fetch calendar machines. Used in public and reservation calendar. 
      * 
      * @access public
-     * @return json array in format {"id":"cat_" + category id,"title":group name,"children":[{"id":"mac_" + machine id,"title":manufacturer + model}]}]
-     *  
+   	 *
+     * @return [{"groupText":group_identier_text,"id":machine id,"title":title text},...]  
      */
 	public function reserve_get_machines() {
 		$response = $this->Reservations_model->reservations_get_machines();
