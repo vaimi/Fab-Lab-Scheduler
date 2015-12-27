@@ -145,7 +145,7 @@ class Reservations_model extends CI_Model {
 
     public function reservations_get_all_reserved_slots($start_time, $end_time) 
     {
-        $sql = "SELECT MachineID, StartTime, EndTime, first_name, surname, email, State
+        $sql = "SELECT aauth_users.id, ReservationID, MachineID, StartTime, EndTime, first_name, surname, email, State
         		FROM Reservation, extended_users_information, aauth_users
         		WHERE EndTime >= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND 
                 StartTime <= STR_TO_DATE(?,'%Y-%m-%d %H:%i:%s') AND

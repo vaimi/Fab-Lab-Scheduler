@@ -9,6 +9,29 @@
 <link rel="stylesheet" type="text/css" href="<?=asset_url()?>css/bootstrap-select.min.css"/>
 
 <script>
+
+
+	function delete_reservation(reservation_id)
+	{
+		if (confirm('Are you sure you want to delete the reservation?') == false)
+			return;
+	
+		$.ajax({
+			type: "POST",
+			url: "<?php echo base_url('user/delete_reservation'); ?>/" + reservation_id,
+			dataType: "json",
+			success: function(data)
+			{
+				alerter("success", data.message); 
+				// TODO: refresh calendar
+			},
+			error: function(data)
+			{
+				alerter("success", data.message); 
+			}
+		});
+	}
+
 	function alerter(alert_type, alert_message) {
 		// alerter function for on-screen alerts
 		$.notify({
@@ -253,13 +276,16 @@
 		});
 	}
 	
-	function makeQtip_admin(elementId, machine, e_Start, e_End, firstname, surname, email) {
+	function makeQtip_admin(elementId, machine, e_Start, e_End, firstname, surname, email, reservation_id) {
 		var sModal="";
 		sModal += "<p>Start time: " + e_Start + "</p>";
 		sModal += "<p>End time: " + e_End + "</p>";
 		sModal += "<p>First name: " + firstname + "</p>";
 		sModal += "<p>Surname: " + surname + "</p>";
 		sModal += "<p>Email: " + email + "</p>";
+		sModal += "<p><a type=\"button\" class=\"btn btn-danger\" onclick=\"delete_reservation(" + reservation_id + ");\">";
+		sModal += "<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span> Cancel";
+		sModal += "</a></p>";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
 			show: { 
@@ -536,6 +562,7 @@
                 }
             ],
 			eventAfterRender : function( e, element, view ) { 
+				console.log(view);
 // 				console.log(element);
  				//console.log(e);
 				var machine = e.resourceId;
@@ -543,25 +570,36 @@
 				var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				if (e.reserved == 1)
 				{
-					if(e.is_admin === true) 
+					if(e.is_admin === true)
 					{
 						var firstname = e.first_name;
 						var surname = e.surname;
 						var email = e.email;
 						$(element).click(function(){ 
-					        makeQtip_admin($(element), machine, eStart, eEnd, firstname, surname, email);
+					        makeQtip_admin($(element), machine, eStart, eEnd, firstname, surname, email, e.reservation_id);
 					    });
 					}
-					return; 
+					else if (e.email == '<?php echo $this->session->userdata('email'); ?>')
+					{
+						var firstname = e.first_name;
+						var surname = e.surname;
+						var email = e.email;
+						$(element).css({'background-color':'#0000ff'});
+						$(element).click(function(){ 
+							//$(element).color = '';
+					        makeQtip_admin($(element), machine, eStart, eEnd, firstname, surname, email, e.reservation_id);
+					        
+					    });
+					}
 				}
-				if (e.nightslot == 1)
+				if (e.nightslot == 1 && e.reserved != 1)
 				{
 					var eNext = moment(e.next_start).format("DD.MM.YYYY, HH:mm");
 					$(element).click(function(){ 
 				        makeQtip_nightslot($(element), machine, eStart, eEnd, eNext);
 				    });
 				}
-				else
+				else if (e.reserved != 1)
 				{
 					$(element).click(function(){ 
 				        makeQtip($(element), machine, eStart, eEnd);

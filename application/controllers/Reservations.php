@@ -1264,6 +1264,15 @@ class Reservations extends MY_Controller
 				$row["end"] = $reservation->EndTime;
 				$row["title"] = "Reserved";
 				$row["reserved"] = 1;
+				if ($this->session->userdata('id') == $reservation->id)
+				{
+					$row["title"] = "Owned";
+					$row["user_id"] = $reservation->id;
+					$row["reservation_id"] = $reservation->ReservationID;
+					$row["first_name"] = $reservation->first_name;
+					$row["surname"] = $reservation->surname;
+					$row["email"] = $reservation->email;
+				}
 				if ($reservation->State == 4)
 				{
 					$row["className"] = "calendar-repair";

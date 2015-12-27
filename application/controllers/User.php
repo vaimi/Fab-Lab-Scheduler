@@ -336,7 +336,7 @@ class User extends MY_Controller
 			return;
 		}
 		
-		if (!$this->aauth->is_admin() || $this->session->userdata('id') != $reservation->aauth_usersID)
+		if (!$this->aauth->is_admin() && $this->session->userdata('id') != $reservation->aauth_usersID)
 		{
 			set_status_header(401);
 			echo json_encode(array('success' => false, 'message' => 'You are not authorized to cancel the reservation!'));
