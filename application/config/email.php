@@ -4,7 +4,7 @@ $config['useragent']        = 'PHPMailer';              // Mail engine switcher:
 $config['protocol']         = 'smtp';                   // 'mail', 'sendmail', or 'smtp'
 
 $config['name'] 			= 'Oulu Fab Lab';
-$config['smtp_host']        = 'ssl://smtp.gmail.com';
+***REMOVED***
 ***REMOVED***
 ***REMOVED***
 $config['smtp_port']        = 465;
