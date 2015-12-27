@@ -23,7 +23,8 @@
 			success: function(data)
 			{
 				alerter("success", data.message); 
-				// TODO: refresh calendar
+				$(".qtip").qtip('hide');
+				$('#calendar').fullCalendar('refetchEvents');
 			},
 			error: function(data)
 			{
