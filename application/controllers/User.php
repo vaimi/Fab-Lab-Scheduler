@@ -56,7 +56,7 @@ class User extends MY_Controller
 		if ($this->input->method() == 'post')
 		{
 			//TODO: need to discuss about these
-			$this->form_validation->set_rules('username', 'Username', 'required|trim|min_length[5]|max_length[12]|is_unique[aauth_users.name]');
+			$this->form_validation->set_rules('username', 'Username', 'required|trim|min_length[5]|max_length[100]|is_unique[aauth_users.name]');
 			$this->form_validation->set_rules('first_password', 'First password', 'required|matches[second_password]');
 			$this->form_validation->set_rules('second_password', 'Password Confirmation', 'required');
 			$this->form_validation->set_rules('first_name', 'First name', 'trim|required');
