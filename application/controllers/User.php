@@ -342,6 +342,12 @@ class User extends MY_Controller
 			echo json_encode(array('success' => false, 'message' => 'You are not authorized to cancel the reservation!'));
 			return;
 		}
+		if ($reservation->StartTime >= date())
+		{
+			set_status_header(400);
+			echo json_encode(array('success' => false, 'message' => 'Cannot cancel past or ongoing reservation'));
+			return;
+		}
 		
 		$result = $this->Reservations_model->delete_reservation($reservation_id);
 		if (!$result)
@@ -352,6 +358,8 @@ class User extends MY_Controller
 		}
 		else 
 		{
+			//send email
+			
 			set_status_header(200);
 			echo json_encode(array('success' => true, 'message' => 'Reservation deleted!'));
 			return;
