@@ -142,8 +142,7 @@ class User_model extends CI_Model {
     {
     	$sql = "select r.ReservationID, r.MachineID, r.StartTime, r.EndTime, r.QRCode, r.PassCode, m.MachineName, m.Manufacturer, m.Model, m.Description
     			from Machine m, Reservation r
-    			where r.aauth_usersID=? and r.MachineID = m.MachineID
-    			and (r.StartTime >= now() or r.EndTime >= now())";
+    			where r.aauth_usersID=? and r.MachineID = m.MachineID";
     	$results = $this->db->query($sql,$user_id)->result_array();
     	return $results;
     }
