@@ -319,6 +319,44 @@ class User extends MY_Controller
 		$data['results'] = $reservations; 
 		$this->load->view('user/reservations_list', $data);
 	}
+	
+	function delete_reservation($reservation_id)
+	{
+		if (!$this->aauth->is_loggedin())
+		{
+			$this->load->view('page_not_found_404');
+			return;
+		}
+		$this->load->model('Reservations_model');
+		$reservation = $this->Reservations_model->get_reservation_by_id($reservation_id);
+		if ($reservation == null)
+		{
+			set_status_header(404);
+			echo json_encode(array('success' => false, 'message' => 'Reservation not found!'));
+			return;
+		}
+		
+		if (!$this->aauth->is_admin() || $this->session->userdata('id') != $reservation->aauth_usersID)
+		{
+			set_status_header(401);
+			echo json_encode(array('success' => false, 'message' => 'You are not authorized to cancel the reservation!'));
+			return;
+		}
+		
+		$result = $this->Reservations_model->delete_reservation($reservation_id);
+		if (!$result)
+		{
+			set_status_header(400);
+			echo json_encode(array('success' => false, 'message' => 'Error when deleting the reservation, please contact admin for support!'));
+			return;
+		}
+		else 
+		{
+			set_status_header(200);
+			echo json_encode(array('success' => true, 'message' => 'Reservation deleted!'));
+			return;
+		}
+	}
 	// Helpers 
 
 	private function verify_registration_data($post_data)
