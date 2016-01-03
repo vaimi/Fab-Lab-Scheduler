@@ -30,16 +30,17 @@
 <script>
 	$(document).ready(function() {
 		$('#email_content').summernote({
-			  height: 400,                 // set editor height
-
-			  minHeight: null,             // set minimum height of editor
-			  maxHeight: null,             // set maximum height of editor
-
-			  focus: false,                 // set focus to editable area after initializing summernote
-			  onImageUpload: function(files, editor, welEditable) {
-	                sendFile(files[0], editor, welEditable);
+	        height: 400,
+	        minHeight: null,             // set minimum height of editor
+			maxHeight: null,             // set maximum height of editor
+	        callbacks: {
+	            onImageUpload: function(files, editor, welEditable) {
+	            	sendFile(files[0], editor, welEditable);
 	            }
-			});
+	        }
+
+	    });
+		
 		function sendFile(file, editor, welEditable) {
             data = new FormData();
             data.append("file", file);
