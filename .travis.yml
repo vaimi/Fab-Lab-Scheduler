@@ -12,12 +12,13 @@ php:
   - 5.4
 
 # optionally specify a list of environments, for example to test different RDBMS
-#env:
-#  - DB=mysql
+env:
+  - DB=mysql
 #  - DB=pgsql
 
 # execute any number of scripts before the test run, custom env's are available as variables
-#before_script:
+before_script:
+  - mysql -u root -h 127.0.0.1 < "sql schema/dump.sql"
 
 # omitting "script:" will default to phpunit
 script: phpunit --configuration application/tests/phpunit.xml

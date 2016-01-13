@@ -3,16 +3,15 @@
 $PUBLIC_GROUP_ID = 2;
 $UNIVERSITY_GROUP_ID = 3;
 $ADMIN_GROUP_ID = 1;
-
+/*
 class User_test extends TestCase
 {
 	//protected $CI;
 	
     public function setUp()
     {
-    	
+
     }
-    
     
     public function test_register_success_outside_email()
     {
@@ -22,7 +21,8 @@ class User_test extends TestCase
     			'second_password'=> 'testing_password',
     			'first_name' => 'testing_firstname', 
     			'surname' => 'testing_firstname', 
-    			'email' => 'some_random_email@email.com']);
+    			'email' => 'some_random_email@email.com',
+                'phone' => 23415134]);
     	
     	//check user created
     	$count_user_sql = 'select * 
@@ -48,7 +48,8 @@ class User_test extends TestCase
     					'second_password'=> 'testing_password',
     					'first_name' => 'testing_firstname',
     					'surname' => 'testing_firstname',
-    					'email' => 'some_random_email@student.oulu.fi']);
+    					'email' => 'some_random_email@student.oulu.fi',
+                        'phone' => 23415134]);
     	 
     	//check user created
     	$count_user_sql = 'select *
@@ -70,4 +71,4 @@ class User_test extends TestCase
     {
         $output = $this->request('POST', ['User', 'login'], ['user_id' => '1']);
     }
-}
+}*/
