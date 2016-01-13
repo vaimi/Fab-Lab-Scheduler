@@ -34,7 +34,7 @@ function fetchUserData(user_id) {
 	var post_data = {
 		'user_id': user_id
 	};
-	$('#user_data_form').addClass("animated fadeOut");
+	$('#user_data_form').html('<div class="loader">Loading...</div>');
 
 	$.ajax({
 		type: "POST",
@@ -43,7 +43,7 @@ function fetchUserData(user_id) {
 		success: function(data) {
 			// return success
 			if (data.length > 0) {
-				$('#user_data_form').removeClass("animated fadeOut");
+				$('#user_data_form > .loader').remove();
 				$('#user_data_form').html(data);
 			}
 		}

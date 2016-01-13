@@ -396,8 +396,8 @@ class Admin extends MY_Controller
 	{
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Admin";
-		$jdata['message'] = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed posuere interdum sem. Quisque ligula eros ullamcorper quis, lacinia quis facilisis sed sapien. Mauris varius diam vitae arcu.";
+		$jdata['title'] = "User management";
+		$jdata['message'] = "Manage user details, groups and levels";
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('admin/users');
 		$this->load->view('partials/footer');

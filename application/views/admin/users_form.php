@@ -57,7 +57,7 @@
 </script>
 <div id="user_content">
 	<!-- Toolbar -->
-	<div class="btn-toolbar" id="toolbar">
+	<div class="btn-toolbar well well-sm" id="toolbar">
 		<a id="save_button" type="button submit" class="btn btn-success">
 			<span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save
 		</a>
