@@ -8,7 +8,7 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 				<h4 class="modal-title">REGISTRATION</h4>
 			</div>
-			<form name="registration" id="registerform" method="post" action="<?php echo base_url();?>user/registration" onsubmit="return true;">
+			<form name="registration" id="registerform2" method="post" action="<?php echo base_url();?>user/registration" onsubmit="return true;">
 			<div class="modal-body">
 				<div class="form-group required has-feedback">
 					<label class="control-label" for="username">User name</label>
@@ -83,15 +83,15 @@
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 			</div>
 			</form>
+			<script>
+			$('#registerform2').validator().on('submit', function (e) {
+			    if (e.isDefaultPrevented()) {
+			    	alert('form is not valid');
+			    } else {
+			        
+			    }
+			});
+			</script>
 		</div>
 	</div>
 </div>
-<script>
-$('#registerform').validator().on('submit', function (e) {
-    if (e.isDefaultPrevented()) {
-    	alert('form is not valid');
-    } else {
-        
-    }
-});
-</script>
