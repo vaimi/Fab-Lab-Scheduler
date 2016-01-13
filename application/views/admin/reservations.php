@@ -246,6 +246,11 @@
                 }
             ],
             select: function( start, end, jsEvent, view, resource )	{
+            	if (resource == null) {
+            		var resource = {
+            			id:"mac_-1"
+            		}
+            	}
             	var machine = resource.id;
             	var machineSplit = machine.split("_");
             	if (machineSplit[0] == "mac") {
