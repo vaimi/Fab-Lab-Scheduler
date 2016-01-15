@@ -26,7 +26,6 @@
 	function cancelReservation() 
 	{
 		var id = $('#cancelModal').data("id");
-		console.log(id);
 		var d = { "id" : id };
 		$.ajax({
 			type: "POST",
@@ -34,10 +33,11 @@
 			data: d,
 			success: function(data) {
 				var json = JSON.parse(data);
-				console.log(json);
 				if(json.success)
 				{
 					alerter("success", "Cancellation succeeded.");
+					$('#row_' + id).remove();
+
 				}
 				else 
 				{
@@ -60,7 +60,7 @@
 		<tbody>
 				<?php 
 				foreach ($rdata as $row) {
-					echo '<tr>';
+					echo '<tr id="row_' . $row['id'] . '">';
 					echo '<td>'.$row['id'].'</td>';
 					echo '<td>'.$row['machine'].'</td>';
 					echo '<td>'.$row['reserved'].'</td>';
