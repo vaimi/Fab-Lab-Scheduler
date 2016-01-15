@@ -15,3 +15,5 @@ application/tests/start_tests.bat
 application/tests/build/logs/junit.xml
 application/config/database.php
 application/config/email.php
+application/config/email.php
+application/config/database.php

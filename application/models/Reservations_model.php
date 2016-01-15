@@ -522,11 +522,4 @@ class Reservations_model extends CI_Model {
         }
         return [];
     }
-    
-    public function delete_reservation($reservation_id)
-    {
-    	$sql = 'update Reservation set State=2 where ReservationID=?';
-    	$this->db->query($sql, array($reservation_id));
-    	return ($this->db->affected_rows() > 0) ? true : false;
-    }
 }
