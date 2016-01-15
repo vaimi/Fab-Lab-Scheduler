@@ -94,6 +94,8 @@ class User extends MY_Controller
 			if ($this->verify_registration_data($post_data))
 			{
 				$this->create_user($post_data);
+				redirect(base_url(), 'refresh');
+				return;
 			}
 		}
 		else // get action, when user use the link
@@ -156,13 +158,13 @@ class User extends MY_Controller
 			}
 			else //login fail, go to login page with fail information
 			{
-				$this->output->set_status_header('200');
+				$this->output->set_status_header('400');
 				$this->load->view('login_form', array('email' => $email, 'data'=>$this->aauth->errors));
 			}
 		}
 		else //If get request.
 		{
-			$this->output->set_status_header('400');
+			$this->output->set_status_header('200');
 			$this->load->view('login_form', array('email' => '', 'data'=>array()));
 		}
 	}
