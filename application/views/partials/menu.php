@@ -33,7 +33,7 @@
                 if($this->aauth->is_loggedin())
                 {
                   echo "<li " . set_active_nav('reservations/active') . ">";
-                  echo anchor('reservations/active', 'Active reservations');
+                  echo anchor('reservations/active', 'Your active reservations');
                   echo "</li>";
                   echo "<li " . set_active_nav('reservations/reserve') . ">";
                   echo anchor('reservations/reserve', 'Reserve');
