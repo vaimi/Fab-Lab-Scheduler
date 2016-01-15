@@ -75,50 +75,49 @@ class Reservations_model extends CI_Model {
         if ($result->num_rows() == 1)
         {
             $level = $result->row()->Level;
+        }
+        else
+        {
+            $level = 1;
+        }
+        $this->db->flush_cache();
+        if ($level < 3)
+        {
+            $this->db->select('Aauth_usersID');
+            $this->db->from('UserLevel');
+            $this->db->where('MachineID', $machine_id);
+            $this->db->where('Level >', 3);
+        }
+        else
+        {
+            $this->db->select('Aauth_usersID');
+            $this->db->from('UserLevel');
+            $this->db->where('MachineID', $machine_id);
+            $this->db->where('Level >', 4);
+        }
+        $result = $this->db->get();
+        if ($result->num_rows() > 0)
+        {
+            $supervisor_ids = array_map(function($o) { return $o->Aauth_usersID; }, $result->result());
             $this->db->flush_cache();
-            if ($level < 3)
-            {
-                $this->db->select('Aauth_usersID');
-                $this->db->from('UserLevel');
-                $this->db->where('MachineID', $machine_id);
-                $this->db->where('Level >', 3);
-            }
-            else
-            {
-                $this->db->select('Aauth_usersID');
-                $this->db->from('UserLevel');
-                $this->db->where('MachineID', $machine_id);
-                $this->db->where('Level >', 4);
-            }
+            $this->db->select("StartTime, EndTime");
+            $this->db->from("Supervision");
+            $this->db->where("FROM_UNIXTIME(" . $this->db->escape($end_time) . ") > StartTime");
+            $this->db->where("FROM_UNIXTIME(" . $this->db->escape($start_time) . ") < EndTime");
+            //$this->db->where("StartTime >", date('Y-m-d H:i:s', $end_time));
+            //$this->db->where("EndTime >", date('Y-m-d H:i:s', $start_time));
+            $this->db->where_in("Aauth_usersID", $supervisor_ids);
+            $this->db->where_in("Aauth_groupsID", $groups);
+            $this->db->order_by("StartTime", "asc");
             $result = $this->db->get();
             if ($result->num_rows() > 0)
             {
-                $supervisor_ids = array_map(function($o) { return $o->Aauth_usersID; }, $result->result());
-                $this->db->flush_cache();
-                $this->db->select("StartTime, EndTime");
-                $this->db->from("Supervision");
-                $this->db->where("FROM_UNIXTIME(" . $this->db->escape($end_time) . ") > StartTime");
-                $this->db->where("FROM_UNIXTIME(" . $this->db->escape($start_time) . ") < EndTime");
-                //$this->db->where("StartTime >", date('Y-m-d H:i:s', $end_time));
-                //$this->db->where("EndTime >", date('Y-m-d H:i:s', $start_time));
-                $this->db->where_in("Aauth_usersID", $supervisor_ids);
-                $this->db->where_in("Aauth_groupsID", $groups);
-                $this->db->order_by("StartTime", "asc");
-                $result = $this->db->get();
-                if ($result->num_rows() > 0)
-                {
-                    return $result->result();
-                }
-                else
-                {
-                    return [];
-                }
+                return $result->result();
             }
             else
             {
                 return [];
             }
-
         }
         else
         {
