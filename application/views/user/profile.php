@@ -74,7 +74,7 @@
 				<ul class="nav nav-pills nav-stacked" id="profile_menu">
 					<li class="active"><a href="#" onclick="get_user_profile();">Profile</a></li>
 					<li><a href="#" onclick="get_machine_levels();">Machine skill levels</a></li>
-					<li><a href="#" onclick="get_reservations();">Reservations</a></li>
+					<li><a href="#" onclick="get_reservations();">Reservations history</a></li>
 				</ul>
 			</div>
 		</div>
