@@ -40,10 +40,11 @@ class Info extends MY_Controller
 		$results = array();
 		foreach ($mGroups as $mGroup) 
 		{
+			//quick fix to remove inactive machine groups
+			if ($mGroup->active != true) continue;
 			$tmp = array(
 					"MachineGroupID" => $mGroup->MachineGroupID,
 					"Name" => $mGroup->Name,
-					'active' => $mGroup->active,
 					'machines' => array(),
  					"Description" => $mGroup->Description,
  					"NeedSupervision" => $mGroup->NeedSupervision
@@ -52,6 +53,8 @@ class Info extends MY_Controller
 			{
 				if ($mGroup->MachineGroupID == $m->MachineGroupID) 
 				{
+					//quick fix to remove inactive machines
+					if ($m->active != true) continue;
 					$tmp['machines'][] = $m;
 				}
 			}

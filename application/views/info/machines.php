@@ -19,9 +19,6 @@
 									<h4 class="modal-title"><?=$mg['Name']?></h4>
 								</div>
 								<div class="modal-body">
-									<div>Status: <b><?php if ($mg['active']) echo 'Active'; else echo 'Inactive'; ?></b></div>
-									<div>Need supervision: <b><?php if ($mg['NeedSupervision']) echo 'Yes'; else echo 'No'; ?></b></div>
-									<hr/>
 									<?=$mg['Description']?>
 								</div>
 							</div>
@@ -53,7 +50,6 @@
 												<div class="modal-body">
 													<div>Manufacturer: <b><?=$m->Manufacturer?></b></div>
 													<div>Model: <b><?=$m->Model?></b></div>
-													<div>Status: <b><?php if ($m->active) echo 'Active'; else echo 'Inactive'; ?></b></div>
 													<div>Need supervision: <b><?php if ($m->NeedSupervision) echo 'Yes'; else echo 'No'; ?></b></div>
 													<hr/>
 													<?=$m->Description?>
