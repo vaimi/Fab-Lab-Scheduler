@@ -2,11 +2,10 @@
 
 $config['useragent']        = 'PHPMailer';              // Mail engine switcher: 'CodeIgniter' or 'PHPMailer'
 $config['protocol']         = 'smtp';                   // 'mail', 'sendmail', or 'smtp'
-
-$config['name'] 			= '';
-$config['smtp_host']        = '';
-$config['smtp_user']        = '';
-$config['smtp_pass']        = '';
+$config['name'] 			= 'Oulu Fab Lab';
+$config['smtp_host']        = 'smtp.gmail.com';
+***REMOVED***
+***REMOVED***
 $config['smtp_port']        = 465;
 $config['smtp_timeout']     = 5;                        // (in seconds)
 $config['smtp_debug']       = 0;                        // PHPMailer's SMTP debug info level: 0 = off, 1 = commands, 2 = commands and data, 3 = as 2 plus connection status, 4 = low level data output.
