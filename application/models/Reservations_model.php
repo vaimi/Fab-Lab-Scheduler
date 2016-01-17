@@ -360,7 +360,7 @@ class Reservations_model extends CI_Model {
                 $line = array();
                 $line['id'] = $reservation->ReservationID;
                 $line['machine'] = $reservation->Manufacturer . " " . $reservation->Model;
-                $line['reserved'] = $reservation->StartTime . " " . $reservation->EndTime;
+                $line['reserved'] = $reservation->StartTime . " - " . $reservation->EndTime;
                 $response[] = $line;
             }
         }
