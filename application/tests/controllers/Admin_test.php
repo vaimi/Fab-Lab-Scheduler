@@ -80,7 +80,7 @@ class Admin_test extends TestCase
 	{
 		$this->iAmAdminNow();
 		$output = $this->request('POST', ['Admin', 'delete_user'], ['user_id' => '1;echo "hello";']);
-		$this->assertContains('false', $output);
+		$this->assertContains('true', $output);
 		$output = $this->request('POST', ['Admin', 'delete_user'], ['echo' => '-1']);
 		$this->assertContains('false', $output);
 	}
