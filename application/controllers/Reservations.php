@@ -47,7 +47,7 @@ class Reservations extends MY_Controller
 		$this->load->view('partials/menu');
 
 		//Load available machines
-		$machines = $this->Reservations_model->reservations_get_machines_basic_info();
+		$machines = $this->Reservations_model->reservations_get_active_machines_as_db_object();
 		//Load available quota.
 		$data['quota'] = $this->Reservations_model->get_user_quota($this->session->userdata('id'));
 		$data['machines'] = $machines->result();
