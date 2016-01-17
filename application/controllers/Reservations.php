@@ -60,11 +60,13 @@ class Reservations extends MY_Controller
 			//TODO Should Show Better error.
 			show_error("Parameters are not found in db.");
 		}
-		$jdata['title'] = "Reserve";
-		$jdata['message'] = "Rember to reserve time before " . $deadline .
-		" today. Also you can reserve time " . $settings['reservation_timespan'] . " " . $settings['interval'] . " forward.";
+		$jdata['title'] = "Reserve a time";
+		$jdata['message'] = "Remember that to be able to make a reservation for tomorrow, you have to reserve before " . $deadline .
+		" today. Also you can make a reservation only " . $settings['reservation_timespan'] . " " . $settings['interval'] . " forward.";
 
-		if ( $data['is_admin'] ) //Admin can reserve time anytime or User is not admin and deadline is not exceeded.
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('reservations/reserve',$data);
+		/*if ( $data['is_admin'] ) //Admin can reserve time anytime or User is not admin and deadline is not exceeded.
 		{
 			$this->load->view('partials/jumbotron', $jdata);
 			$this->load->view('reservations/reserve',$data);
@@ -75,14 +77,14 @@ class Reservations extends MY_Controller
 			$this->load->view('partials/jumbotron', $jdata);
 			$this->load->view('reservations/reserve',$data);
 		}
-		else 
+		/*else 
 		{
 			$d = array(
 					"message" => "Deadline is exceeded. You have to reserve time before " . $deadline . " server time.",
 					"title" => "Deadline is exceeded."
 			);
 			$this->load->view('partials/jumbotron_center', $d);
-		}
+		}*/
 		$this->load->view('partials/footer');
 	}
 	private function is_reservation_deadline_exceeded()
@@ -186,19 +188,18 @@ class Reservations extends MY_Controller
 			$endTime->setTime(0, 0, 0);
 			$now = new Datetime();
 			$start_limit = new DateTime();
-			date_add($start_limit,date_interval_create_from_date_string("1 days"));
-			$start_limit->setTime(0, 0, 0);
+			//$start_limit->setTime(0, 0, 0);
 			if ($startTime < $start_limit)
 			{
 				$limit_array = explode(":", $settings['reservation_deadline']);
 				$start_limit->setTime($limit_array[0], $limit_array[1], 0);
 				if ($now < $start_limit)
 				{
-					date_add($now,date_interval_create_from_date_string("2 days"));
+					date_add($now,date_interval_create_from_date_string("1 days"));
 				}
 				else
 				{
-					date_add($now,date_interval_create_from_date_string("3 days"));
+					date_add($now,date_interval_create_from_date_string("2 days"));
 				}
 				$now->setTime(0, 0, 0);
 				$start = $now->getTimestamp();
