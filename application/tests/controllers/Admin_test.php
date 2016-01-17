@@ -79,7 +79,7 @@ class Admin_test extends TestCase
 	public function test_delete_user_invalid_post_field()
 	{
 		$this->iAmAdminNow();
-		$output = $this->request('POST', ['Admin', 'delete_user'], ['user_id' => '1;DROP TABLE Machine;']);
+		$output = $this->request('POST', ['Admin', 'delete_user'], ['user_id' => '1;echo "hello";']);
 		$this->assertContains('false', $output);
 		$output = $this->request('POST', ['Admin', 'delete_user'], ['echo' => '-1']);
 		$this->assertContains('false', $output);
