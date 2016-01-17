@@ -373,12 +373,10 @@ class User extends MY_Controller
 
 	private function authorize_priviledged_email($user_id, $email)
 	{
-		// delete user from default group
-		//$this->aauth->remove_member($user_id, )
-		//$sql = "delete from aauth_user_to_group where user_id=?";
-		//$db->query($sql, array($user_id));
 		// set default group
 		$user_group = 2; //public group
+		// delete user from default group
+		$this->aauth->remove_member($user_id, $user_group);
 		// get prefix of the user's email
 		$email_prefix = explode( '@', $email )[1];
 		// get prefixes of all groups
