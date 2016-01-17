@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `aauth_pms` (
   `message` text,
   `date_sent` datetime DEFAULT NULL,
   `date_read` datetime DEFAULT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 --
 -- Table structure for table `aauth_system_variables`
@@ -149,7 +149,14 @@ CREATE TABLE IF NOT EXISTS `aauth_users` (
   `totp_secret` varchar(16) DEFAULT NULL,
   `ip_address` text,
   `login_attempts` int(11) DEFAULT '0'
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+--
+-- Vedos taulusta `aauth_users`
+--
+
+INSERT INTO `aauth_users` (`id`, `email`, `pass`, `name`, `banned`, `last_login`, `last_activity`, `last_login_attempt`, `forgot_exp`, `remember_time`, `remember_exp`, `verification_code`, `totp_secret`, `ip_address`, `login_attempts`) VALUES
+(1, 'admin@example.com', '3783a5063e48003fd64eb62d2f06125430b4d63e62aeda455564932654079c80', 'admin', 0, NULL, NULL, NULL, NULL, NULL, NULL, '', NULL, NULL, 0);
 
 --
 -- Table structure for table `aauth_user_to_group`
@@ -160,6 +167,13 @@ CREATE TABLE IF NOT EXISTS `aauth_user_to_group` (
   `user_id` int(11) unsigned NOT NULL DEFAULT '0',
   `group_id` int(11) unsigned NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Vedos taulusta `aauth_user_to_group`
+--
+
+INSERT INTO `aauth_user_to_group` (`user_id`, `group_id`) VALUES
+(1, 1);
 
 --
 -- Table structure for table `aauth_user_variables`
@@ -221,6 +235,13 @@ CREATE TABLE IF NOT EXISTS `extended_users_information` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
+-- Vedos taulusta `extended_users_information`
+--
+
+INSERT INTO `extended_users_information` (`id`, `first_name`, `surname`, `company`, `address_street`, `address_postal_code`, `phone_number`, `student_number`, `quota`) VALUES
+(1, 'Admin', 'Administrator', '', '', '', '123456789', '', 0);
+
+--
 -- Table structure for table `Machine`
 --
 
@@ -234,7 +255,7 @@ CREATE TABLE IF NOT EXISTS `Machine` (
   `NeedSupervision` tinyint(1) NOT NULL,
   `Description` mediumtext,
   `active` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `MachineGroup`
@@ -247,7 +268,7 @@ CREATE TABLE IF NOT EXISTS `MachineGroup` (
   `Description` text,
   `NeedSupervision` tinyint(4) NOT NULL,
   `active` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `Reservation`
@@ -263,7 +284,7 @@ CREATE TABLE IF NOT EXISTS `Reservation` (
   `QRCode` varchar(256) NOT NULL,
   `PassCode` varchar(10) NOT NULL,
   `State` tinyint(4) NOT NULL DEFAULT '1'
-) ENGINE=InnoDB AUTO_INCREMENT=175 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `Setting`
@@ -300,7 +321,7 @@ CREATE TABLE IF NOT EXISTS `Supervision` (
   `aauth_groupsID` int(11) NOT NULL,
   `StartTime` datetime NOT NULL,
   `EndTime` datetime NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=252 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 --
 -- Table structure for table `UserLevel`
@@ -453,52 +474,52 @@ ALTER TABLE `aauth_perms`
 -- AUTO_INCREMENT for table `aauth_pms`
 --
 ALTER TABLE `aauth_pms`
-  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `aauth_system_variables`
 --
 ALTER TABLE `aauth_system_variables`
-  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `aauth_users`
 --
 ALTER TABLE `aauth_users`
-  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `aauth_user_variables`
 --
 ALTER TABLE `aauth_user_variables`
-  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) unsigned NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `conversation_participants`
 --
 ALTER TABLE `conversation_participants`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `Machine`
 --
 ALTER TABLE `Machine`
-  MODIFY `MachineID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MachineID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `MachineGroup`
 --
 ALTER TABLE `MachineGroup`
-  MODIFY `MachineGroupID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MachineGroupID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `Reservation`
 --
 ALTER TABLE `Reservation`
-  MODIFY `ReservationID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ReservationID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
 --
 -- AUTO_INCREMENT for table `Supervision`
 --
 ALTER TABLE `Supervision`
-  MODIFY `SupervisionID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `SupervisionID` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=1;
 --
 -- Constraints for dumped tables
 --

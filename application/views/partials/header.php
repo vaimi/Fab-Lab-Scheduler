@@ -10,7 +10,6 @@
 	<!-- Bootstrap -->
     <link href="<?php echo asset_url();?>css/bootstrap.min.css" rel="stylesheet" type="text/css"> 
 	<link href="<?php echo asset_url();?>css/bootstrap-fablab.css" rel="stylesheet" type="text/css"> 
-	<link href="<?php echo asset_url();?>css/jQueryGantt.css" rel="stylesheet" type="text/css"> 
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="<?php echo asset_url();?>js/jquery-1.11.3.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
