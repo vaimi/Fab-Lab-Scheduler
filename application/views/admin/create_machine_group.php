@@ -16,7 +16,6 @@
 		<p>Description:</p>
 		<p><textarea id="description" name="description" required=""><?php echo $description;?></textarea></p>
 		
-		<p>Need Supervision: <input type="checkbox" value="need_supervision" name="need_supervision" id="need_supervision" <?php if ($need_supervision !='') { ?> checked <?php } ?> /></p>
 		<p>
 			<div class="btn-toolbar">
 				<button type="submit" class='btn btn-success'>Create Machine Group</button>
