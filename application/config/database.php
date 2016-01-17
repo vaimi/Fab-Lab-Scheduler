@@ -75,11 +75,11 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => '',
-	'port' => 7557,
-	'username' => '',
+	'hostname' => '127.0.0.1',
+	'port' => 3306,
+	'username' => 'root',
 	'password' => '',
-	'database' => '',
+	'database' => 'fablab_scheduler',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
