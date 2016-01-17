@@ -10,6 +10,7 @@
 	      </div>
 	      <div class="modal-body">
 		  	<form name="create_machine" method="post" action="<?php echo base_url();?>admin/create_machine">
+		  		<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 				<div class="input-group">
 					<input id="cid" type="hidden" name="machineGroup">
 			  		<input type="text" class="form-control focusedInput" id="machinename" name="machinename" placeholder="Machine name" aria-describedby="basic-addon1">

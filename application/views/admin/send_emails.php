@@ -9,6 +9,7 @@
 	<?php }?>
 	<?php } ?>
 	<form name="login" method="post" action="<?php echo base_url();?>admin/send_emails">
+		<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 		<div class="row"><p>Email Subject (*)</p></div>
 		<div class="row"><p><input type="email_subject" name="email_subject" class="form-control" value="<?php echo $email_subject;?>"/></p></div>
 		<div class="row"><p>Recipients:  (To all users: <input onchange="change_recipient_state()" type="checkbox" name="send_all" id="send_all" value="send_all" <?php if ($send_all) {echo 'checked';} ?>>)</p> </div>
@@ -44,6 +45,7 @@
 		function sendFile(file, editor, welEditable) {
             data = new FormData();
             data.append("file", file);
+            data.append('csrf_test_name', csrf_token)
             $.ajax({
                 data: data,
                 type: "POST",

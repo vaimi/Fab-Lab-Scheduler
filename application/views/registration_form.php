@@ -11,6 +11,7 @@
 		<div style='color:red;'>- <?php echo $item;?></div>
 	<?php endforeach;?>
 	<form name="registration" method="post" id="registerform" action="<?php echo base_url();?>user/registration" onsubmit="return true;">
+		<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 		<div class="form-group required has-feedback">
 			<label class="control-label" for="username">User name</label>
 			<input type="text" data-minlength="5" data-maxlength="100" class="form-control" name="username" id="username" required placeholder="User name" value="<?php echo $username;?>"/>

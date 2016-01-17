@@ -13,6 +13,7 @@
 		<p style="color:red"><?php echo $error; ?></p>
 		<?php }?>
 		<form enctype="multipart/form-data" method="post" action="<?php echo base_url();?>admin/upload_image">
+			<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 			<p>Select image to upload:</p>
 		    <p><input type="file" name="fileToUpload" id="fileToUpload"></p>
 		    <p><input type="submit" value="Upload Image" name="submit"></p>

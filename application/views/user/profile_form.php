@@ -3,6 +3,7 @@
 	<div id="tab-content" class="tab-content">
 		<div class="tab-pane active" id="basic">
 			<form class="form-horizontal" id="basic_form">
+				<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 				<div class="form-group">
 					<label class="control-label col-xs-2" for="email_input">Email:</label>
 					<div class="col-xs-8">
@@ -100,7 +101,8 @@ function update_user(user_id) {
 		'address_postal_code': $('#address_postal_code_input').val(),
 		'student_number': $('#student_number_input').val(),
 		'first_password': $('#first_password').val(),
-		'second_password': $('#second_password').val()
+		'second_password': $('#second_password').val(),
+		'csrf_test_name': csrf_token
 	};
 	$('#user_data_form').fadeOut('fast');
 	$.ajax({

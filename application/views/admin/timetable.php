@@ -45,6 +45,7 @@
     	$('#save_button').addClass("disabled");
         $.ajax({
             type: "POST",
+            data: {'csrf_test_name': csrf_token},
             url: "timetable_save",
             success: function(data) {
             	$('#save_button').removeClass("disabled");
@@ -74,7 +75,8 @@
             "assigned": event.assigned,
             "group": event.group,
             "start": moment(event._start).format("YYYY-MM-DD HH:mm:ss"),
-            "end": moment(event._end).format("YYYY-MM-DD HH:mm:ss")
+            "end": moment(event._end).format("YYYY-MM-DD HH:mm:ss"),
+            'csrf_test_name': csrf_token
         }
         $.ajax({
             type: "POST",
@@ -94,7 +96,8 @@
     function restoreEvent(id) {
     	var event = $("#calendar").fullCalendar( 'clientEvents', id)[0];
         var post_data = {
-            "id": event.id
+            "id": event.id,
+            'csrf_test_name': csrf_token
         };
         $.ajax({
             type: "POST",
@@ -146,7 +149,8 @@
     	var post_data = {
               "startDate" : sDate,
               "endDate" : eDate,
-              "copyStartDate" : csDate
+              "copyStartDate" : csDate, 
+              'csrf_test_name': csrf_token
         };
 		$.ajax({
         	type: "POST",
@@ -184,7 +188,8 @@
 		eDate = eDate.format("YYYY-MM-DD");
     	var post_data = {
               "startDate" : sDate,
-              "endDate" : eDate
+              "endDate" : eDate, 
+              'csrf_test_name': csrf_token
         };
 		$.ajax({
         	type: "POST",
@@ -227,7 +232,8 @@
             "group": $("#targetpicker").val(),
             "start": $('#startpicker').data("DateTimePicker").date().format("YYYY-MM-DD HH:mm:ss"),
             "end": $('#endpicker').data("DateTimePicker").date().format("YYYY-MM-DD HH:mm:ss"),
-            "title": event.title
+            "title": event.title, 
+            'csrf_test_name': csrf_token
         };
         $.ajax({
             type: "POST",
@@ -341,7 +347,8 @@
                     "assigned": event.assigned,
                     "group": event.group,
                     "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
-                    "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss")
+                    "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss"), 
+                    'csrf_test_name': csrf_token
                 }
 				$.ajax({
                     type: "POST",
@@ -367,7 +374,8 @@
                     "assigned": event.assigned,
                     "group": event.group,
                     "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
-                    "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss")
+                    "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss"), 
+                    'csrf_test_name': csrf_token
                 }
 				$.ajax({
                     type: "POST",
@@ -389,7 +397,8 @@
                     "start": moment(event.start).format("YYYY-MM-DD HH:mm:ss"),
                     "end": moment(event.end).format("YYYY-MM-DD HH:mm:ss"),
                     "group": event.group,
-                    "assigned": event.assigned
+                    "assigned": event.assigned, 
+                    'csrf_test_name': csrf_token
                 }
 				$.ajax({
                     type: "POST",

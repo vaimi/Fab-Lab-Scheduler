@@ -3,6 +3,7 @@
 	<hr/>
 	<?php if ($action == 'edit') {?><div style='color:red;'>Edit successful</div><?php }?>
 	<form name="login" method="post" action="<?php echo base_url();?>admin/edit_machine_group/<?php echo $machine_group['MachineGroupID'] ?>">
+		<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 		<p>Name (*):</p>
 		<p><input type="text" class="form-control" name="name" id="name"
 					style="" value="<?php echo $machine_group['Name'];?>" required="" autofocus=""

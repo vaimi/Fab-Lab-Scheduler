@@ -8,7 +8,8 @@ function ajaxSearch() {
 	var input_data = $('#search_people').val();
 
 	var post_data = {
-		'search_data': input_data
+		'search_data': input_data, 
+		'csrf_test_name': csrf_token
 	};
 	$('#search_results > a').remove();
 	$('#search_results > .loader').remove();
@@ -32,7 +33,8 @@ function ajaxSearch() {
 function fetchUserData(user_id) {
 	// Fetch user data (ready made html)
 	var post_data = {
-		'user_id': user_id
+		'user_id': user_id, 
+		'csrf_test_name': csrf_token
 	};
 	$('#user_data_form').html('<div class="loader">Loading...</div>');
 

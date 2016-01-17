@@ -9,6 +9,7 @@
 			<div class="modal-body">
 				<form name="login" method="post"
 					action="<?php echo base_url();?>user/login">
+					<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 					<p>Email:</p>
 					<p>
 						<input type="email" class="form-control" name="email" id="email"

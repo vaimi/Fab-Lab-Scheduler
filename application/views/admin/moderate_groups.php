@@ -13,7 +13,8 @@
 			type: "POST",
 			dataType : 'json',
 			data: {
-				'group_detail' : $('#filter_text').val()
+				'group_detail' : $('#filter_text').val(),
+				'csrf_test_name': csrf_token
 				},
 			url: "<?php echo base_url('admin/get_group_list'); ?>",
 			success: function(data)
@@ -33,6 +34,7 @@
 		$.ajax({
 			type: "GET",
 			dataType : 'json',
+			data: {'csrf_test_name': csrf_token},
 			url: "<?php echo base_url('admin/get_group_detail'); ?>/" + group_id.toString(),
 			success: function(data)
 			{
@@ -64,7 +66,8 @@
 				'group_id' : $('#group_id').val(),
 				'group_name' : $('#group_name').val(),
 				'group_description' : $('#group_description').val(),
-				'group_email_suffix' : $('#group_email_suffix').val()
+				'group_email_suffix' : $('#group_email_suffix').val(),
+				'csrf_test_name': csrf_token
 			},
 			url: "<?php echo base_url('admin/update_group'); ?>",
 			success: function(data)
@@ -92,7 +95,8 @@
 				'group_id' : $('#group_id').val(),
 				'group_name' : $('#group_name').val(),
 				'group_description' : $('#group_description').val(),
-				'group_email_suffix' : $('#group_email_suffix').val()
+				'group_email_suffix' : $('#group_email_suffix').val(),
+				'csrf_test_name': csrf_token
 			},
 			url: "<?php echo base_url('admin/create_group'); ?>",
 			success: function(data)
@@ -120,7 +124,8 @@
 			type: "POST",
 			dataType : 'json',
 			data: {
-				'group_id' : $('#group_id').val()
+				'group_id' : $('#group_id').val(),
+				'csrf_test_name': csrf_token
 			},
 			url: "<?php echo base_url('admin/delete_group'); ?>",
 			success: function(data)
@@ -200,6 +205,7 @@
 			<h3>Group Detail</h3>
 			<div class="tab-pane active" id="basic">
 				<form class="form-horizontal" id="basic_form">
+					<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 					<div class="form-group">
 						<label class="control-label col-md-2" for="name">Name:</label>
 						<div class="col-md-8">

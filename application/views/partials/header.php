@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Fab Lab Scheduler</title>
-	
+	     <script type="text/javascript">
+     var csrf_token = '<?php echo $this->security->get_csrf_hash(); ?>';
+  </script>
 	<!-- Bootstrap -->
     <link href="<?php echo asset_url();?>css/bootstrap.min.css" rel="stylesheet" type="text/css"> 
 	<link href="<?php echo asset_url();?>css/bootstrap-fablab.css" rel="stylesheet" type="text/css"> 
@@ -49,7 +51,8 @@
       
     <link rel="stylesheet" href="<?php echo asset_url();?>css/bootstrap-datetimepicker.min.css" />
     <script type="text/javascript" src="<?php echo asset_url();?>js/bootstrap-datetimepicker.min.js"></script>
-      
+     
+
   </head>
  
   <body>

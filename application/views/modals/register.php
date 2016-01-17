@@ -9,6 +9,7 @@
 				<h4 class="modal-title">REGISTRATION</h4>
 			</div>
 			<form name="registration" id="registerform2" method="post" action="<?php echo base_url();?>user/registration" onsubmit="return true;">
+			<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 			<div class="modal-body">
 				<div class="form-group required has-feedback">
 					<label class="control-label" for="username">User name</label>

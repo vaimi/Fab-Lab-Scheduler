@@ -47,7 +47,8 @@
 	function restore_slot() {
 		// Send form to controller 
 		var post_data = {
-			'id': $(".restoreButton").data("id")
+			'id': $(".restoreButton").data("id"), 
+			'csrf_test_name': csrf_token
 		};
 
 		disableForm(true);
@@ -78,7 +79,8 @@
 		// Send form to controller 
 		var post_data = {
 			'id': $(".cancelButton").data("id"),
-			'restore': restore
+			'restore': restore, 
+			'csrf_test_name': csrf_token
 		};
 
 		disableForm(true);
@@ -115,7 +117,8 @@
 			'2': $("#state_2").is(':checked'),
 			'3': $("#state_3").is(':checked'),
 			'4': $("#state_4").is(':checked'),
-			'5': $("#state_5").is(':checked')
+			'5': $("#state_5").is(':checked'), 
+			'csrf_test_name': csrf_token
 		};
 		$(".state-switch").bootstrapSwitch('disabled', true);
 		$("#refreshButton").addClass('disabled');
@@ -153,7 +156,8 @@
 			'machines': $("#selectMachine").val(),
 			'user': $("#selectUser").val(),
 			'force': force,
-			'repair': $(".repairCheck").is(':checked')
+			'repair': $(".repairCheck").is(':checked'), 
+			'csrf_test_name': csrf_token
 		};
 
 		disableForm(true);

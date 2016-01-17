@@ -10,29 +10,6 @@
 
 <script>
 
-
-	function delete_reservation(reservation_id)
-	{
-		if (confirm('Are you sure you want to delete the reservation?') == false)
-			return;
-	
-		$.ajax({
-			type: "POST",
-			url: "<?php echo base_url('user/delete_reservation'); ?>/" + reservation_id,
-			dataType: "json",
-			success: function(data)
-			{
-				alerter("success", data.message); 
-				$(".qtip").qtip('hide');
-				$('#calendar').fullCalendar('refetchEvents');
-			},
-			error: function(data)
-			{
-				alerter("success", data.message); 
-			}
-		});
-	}
-
 	function alerter(alert_type, alert_message) {
 		// alerter function for on-screen alerts
 		$.notify({
@@ -77,7 +54,8 @@
 		var post_data = {
 			'mid': $("#selectMachine").val(),
 			'day': day_string,
-			'length': $("#selectLength").val()
+			'length': $("#selectLength").val(),
+			'csrf_test_name': csrf_token
 		};
 		$("#results").html("<div class=\"loader\"></div>");
 		$("#searchButton").addClass('disabled');
@@ -284,9 +262,6 @@
 		sModal += "<p>First name: " + firstname + "</p>";
 		sModal += "<p>Surname: " + surname + "</p>";
 		sModal += "<p>Email: " + email + "</p>";
-		sModal += "<p><a type=\"button\" class=\"btn btn-danger\" onclick=\"delete_reservation(" + reservation_id + ");\">";
-		sModal += "<span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span> Cancel";
-		sModal += "</a></p>";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
 			show: { 
@@ -414,6 +389,7 @@
 			'eday': end.format('DD'),
 			'ehour': end.format('HH'),
 			'emin': end.format('mm'),
+			'csrf_test_name': csrf_token
 		};
 
 		disableForm(true, nightslot);
@@ -445,6 +421,7 @@
 	function getQuota() {
 		$.ajax({
 			type: "POST",
+			data: {'csrf_test_name': csrf_token},
 			url: "reserve_get_quota",
 			success: function(data) {
 				if (data.length > 0) {

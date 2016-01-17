@@ -147,6 +147,7 @@
 		$.ajax({
 			type: "GET",
 			dataType : 'json',
+			data: {'csrf_test_name': csrf_token},
 			url: "<?php echo base_url('admin/change_activation_status_machine_group'); ?>/" + machine_group_id,
 			success: function(data) {
 				// return success
@@ -182,6 +183,7 @@
 			$.ajax({
 				type: "GET",
 				dataType : 'json',
+				data: {'csrf_test_name': csrf_token},
 				url: "<?php echo base_url('admin/delete_machine_group'); ?>/" + machine_group_id,
 				success: function(data) {
 					// return success
@@ -204,6 +206,7 @@
 		$.ajax({
 			type: "GET",
 			dataType : 'json',
+			data: {'csrf_test_name': csrf_token},
 			url: "<?php echo base_url('admin/change_activation_status_machine'); ?>/" + machine_id,
 			success: function(data) {
 				// return success
@@ -239,6 +242,7 @@
 			$.ajax({
 				type: "GET",
 				dataType : 'json',
+				data: {'csrf_test_name': csrf_token},
 				url: "<?php echo base_url('admin/delete_machine'); ?>/" + machine_id,
 				success: function(data) {
 					// return success
@@ -266,7 +270,8 @@
 				'manufacturer' : $('#manufacturer_' + machine_id.toString()).val(),
 				'model' : $('#model_' + machine_id.toString()).val(),
 				'description' : $('#desc_' + machine_id.toString()).val(),
-				'need_supervision': $('#needSupervision_' + machine_id.toString()).is(':checked')?'yes':''
+				'need_supervision': $('#needSupervision_' + machine_id.toString()).is(':checked')?'yes':'',
+				'csrf_test_name': csrf_token
 				},
 			url: "<?php echo base_url('admin/edit_machine'); ?>/" + machine_id,
 			success: function(data) {

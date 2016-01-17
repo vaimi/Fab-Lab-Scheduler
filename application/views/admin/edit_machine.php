@@ -11,6 +11,7 @@
 	      <div class="modal-body">
 		  	<form name="create_machine" method="post" action="<?php echo base_url();?>admin/edit_machine">
 				<div class="input-group">
+					<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 					<input id="cid" type="hidden" name="machineGroup">
 			  		<input type="text" class="form-control focusedInput" id="machinename" name="machinename" placeholder="Machine name" aria-describedby="basic-addon1">
 			  		<input type="text" class="form-control focusedInput" id="manufacturer" name="manufacturer" placeholder="Manufacturer" aria-describedby="basic-addon1">

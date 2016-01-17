@@ -8,6 +8,7 @@
 ?>
 <div class="container">
 	<form role="form" action="<?php echo base_url();?>admin/save_general_settings" method="post">
+		<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 		<fieldset>
 			<legend>Reservation</legend>
 			<div class="form-group form-inline">

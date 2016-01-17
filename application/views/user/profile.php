@@ -10,6 +10,7 @@
 		$('#user_data_form').fadeOut('fast');
 		$.ajax({
 			type: "POST",
+			data: {'csrf_test_name': csrf_token},
 			url: "<?php echo base_url('user/get_user_profile'); ?>",
 			success: function(data) {
 				// return success
@@ -25,6 +26,7 @@
 		$('#user_data_form').fadeOut('fast');
 		$.ajax({
 			type: "POST",
+			data: {'csrf_test_name': csrf_token},
 			url: "<?php echo base_url('user/get_machine_levels'); ?>",
 			success: function(data) {
 				// return success
@@ -40,6 +42,7 @@
 		$('#user_data_form').fadeOut('fast');
 		$.ajax({
 			type: "POST",
+			data: {'csrf_test_name': csrf_token},
 			url: "<?php echo base_url('user/get_reservations'); ?>",
 			success: function(data) {
 				// return success
@@ -55,6 +58,7 @@
 		$('#user_data_form').fadeOut('fast');
 		$.ajax({
 			type: "POST",
+			data: {'csrf_test_name': csrf_token},
 			url: "<?php echo base_url('user/get_conversations'); ?>",
 			success: function(data) {
 				// return success

@@ -26,7 +26,9 @@
 	function cancelReservation() 
 	{
 		var id = $('#cancelModal').data("id");
-		var d = { "id" : id };
+		var d = { "id" : id,
+				'csrf_test_name': csrf_token
+		 };
 		$.ajax({
 			type: "POST",
 			url: "cancel_reservation",

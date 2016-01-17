@@ -45,7 +45,8 @@ function saveData(user) {
 		'address_postal_code': $('#address_postal_code_input').val(),
 		'student_number': $('#student_number_input').val(),
 		'groups' : $('#group_form').serialize(),
-		'levels' : $('.inner_rating :input').serialize()
+		'levels' : $('.inner_rating :input').serialize(), 
+		'csrf_test_name': csrf_token
 	};
 	disableForm(true);
 
@@ -78,7 +79,8 @@ function setQuota(user, amount) {
 	disableForm(true);
 	var post_data = {
 		'user_id': user.id,
-		'amount': amount
+		'amount': amount, 
+		'csrf_test_name': csrf_token
 	};
 	
 	$.ajax({
@@ -109,7 +111,8 @@ function banUser(user) {
 	// Ban/unban users
 	disableForm(true);
 	var post_data = {
-		'user_id': user.id
+		'user_id': user.id, 
+		'csrf_test_name': csrf_token
 	};
 
 	var post_url = "";
@@ -152,7 +155,8 @@ function deleteUser(user) {
 	// Delete user from db. 
 	disableForm(true);
 	var post_data = {
-		'user_id': user.id
+		'user_id': user.id, 
+		'csrf_test_name': csrf_token
 	};
 	
 	$.ajax({

@@ -9,6 +9,7 @@
 		<div style='color:red;'>- <?php echo $item;?></div>
 	<?php endforeach;?>
 	<form name="login" method="post" action="<?php echo base_url();?>admin/create_machine_group">
+		<input type="hidden" name="<?php echo $this->security->get_csrf_token_name();?>" value="<?php echo $this->security->get_csrf_hash();?>">
 		<p>Name (*):</p>
 		<p><input type="text" class="form-control" name="name" id="name"
 					style="" value="<?php echo $name;?>" required="" autofocus=""
