@@ -94,8 +94,6 @@ class User extends MY_Controller
 			if ($this->verify_registration_data($post_data))
 			{
 				$this->create_user($post_data);
-				redirect(base_url(), 'refresh');
-				return;
 			}
 		}
 		else // get action, when user use the link
@@ -148,12 +146,7 @@ class User extends MY_Controller
 				$this->session->set_userdata('phone_number', $row->phone_number);
 				$this->session->set_userdata('student_number', $row->student_number);
 				$this->session->set_userdata('quota', $row->quota);
-				$pos_logout = strpos($current_url, 'user/logout');
-				$pos_login = strpos($current_url, 'user/login');
-				if ($pos_logout == false || $pos_login == false)
-					redirect($current_url, 'refresh');
-				else 
-					redirect(base_url(), 'refresh');
+				redirect(base_url(), 'refresh');
 				
 			}
 			else //login fail, go to login page with fail information
