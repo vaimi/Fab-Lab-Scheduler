@@ -659,16 +659,103 @@ class Admin extends MY_Controller
         $response = array_values($response);
         echo json_encode($response);
     }
-    
+    /**
+     * Fetches affected users and their emails when timetable is being modified.
+     * @access admin
+     */
+    public function timetable_confirm_emails() {
+    	//If not post message
+    	if($this->input->server('REQUEST_METHOD') == 'GET') return;
+    	
+    	$modified_slots = $this->session->userdata('sv_unsaved_modified_items');
+    	$deleted_slots = $this->session->userdata('sv_unsaved_deleted_items');
+    	$emails = array();
+    	foreach($modified_slots as $slot)
+    	{
+    		//Get all reservation which is in the modified slot
+    		$reservations = $this->Admin_model->get_reservations_by_slot($slot, $slot->original->start, $slot->original->end);
+    		//Delete the reservation if it fulfills the requirements (Modification does not affect to the reservation)
+    		foreach ($reservations as $key => $reservation)
+    		{
+    			//get levels
+    			$user_machine_lvl = $this->Admin_model->get_levels($reservation['aauth_usersID'], $reservation['MachineID'] );
+    			$supervisor_machine_lvl = $this->Admin_model->get_levels($slot->assigned, $reservation['MachineID'] );
+    			$user_machine_lvl = isset($user_machine_lvl->row()->Level) ? $user_machine_lvl->row()->Level : USER_UNSKILLED;
+    			$supervisor_machine_lvl = isset($supervisor_machine_lvl->row()->Level) ? $supervisor_machine_lvl->row()->Level : USER_UNSKILLED;
+    			$s_start = new DateTIme($slot->start);
+    			$s_end = new DateTIme($slot->end);
+    			$r_start = new DateTIme($reservation['StartTime']);
+    			$r_end = new DateTIme($reservation['EndTime']);
+    			//IF reservation time is in new time range, dont send email.
+    			if ( (($s_start <= $r_start && $s_end >= $r_start) && // start time
+    				 ($s_start <= $r_end && $s_end >= $r_end)) ) // end time
+    			{
+    				//If  user level 0, 1 or 2 and supervisor lvl is 4 then modification msg is sended.
+    				if( (($user_machine_lvl == USER_UNSKILLED || $user_machine_lvl == USER_NEEDS_SUPERVISOR
+    						|| $user_machine_lvl == 0) && $supervisor_machine_lvl == SUPERVISOR_CAN_SUPERVISE) )
+    				{
+    					continue;
+    				}
+    				else {
+    					unset($reservations[$key]);
+    				}
+    			}
+    		}
+    		//Get all reservation user ids
+    		$user_ids = array_map(function($o) { return $o['aauth_usersID']; }, $reservations);
+    		//remove duplicates.
+    		$user_ids = array_unique($user_ids);
+    		//send email to every user.
+    		foreach ($user_ids as $user_id)
+    		{
+    			$user = $this->Admin_model->get_user_data($user_id)->row();
+    			$email = $user->email;
+    			$user = $user->first_name . " ". $user->surname;
+    			array_push($emails, $user . " - " . $email);
+    		}
+    	}
+    	foreach($deleted_slots as $slot)
+    	{
+    		if ($slot->id > 0) //slot is saved before ( fetched from db)
+    		{
+    			//Get all reservation which is in the deleted slot
+    			$reservations = $this->Admin_model->get_reservations_by_slot($slot, $slot->start, $slot->end);
+    			//Get all reservation user ids
+    			$user_ids = array_map(function($o) { return $o['aauth_usersID']; }, $reservations);
+    			//remove duplicates.
+    			$user_ids = array_unique($user_ids);
+    			//send email to every user.
+    			foreach ($user_ids as $user_id)
+    			{
+    				$user = $this->Admin_model->get_user_data($user_id)->row();
+	    			$email = $user->email;
+	    			$user = $user->first_name . " ". $user->surname;
+	    			array_push($emails, $user . " - " . $email);
+    			}
+    		}
+    	}
+    	if ( empty($emails) ) 
+    	{
+    		echo json_encode(array("info" => array("Modifications are not affected to users.")), JSON_UNESCAPED_UNICODE);
+    	}
+    	else
+    	{
+    		echo json_encode(array("info" => $emails), JSON_UNESCAPED_UNICODE);
+    	}
+    }
 	/**
 	 * Save events from session file to database
-	 * @access public
+	 * @access admin
 	 */
 	public function timetable_save() {
+		//If not post message
+		if($this->input->server('REQUEST_METHOD') == 'GET') return;
+		
         $new_slots = $this->session->userdata('sv_unsaved_new_items');
         $modified_slots = $this->session->userdata('sv_unsaved_modified_items');
         $deleted_slots = $this->session->userdata('sv_unsaved_deleted_items');
         
+        $send_emails = ($this->input->post("send_emails") == "true") ? true : false;
         $errors = array();
         $emails = array();
         
@@ -684,18 +771,29 @@ class Admin extends MY_Controller
             foreach ($reservations as $key => $reservation)
             {
             	//get levels
-            	 $user_machine_lvl = $this->Admin_model->get_levels($reservation['aauth_usersID'], $reservation['MachineID'] );
-            	 $supervisor_machine_lvl = $this->Admin_model->get_levels($slot->assigned, $reservation['MachineID'] );
-            	 $user_machine_lvl = isset($user_machine_lvl) ? $user_machine_lvl->row()->Level : USER_UNSKILLED;
-            	 $supervisor_machine_lvl = isset($supervisor_machine_lvl) ? $supervisor_machine_lvl->row()->Level : USER_UNSKILLED;
-            	 //If NOT user level 0, 1 or 2 and supervisor lvl is 4 then delete reservation so modification msg is not sended.
-            	 if( !(($user_machine_lvl == USER_UNSKILLED || $user_machine_lvl == USER_NEEDS_SUPERVISOR 
-            	 		|| $user_machine_lvl == 0) && $supervisor_machine_lvl == SUPERVISOR_CAN_SUPERVISE) ) 
-            	 { 
-            	 	unset($reservations[$key]);
-            	 }
+            	$user_machine_lvl = $this->Admin_model->get_levels($reservation['aauth_usersID'], $reservation['MachineID'] );
+            	$supervisor_machine_lvl = $this->Admin_model->get_levels($slot->assigned, $reservation['MachineID'] );
+            	$user_machine_lvl = isset($user_machine_lvl) ? $user_machine_lvl->row()->Level : USER_UNSKILLED;
+            	$supervisor_machine_lvl = isset($supervisor_machine_lvl) ? $supervisor_machine_lvl->row()->Level : USER_UNSKILLED;
+           	 	$s_start = new DateTIme($slot->start);
+    			$s_end = new DateTIme($slot->end);
+    			$r_start = new DateTIme($reservation['StartTime']);
+    			$r_end = new DateTIme($reservation['EndTime']);
+    			//IF reservation time is in new time range, dont send email.
+    			if ( (($s_start <= $r_start && $s_end >= $r_start) && // start time
+    				 ($s_start <= $r_end && $s_end >= $r_end)) ) // end time
+    			{
+    				//If  user level 0, 1 or 2 and supervisor lvl is 4 then modification msg is sended.
+    				if( (($user_machine_lvl == USER_UNSKILLED || $user_machine_lvl == USER_NEEDS_SUPERVISOR
+    						|| $user_machine_lvl == 0) && $supervisor_machine_lvl == SUPERVISOR_CAN_SUPERVISE) )
+    				{
+    					continue;
+    				}
+    				else {
+    					unset($reservations[$key]);
+    				}
+    			}
             	 //TODO: what if target group is changing?
-            	 //TODO: what if time is changing?	
             }
             
             //Get all reservation user ids
@@ -705,14 +803,17 @@ class Admin extends MY_Controller
             //send email to every user.
             foreach ($user_ids as $user_id)
             {
-            	$user = $this->Admin_model->get_user_data($user_id)->row();
-            	$email = $user->email;
-            	array_push($emails, "<br>" . $email);
-            	$data['fullname'] = $user->first_name . " ". $user->surname;
-            	$data['slot_start'] = $slot->start;
-            	$data['slot_end'] = $slot->end;
-            	// Send email to associated reservations. TODO IF NOT SUCCEEDED
-            	$result = $this->send_email($email, "Changes have done in supervisor timeslot", "modify_email", $data);
+            	if($send_emails)
+            	{
+            		$user = $this->Admin_model->get_user_data($user_id)->row();
+            		$email = $user->email;
+            		array_push($emails, "<br>" . $email);
+            		$data['fullname'] = $user->first_name . " ". $user->surname;
+            		$data['slot_start'] = $slot->start;
+            		$data['slot_end'] = $slot->end;
+            		// Send email to associated reservations. TODO IF NOT SUCCEEDED
+            		$result = $this->send_email($email, "Changes have done in supervisor timeslot", "modify_email", $data);
+            	}
             }
             $this->Admin_model->timetable_save_modified($slot);
         }
@@ -729,14 +830,17 @@ class Admin extends MY_Controller
             	//send email to every user.
             	foreach ($user_ids as $user_id)
             	{
-            		$user = $this->Admin_model->get_user_data($user_id)->row();
-            		$email = $user->email;
-            		array_push($emails, "<br>" . $email);
-            		$data['fullname'] = $user->first_name . " ". $user->surname;
-            		$data['slot_start'] = $slot->start;
-            		$data['slot_end'] = $slot->end;
-            		// Send email to associated reservations. TODO IF NOT SUCCEEDED
-            		$result = $this->send_email($email, "Reservations have cancelled", "cancel_email", $data);
+            		if($send_emails)
+            		{
+	            		$user = $this->Admin_model->get_user_data($user_id)->row();
+	            		$email = $user->email;
+	            		array_push($emails, "<br>" . $email);
+	            		$data['fullname'] = $user->first_name . " ". $user->surname;
+	            		$data['slot_start'] = $slot->start;
+	            		$data['slot_end'] = $slot->end;
+	            		// Send email to associated reservations. TODO IF NOT SUCCEEDED
+	            		$result = $this->send_email($email, "Reservations have cancelled", "cancel_email", $data);
+            		}
             	}
                 $this->Admin_model->timetable_save_deleted($slot);
             }

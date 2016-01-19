@@ -41,11 +41,36 @@
 			}
 		});
 	}
-    function saveData() {
-    	$('#save_button').addClass("disabled");
+	function checkEmails() {
+		$('#save_button').addClass("disabled");
+		$('#saveModal').modal('show');
+		$('#saveModalBody').html("Loading...");
+		$.ajax({
+	    	type: "POST",
+	        data: {'csrf_test_name': csrf_token},
+	        url: "timetable_confirm_emails",
+	            success: function(data) {
+		            var json = JSON.parse(data);
+		            console.log(json);
+	            	 $('#save_button').removeClass("disabled");
+	            	 var infos = "";
+	            	 for (var i = 0; i < json.info.length; i++) {
+						infos += json.info[i] + "<br>";
+					}
+	            	 $('#saveModalBody').html(infos);
+	            },
+	        	error: function(data) {
+	        		console.log(data);
+		        	$('#save_button').removeClass("disabled");
+		        	alerter("danger", "Sorry, error happened.");
+		        }
+	        });
+	}
+    function saveData(send_emails) {
+        console.log(send_emails);
         $.ajax({
             type: "POST",
-            data: {'csrf_test_name': csrf_token},
+            data: {'csrf_test_name': csrf_token, "send_emails": send_emails},
             url: "timetable_save",
             success: function(data) {
             	$('#save_button').removeClass("disabled");
@@ -54,6 +79,7 @@
                     $('#calendar').fullCalendar('refetchEvents');
                     //alert("events fetched!");
                     var json = JSON.parse(data);
+                    $('#saveModal').modal('hide');
                     if(json.success && json.emails_sent.length != 0)
                     {
                     	alerter("success", "Saving successful. Notifications were sent to emails:" + json.emails_sent);
@@ -66,6 +92,7 @@
             },
         	error: function(data) {
 	        	$('#save_button').removeClass("disabled");
+	        	$('#saveModal').modal('show');
 	        	alerter("danger", "Sorry, error happened.");
 	        }
         });
@@ -123,11 +150,6 @@
             }
         });
     }
-    
-    
-    $('#save_button').click(function(){
-		saveData();
-	});
 
     //Schedule functions 
     function copySchedules() {
@@ -268,7 +290,10 @@
 			});
 		/* initialize the external events
 		-----------------------------------------------------------------*/
-		
+		$('#save_button').click(function(){
+			checkEmails();
+			//saveData();
+		});
 		$('#external-events .fc-event').each(function() {
 
 			// store data so the calendar knows to render an event upon drop
@@ -419,11 +444,7 @@
                 });
 			}
 		});
-		
-
-
 	});
-
 </script>
 	<!-- Copy Schedule Modal -->
 	<div id="copyModal" class="modal fade" role="dialog">
@@ -498,6 +519,28 @@
             	<span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Remove
             </a>
 	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	      </div>
+	    </div>
+	
+	  </div>
+	</div>
+	<!-- Save Schedule Modal -->
+	<div id="saveModal" class="modal fade" role="dialog">
+	  <div class="modal-dialog">
+	
+	    <!-- Modal content-->
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">&times;</button>
+	        <h4 class="modal-title">Email sending confirmation. Do you want to send email to these?</h4>
+	      </div>
+	      <div class="modal-body" id="saveModalBody">
+		  <p>Loading information.... </p>
+	      </div>
+	      <div class="modal-footer">
+	      	<a type="button" class="btn btn-success" onclick="saveData(true);">Yes</a>
+    		<a type="button" class="btn btn-danger" onclick="saveData(false);">No</a>
+      		<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
 	
