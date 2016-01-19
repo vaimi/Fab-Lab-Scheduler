@@ -711,8 +711,8 @@ class Admin extends MY_Controller
             	$data['fullname'] = $user->first_name . " ". $user->surname;
             	$data['slot_start'] = $slot->start;
             	$data['slot_end'] = $slot->end;
-            	// Send email to associated reservations.
-            	$this->send_email($email, "Changes have done in supervisor timeslot", "modify_email", $data);
+            	// Send email to associated reservations. TODO IF NOT SUCCEEDED
+            	$result = $this->send_email($email, "Changes have done in supervisor timeslot", "modify_email", $data);
             }
             $this->Admin_model->timetable_save_modified($slot);
         }
@@ -735,8 +735,8 @@ class Admin extends MY_Controller
             		$data['fullname'] = $user->first_name . " ". $user->surname;
             		$data['slot_start'] = $slot->start;
             		$data['slot_end'] = $slot->end;
-            		// Send email to associated reservations.
-            		$this->send_email($email, "Reservations have cancelled", "cancel_email", $data);
+            		// Send email to associated reservations. TODO IF NOT SUCCEEDED
+            		$result = $this->send_email($email, "Reservations have cancelled", "cancel_email", $data);
             	}
                 $this->Admin_model->timetable_save_deleted($slot);
             }
@@ -2118,7 +2118,7 @@ class Admin extends MY_Controller
 	 * @input subject of the email
 	 * @input type of the email. Basically filename in the views/emails folder. e.g. cancel_email
 	 * @input data which is populated in the view
-	 *
+	 * @output boolean if successs
 	 */
 	private function send_email($email, $subject, $type, $data) {
 		$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
@@ -2127,7 +2127,8 @@ class Admin extends MY_Controller
 		$data['name'] = $this->aauth->config_vars['name'];
 		$email_content = $this->load->view("emails/" . $type, $data, true);
 		$this->email->message($email_content);
-		$this->email->send();
+		$result = $this->email->send();
+		return $result;
 	}
 	/**
 	 * Check interval input. Possible values are: Days, Weeks, Months.

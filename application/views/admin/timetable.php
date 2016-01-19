@@ -54,11 +54,14 @@
                     $('#calendar').fullCalendar('refetchEvents');
                     //alert("events fetched!");
                     var json = JSON.parse(data);
-                    if(json.success)
+                    if(json.success && json.emails_sent.length != 0)
                     {
                     	alerter("success", "Saving successful. Notifications were sent to emails:" + json.emails_sent);
                     }
-                    
+                    else if (json.success && json.emails_sent.length == 0)
+                    {
+                    	alerter("success", "Saving successful. No emails were sent.");
+                    }
                 }
             },
         	error: function(data) {
