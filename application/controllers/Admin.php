@@ -1707,6 +1707,7 @@ class Admin extends MY_Controller
 			$action = $this->input->post('action');
 			$recipients = $this->input->post('recipients');
 			$send_all = $this->input->post('send_all');
+			$errors = array();
 			
 			$jdata = array();
 			$data = array('email_content' => $email_content, 'email_subject' => $email_subject, 'action' => $action, 'recipients' => $recipients, 'send_all' => $send_all);
@@ -1723,7 +1724,15 @@ class Admin extends MY_Controller
 				$this->email->to($this->session->userdata('email'));
 				$this->email->subject($email_subject);
 				$this->email->message($email_content);
-				$this->email->send();
+				$result = $this->email->send();
+				// TODO if sending failed
+// 				if(!$result) {
+// 					$err = array(
+// 							"email" => $this->session->userdata('email'),
+// 							"success" => false
+// 					);
+// 					array_push($errors, $err);
+// 				}
 			}
 			else if ($action == 'confirmed')
 			{
@@ -1746,12 +1755,11 @@ class Admin extends MY_Controller
 				{
 					
 					$this->email->clear();
-					
 					$this->email->from( $this->aauth->config_vars['email'], $this->aauth->config_vars['name']);
 					$this->email->subject($email_subject);
 					$this->email->message($email_content);
 					$this->email->to($user['email']);
-					$this->email->send();
+					$result = $this->email->send();
 				}
 				
 				// bcc to admins
@@ -1768,7 +1776,7 @@ class Admin extends MY_Controller
 					$this->email->subject($admin_email_subject);
 					$this->email->message($email_content);
 					$this->email->to($user['email']);
-					$this->email->send();
+					$result = $this->email->send();
 				}
 			}
 			
