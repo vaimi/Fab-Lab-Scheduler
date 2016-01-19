@@ -281,11 +281,8 @@
 	});//$function
 
 	function makeRestoreQtip(elementId) {
-		var sModal="<p>What you want to do?</p>";
-		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "		<a class=\"btn btn-success formButton undoButton\" >Undo</a>";
-		sModal += "	<\/div>";
-		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		var sModal="<p>What you want to do with oncoming cancelled reservations?</p>";
+		sModal += "	<div class=\"text-center\" role=\"group\" aria-label=\"...\">";
 		sModal += "		<a class=\"btn btn-warning formButton restoreButton\" >Restore</a>";
 		sModal += "		<a class=\"btn btn-danger formButton ignoreButton\" >Ignore</a>";
 		sModal += "	<\/div>";
@@ -333,13 +330,10 @@
 	}
 
 	function makeOverlapQtip(elementId) {
-		var sModal="<p>What you want to do?</p>";
-		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "		<a class=\"btn btn-success formButton undoButton\" >Undo</a>";
-		sModal += "	<\/div>";
-		sModal += "	<div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
+		var sModal="<p>What you want to do with overlapping reservations?</p>";
+		sModal += "	<div class=\"text-center\" role=\"group\" aria-label=\"...\">";
 		sModal += "		<a class=\"btn btn-warning formButton overlapButton\" >Overlap</a>";
-		sModal += "		<a class=\"btn btn-danger formButton deleteButton\" >Cancel</a>";
+		sModal += "		<a class=\"btn btn-danger formButton deleteButton\" >Remove</a>";
 		sModal += "	<\/div>";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
@@ -633,10 +627,10 @@
 		<div class="btn-toolbar well well-sm" role="toolbar" aria-label="...">
 			<label>Show slots:</label>
 			<input data-label-text="active" class="state-switch" type="checkbox" id="state_1" <?php if (in_array(1, $states)) echo "checked";?>>
-			<input data-label-text="user cancel" class="state-switch" type="checkbox" id="state_2" <?php if (in_array(2, $states)) echo "checked";?>>
-			<input data-label-text="admin cancel" class="state-switch" type="checkbox" id="state_3" <?php if (in_array(3, $states)) echo "checked";?>>
-			<input data-label-text="repair" class="state-switch" type="checkbox" id="state_4" <?php if (in_array(4, $states)) echo "checked";?>>
-			<input data-label-text="repair cancel" class="state-switch" type="checkbox" id="state_5" <?php if (in_array(5, $states)) echo "checked";?>>			
+			<input data-label-text="cancelled by user" class="state-switch" type="checkbox" id="state_2" <?php if (in_array(2, $states)) echo "checked";?>>
+			<input data-label-text="cancelled by admin" class="state-switch" type="checkbox" id="state_3" <?php if (in_array(3, $states)) echo "checked";?>>
+			<input data-label-text="repair session" class="state-switch" type="checkbox" id="state_4" <?php if (in_array(4, $states)) echo "checked";?>>
+			<input data-label-text="cancelled by repair" class="state-switch" type="checkbox" id="state_5" <?php if (in_array(5, $states)) echo "checked";?>>			
 			<a type="button" id="refreshButton" class="btn btn-primary pull-right">
 			  <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh
 			</a>
