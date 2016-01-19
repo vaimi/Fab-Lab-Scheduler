@@ -15,6 +15,29 @@ class Admin extends MY_Controller
 	//
 	// Sites
 	//
+	/**
+	 * Manage users
+	 * Manage users, modify their levels and groups
+	 *
+	 * In users-view, also sub-view users_data is used to load the input forms
+	 *
+	 * Unit tested
+	 *
+	 * @access admin
+	 * @see users_form.php
+	 * @return echo html
+	 */
+	public function moderate_users()
+	{
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = "User management";
+		$jdata['message'] = "Manage user details, groups and levels";
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('admin/users');
+		$this->load->view('partials/footer');
+	}
+	
 	public function moderate_general() 
 	{
 		$this->load->view('partials/header');
@@ -75,7 +98,7 @@ class Admin extends MY_Controller
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
 		$jdata['title'] = "Timetables";
-		$jdata['message'] = "You can manage supervisor times and add supervisors to the timetables";
+		$jdata['message'] = "You can manage supervisor times and add supervisors to the timetables by dragging them.";
 		$this->load->view('partials/jumbotron', $jdata);
 		//Get admins (Supervisors) from db
 		$data['admins'] = $this->Admin_model->get_admins()->result();
@@ -187,27 +210,124 @@ class Admin extends MY_Controller
 		$reservation = $this->input->post('id');
 		$restore = $this->input->post('restore');
 		$cancelled_reservations = $this->Reservations_model->get_oncoming_slots_cancelled_by_repair($reservation);
-		if (count($cancelled_reservations) > 0 and $restore == 0)
+		if (count($cancelled_reservations) > 0 and $restore == 0) //TODO use constants?
 		{
 			$this->output->set_output(json_encode(array("success"=>0, "errors"=>array("restoreable"))));
 			return;
 		}
-		if ($restore == 1)
+		if ($restore == 1) //TODO use constants?
 		{
 			foreach ($cancelled_reservations as $rs) {
 				$this->Reservations_model->set_reservation_state($rs->ReservationID, 1);
 				$this->restore_email($rs->ReservationID);
 			}
-			$restore = 2;
+			$restore = 2; //TODO use constants?
 		}
-		if ($restore == 2 or count($cancelled_reservations) == 0)
+		if ($restore == 2 or count($cancelled_reservations) == 0) //TODO use constants?
 		{
 			$this->cancellation_email($reservation);
-			$this->Reservations_model->set_reservation_state($reservation, 3);
+			$this->Reservations_model->set_reservation_state($reservation, 3); //TODO use constants?
 			$this->output->set_output(json_encode(array("success"=>1)));
 		}
 	}
-
+	
+	public function reservations_reserve()
+	{
+		$this->form_validation->set_rules('user', 'user id', 'required|is_natural');
+		//$this->form_validation->set_rules('machines', 'restore choice', 'required|in_list[0,1,2]');
+		if ($this->form_validation->run() == FALSE)
+		{
+			$response = array(
+					"success" => 0,
+					"errors" => $this->form_validation->error_array()
+			);
+			echo json_encode($response);
+			return;
+		}
+		$this->load->model('Reservations_model');
+		$user = $this->input->post('user');
+		$machines = $this->input->post('machines');
+		$start = $this->input->post('start');
+		$end = $this->input->post('end');
+		$repair = $this->input->post('repair');
+		$repair = ($repair === 'true');
+		//0 no force TODO: constants?
+		//1 allow overlap
+		//2 delete overlapping reservations
+		$force = $this->input->post('force');
+		if($force == 0) {
+			// dry run
+			$is_overlapping = false;
+			foreach ($machines as $machine)
+			{
+				$m_id = str_replace("mac_", "", $machine);
+				$overlaps = $this->Reservations_model->is_reserved($start, $end, (int)($m_id));
+				if ($overlaps)
+				{
+					$is_overlapping = true;
+				}
+			}
+			if ($is_overlapping)
+			{
+				$response = array(
+						"success" => 0,
+						"errors" => array("Overlapping")
+				);
+				$this->output->set_output(json_encode($response));
+				return;
+			}
+			$force = 1;
+		}
+		if($force == 2)
+		{
+			foreach ($machines as $machine)
+			{
+				$m_id = str_replace("mac_", "", $machine);
+				$reservations = $this->Reservations_model->reservations_get_reserved_slots(strtotime($start), strtotime($end), (int)$machine);
+				if ($repair)
+				{
+					$state = 5;
+				}
+				else
+				{
+					$state = 3;
+				}
+				foreach ($reservations as $rs)
+				{
+					$this->Reservations_model->set_reservation_state($rs->ReservationID, $state);
+					$this->cancellation_email($rs->ReservationID, $repair);
+				}
+			}
+			//remove overlapping sessions
+			$force = 1;
+		}
+		// allow overlap
+		if($force == 1)
+		{
+			foreach ($machines as $machine)
+			{
+				$m_id = str_replace("mac_", "", $machine);
+				$data['MachineID'] = (int)$m_id;
+				$data['aauth_usersID'] = (int)$user;
+				$data['StartTime'] = $start;
+				$data['EndTime'] = $end;
+				$data['QRCode'] = "";
+				$data['PassCode'] = "";
+				if ($repair) {
+					$data['State'] = 4;
+				}
+				$reservation_id = $this->Reservations_model->set_new_reservation($data);
+					
+			}
+			$response = array(
+					"success" => 1,
+					"errors" => array()
+			);
+			$this->output->set_output(json_encode($response));
+			return;
+		}
+	}
+	
 	public function reservations_restore()
 	{
         $this->form_validation->set_rules('id', 'slot id', 'required|is_natural');
@@ -243,7 +363,8 @@ class Admin extends MY_Controller
 		Reservation ends: " . $reservation->EndTime . "<br>
 		<br>
 		Sincerely,<br>" .
-		$this->aauth->config_vars['name'];
+		$this->aauth->config_vars['name']; //TODO maybe make a view for this?
+		//Load the view: $email_content = $this->load->view("emails/restore_email", $data, true);
 
 		$this->email->message($email_content);
 		$this->email->send();
@@ -274,133 +395,11 @@ class Admin extends MY_Controller
 		Reservation ends: " . $reservation->EndTime . "<br>
 		<br>
 		Sincerely,<br>" .
-		$this->aauth->config_vars['name'];
+		$this->aauth->config_vars['name']; //TODO maybe make a view for this?
+		//Load the view: $email_content = $this->load->view("emails/cancellation_email", $data, true);
 
 		$this->email->message($email_content);
 		$this->email->send();
-	}
-
-	public function reservations_reserve()
-	{
-		$this->form_validation->set_rules('user', 'user id', 'required|is_natural');
-        //$this->form_validation->set_rules('machines', 'restore choice', 'required|in_list[0,1,2]');
-	    if ($this->form_validation->run() == FALSE)
-		{
-			$response = array(
-				"success" => 0,
-				"errors" => $this->form_validation->error_array()
-			);
-			echo json_encode($response);
-			return;
-		}
-		$this->load->model('Reservations_model');
-		$user = $this->input->post('user');
-		$machines = $this->input->post('machines');
-		$start = $this->input->post('start');
-		$end = $this->input->post('end');
-		$repair = $this->input->post('repair');
-		$repair = ($repair === 'true');
-		//0 no force TODO: constants?
-		//1 allow overlap
-		//2 delete overlapping reservations
-		$force = $this->input->post('force');
-		if($force == 0) {
-			// dry run
-			$is_overlapping = false;
-			foreach ($machines as $machine) 
-			{
-				$m_id = str_replace("mac_", "", $machine);
-				$overlaps = $this->Reservations_model->is_reserved($start, $end, (int)($m_id));
-				if ($overlaps)
-				{
-					$is_overlapping = true;
-				}
-			}
-			if ($is_overlapping) 
-			{
-				$response = array(
-					"success" => 0,
-					"errors" => array("Overlapping")
-				);
-				$this->output->set_output(json_encode($response));
-				return;
-			}
-			$force = 1;
-		}
-		if($force == 2)
-		{
-			foreach ($machines as $machine)
-			{
-				$m_id = str_replace("mac_", "", $machine);
-				$reservations = $this->Reservations_model->reservations_get_reserved_slots(strtotime($start), strtotime($end), (int)$machine);
-				if ($repair)
-				{
-					$state = 5;
-				}
-				else
-				{
-					$state = 3;
-				}
-				foreach ($reservations as $rs)
-				{ 
-					$this->Reservations_model->set_reservation_state($rs->ReservationID, $state);
-					$this->cancellation_email($rs->ReservationID, $repair);
-				}
-			}
-			//remove overlapping sessions
-			$force = 1;
-		}
-		// allow overlap
-		if($force == 1) 
-		{
-			foreach ($machines as $machine) 
-			{
-				$m_id = str_replace("mac_", "", $machine);
-				$data['MachineID'] = (int)$m_id;
-				$data['aauth_usersID'] = (int)$user;
-				$data['StartTime'] = $start;
-				$data['EndTime'] = $end;
-				$data['QRCode'] = "";
-				$data['PassCode'] = "";
-				if ($repair) {
-					$data['State'] = 4;
-				} 
-				$reservation_id = $this->Reservations_model->set_new_reservation($data);
-					
-			}
-			$response = array(
-				"success" => 1,
-				"errors" => array()
-			);
-			$this->output->set_output(json_encode($response));
-			return;
-		}
-
-
-
-	}
-	
-	/**
-	 * Manage users
-	 * Manage users, modify their levels and groups 
-	 *
-	 * In users-view, also sub-view users_data is used to load the input forms
-	 *
-	 * Unit tested
-	 *
-	 * @access admin
-	 * @see users_form.php
-	 * @return echo html
-	 */
-	public function moderate_users() 
-	{
-		$this->load->view('partials/header');
-		$this->load->view('partials/menu');
-		$jdata['title'] = "User management";
-		$jdata['message'] = "Manage user details, groups and levels";
-		$this->load->view('partials/jumbotron', $jdata);
-		$this->load->view('admin/users');
-		$this->load->view('partials/footer');
 	}
 	
 	public function create_machine_group()
