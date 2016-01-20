@@ -25,5 +25,5 @@ $lang['fablab_reservations_reserve_content'] = "Remember that to be able to make
 
 // Contact us: /contact
 $lang['fablab_contact_title'] = 'Some questions?';
-$lang['fablab_contact_content'] = "Something on your mind? Please contact one of the administrators.<br/>Email: ***REMOVED***";
-$lang['fablab_contact_body'] = "Email: ***REMOVED***";
+$lang['fablab_contact_content'] = "Something on your mind? Please contact one of the administrators.<br/>Email: ";
+$lang['fablab_contact_body'] = "Email: ";
