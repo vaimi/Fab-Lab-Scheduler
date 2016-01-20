@@ -3,7 +3,7 @@ class Info extends MY_Controller
 {
 	public function __construct() {
 		parent::__construct();
-		
+		$this->lang->load('fablab');
 		$this->load->model('Info_model');
 	}
 	
@@ -26,13 +26,24 @@ class Info extends MY_Controller
 		$this->load->view('partials/footer');
 	}
 	
+	public function people()
+	{
+		$this->load->view('partials/header');
+		$this->load->view('partials/menu');
+		$jdata['title'] = $this->lang->line('fablab_info_people_title');
+		$jdata['message'] = $this->lang->line('fablab_info_people_content');
+		$this->load->view('partials/jumbotron', $jdata);
+		$this->load->view('info/people');
+		$this->load->view('partials/footer');
+	}
+	
 	public function machines($id = null) 
 	{
 		$this->load->model('Admin_model');
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Machine groups";
-		$jdata['message'] = "";
+		$jdata['title'] = $this->lang->line('fablab_info_machines_title');
+		$jdata['message'] = $this->lang->line('fablab_info_machines_content');
 		//Get machineGroups
 		$mGroups = 	$this->Admin_model->get_machine_groups()->result();
 		//Machines

@@ -3,16 +3,17 @@ class Contact extends MY_Controller
 {
 	public function __construct() {
 		parent::__construct();
+		$this->lang->load('fablab');
 	}
 	// this is the home page
 	public function index() {
 		
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Some questions?";
-		$jdata['message'] = "Something on your mind? Please contact one of the administrators.";
+		$jdata['title'] = $this->lang->line('fablab_contact_title');
+		$jdata['message'] = $this->lang->line('fablab_contact_content');
 		$this->load->view('partials/jumbotron', $jdata);
-		$this->load->view('contact');
+		$this->load->view('contact', array('page_body' => $this->lang->line('fablab_contact_body')));
 		
 		$this->load->view('partials/footer');
 	}

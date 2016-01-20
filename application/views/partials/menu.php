@@ -15,11 +15,11 @@
             <li class="dropdown<?= echo_active_nav_parent('info') ?>">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info<b class="caret"></b></a>
               <ul class="dropdown-menu">
-                <li<?= set_active_nav('info/floorplan') ?> class="disabled">
-                  <?php echo anchor('info/floorplan', 'Floor plan', 'class="menu-disabled"');?>
-                </li>
                 <li<?= set_active_nav('info/machines') ?> >
                   <?php echo anchor('info/machines', 'Machines');?>
+                </li>
+                <li<?= set_active_nav('info/people') ?> >
+                  <?php echo anchor('info/people', 'People');?>
                 </li>
               </ul>
             </li>

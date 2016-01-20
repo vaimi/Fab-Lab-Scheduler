@@ -5,6 +5,7 @@ class Reservations extends MY_Controller
 		parent::__construct();
 		$this->load->model("Reservations_model");
 		$this->load->library('form_validation');
+		$this->lang->load('fablab');
 	}
 	
 	public function index() {
@@ -23,8 +24,8 @@ class Reservations extends MY_Controller
 		$this->no_public_access();
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Active reservations";
-		$jdata['message'] = "List of all your active reservations. Please note that you can't cancel already running session.";
+		$jdata['title'] = $this->lang->line('fablab_reservations_active_title');
+		$jdata['message'] = $this->lang->line('fablab_reservations_active_content');
 		$this->load->view('partials/jumbotron', $jdata);
 		$rdata = $this->Reservations_model->get_active_reservations($this->session->userdata('id'));
 		$this->load->view('reservations/active', array("rdata"=>$rdata));
@@ -34,8 +35,8 @@ class Reservations extends MY_Controller
 	public function basic_schedule() {
 		$this->load->view('partials/header');
 		$this->load->view('partials/menu');
-		$jdata['title'] = "Basic schedule";
-		$jdata['message'] = "Here you can see assigned supervisors and active reservations. If you want to do reservation go to " . anchor("reservations/reserve", "reserve");
+		$jdata['title'] = $this->lang->line('fablab_reservations_basic_schedule_title');
+		$jdata['message'] = $this->lang->line('fablab_reservations_basic_schedule_content');
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('reservations/reserve_public');
 		$this->load->view('partials/footer');
@@ -60,9 +61,12 @@ class Reservations extends MY_Controller
 			//TODO Should Show Better error.
 			show_error("Parameters are not found in db.");
 		}
-		$jdata['title'] = "Reserve a time";
-		$jdata['message'] = "Remember that to be able to make a reservation for tomorrow, you have to reserve before " . $deadline .
-		" today. Also you can make a reservation only " . $settings['reservation_timespan'] . " " . $settings['interval'] . " forward.";
+		$jdata['title'] = $this->lang->line('fablab_reservations_reserve_title');
+		$content = $this->lang->line('fablab_reservations_reserve_content');
+		$content = str_replace("{DEADLINE}", $deadline, $content);
+		$content = str_replace("{reservation_timespan}", $settings['reservation_timespan'], $content);
+		$content = str_replace("{interval}", $settings['interval'], $content);
+		$jdata['message'] = $content;
 
 		$this->load->view('partials/jumbotron', $jdata);
 		$this->load->view('reservations/reserve',$data);

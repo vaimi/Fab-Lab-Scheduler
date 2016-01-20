@@ -10,6 +10,7 @@ class Admin extends MY_Controller
 		$this->load->model('Admin_model');
 		// TODO: Should load all of the time?
 		$this->load->library('form_validation');
+		$this->lang->load('fablab');
 	}
 
 	//
