@@ -37,7 +37,7 @@
 				var json = JSON.parse(data);
 				if(json.success)
 				{
-					alerter("success", "Cancellation succeeded.");
+					alerter("success", "<?=$this->lang->line('fablab_reservations_active_alert_cancel');?>");
 					$('#row_' + id).remove();
 
 				}
@@ -53,10 +53,10 @@
 	<table class="sortable-theme-bootstrap table table-striped" data-sortable>
 		<thead>
 			<tr>
-				<th data-sorted="true" data-sorted-direction="ascending">ID</th>
-				<th>Machine</th>
-				<th>Reserved for</th>
-				<th data-sortable="false">Actions</th>
+				<th data-sorted="true" data-sorted-direction="ascending"><?=$this->lang->line('fablab_reservations_active_table_id');?></th>
+				<th><?=$this->lang->line('fablab_reservations_active_table_machine');?></th>
+				<th><?=$this->lang->line('fablab_reservations_active_table_for');?></th>
+				<th data-sortable="false"><?=$this->lang->line('fablab_reservations_active_table_actions');?></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -66,7 +66,7 @@
 					echo '<td>'.$row['id'].'</td>';
 					echo '<td>'.$row['machine'].'</td>';
 					echo '<td>'.$row['reserved'].'</td>';
-					echo '<td><a type="button" class="btn btn-warning" href="#cancelModal" data-toggle="modal" data-reservation-id='.$row['id'].'><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</a>';
+					echo '<td><a type="button" class="btn btn-warning" href="#cancelModal" data-toggle="modal" data-reservation-id='.$row['id'].'><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> ' . $this->lang->line("fablab_reservations_active_table_cancel") . '</a>';
 					echo '</tr>';
 				}
 				?>

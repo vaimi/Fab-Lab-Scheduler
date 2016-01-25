@@ -76,9 +76,9 @@
 		<div class="col-md-4">
 			<div class="col-md-7">
 				<ul class="nav nav-pills nav-stacked" id="profile_menu">
-					<li class="active"><a href="#" onclick="get_user_profile();">Profile</a></li>
-					<li><a href="#" onclick="get_machine_levels();">Machine skill levels</a></li>
-					<li><a href="#" onclick="get_reservations();">Reservations history</a></li>
+					<li class="active"><a href="#" onclick="get_user_profile();"><?=$this->lang->line('fablab_profile_user_title');?></a></li>
+					<li><a href="#" onclick="get_machine_levels();"><?=$this->lang->line('fablab_profile_levels_title');?></a></li>
+					<li><a href="#" onclick="get_reservations();"><?=$this->lang->line('fablab_profile_reservations_title');?></a></li>
 				</ul>
 			</div>
 		</div>

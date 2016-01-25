@@ -46,7 +46,7 @@
 	function searchSlot() {
 		var day = $("#searchInput").val();
 		if (day != "") {
-			day = moment(day, "DD.MM.YYYY");
+			day = moment(day, <?=$this->lang->line('fablab_moment_day_format');?>);
 			var day_string = day.format("YYYY-MM-DD");
 		} else {
 			var day_string = "";
@@ -71,12 +71,12 @@
 						var resultText = "";
 						resultText += "<div class=\"list-group\">";
 						for (var result in message) {
-							var start = moment(message[result].start, "DD.MM.YYYY, HH:mm")
-							var end = moment(message[result].end, "DD.MM.YYYY, HH:mm")
+							var start = moment(message[result].start, "<?=$this->lang->line('fablab_moment_full_format');?>")
+							var end = moment(message[result].end, "<?=$this->lang->line('fablab_moment_full_format');?>")
 							if (moment(start).isSame(end, 'day')){
-								var time = start.format("DD.MM.YYYY, HH:mm") + " - " + end.format("HH:mm");
+								var time = start.format("<?=$this->lang->line('fablab_moment_full_format');?>") + " - " + end.format("<?=$this->lang->line('fablab_moment_time_format');?>");
 							} else {
-								var time = start.format("DD.MM.YYYY, HH:mm") + " - " + end.format("DD.MM.YYYY, HH:mm");
+								var time = start.format("<?=$this->lang->line('fablab_moment_full_format');?>") + " - " + end.format("<?=$this->lang->line('fablab_moment_full_format');?>");
 							}
 							resultText += "<a href=\"javascript:void(0)\" class=\"list-group-item search_result\" data-next=\"" + message[result].next_start +  "\" data-nightslot=\"" + message[result].unsupervised + "\" data-machine=" + message[result].mid + " data-start=\"" + message[result].start + "\" data-end=\"" + message[result].end + "\">" + time + " : " + message[result].title + "</a>";
 						}
@@ -102,7 +102,7 @@
 							}
 						});
 					} else {
-						$("#results").html("No results.");
+						$("#results").html(<?=$this->lang->line('fablab_reservations_reserve_search_none');?>);
 					}
 
 				}
@@ -116,7 +116,7 @@
 		sModal += "			<input type=\"hidden\" name=\"mac_id\" data-nightslot=\"0\" value=\"" + machine + "\" />";
 		sModal += "				<div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";
-		sModal += "			        	<label>From (" + e_Start + "):<\/label>";
+		sModal += "			        	<label><?=$this->lang->line('fablab_reservations_reserve_qtip_from');?>(" + e_Start + "):<\/label>";
 		sModal += "			            <div class=\"input-group date text-center\">";
 		sModal += "			                <input onkeyup=\"lengthCalculation(false);\" type=\"text\" class=\"form-control startInput\" value=\"" + e_Start + "\" \/>";
 		sModal += "			                <a class=\"input-group-addon startExp\">";
@@ -132,7 +132,7 @@
 		sModal += "		    	<\/div>";
 		sModal += "			    <div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";
-		sModal += "			        	<label>To (" + e_End + "):<\/label>";	
+		sModal += "			        	<label><?=$this->lang->line('fablab_reservations_reserve_qtip_to');?>(" + e_End + "):<\/label>";	
 		sModal += "			            <div class=\"input-group date text-center\">";
 		sModal += "			                <input onkeyup=\"lengthCalculation(false);\" type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
 		sModal += "			                <a class=\"input-group-addon endExp\">";
@@ -144,11 +144,11 @@
 		sModal += "			            <\/div>";
 		sModal += "			        <\/div>";
 		sModal += "			    <\/div>";
-		sModal += "				<p>Length: <span class=\"reservationLength\"></span></p>";
-		sModal += "				<p>Tokens left: <span class=\"quotaReserve\"></span></p>";    
+		sModal += "				<p><?=$this->lang->line('fablab_reservations_reserve_qtip_length');?><span class=\"reservationLength\"></span></p>";
+		sModal += "				<p><?=$this->lang->line('fablab_reservations_reserve_qtip_tokens');?><span class=\"quotaReserve\"></span></p>";    
 		sModal += "				<br>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
+		sModal += "			    	<a class=\"btn btn-primary reserveButton\" ><?=$this->lang->line('fablab_reservations_reserve_qtip_reserve');?></a>";
 		sModal += "			    <\/div>";
 		sModal += "			</form>";
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
@@ -161,7 +161,7 @@
 	        	event: false
 	        },
 		    content: {
-			    title: "Reservation",
+			    title: "<?=$this->lang->line('fablab_reservations_reserve_qtip_title');?>",
 		        text: sModal,
 		        button: true
 		    },
@@ -185,8 +185,8 @@
 					});
 					lengthCalculation(false);
 
-    				var eStart = moment(e_Start, "DD.MM.YYYY, HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-					var eEnd = moment(e_End, "DD.MM.YYYY HH:mm").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+    				var eStart = moment(e_Start, "<?=$this->lang->line('fablab_moment_full_format');?>").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+					var eEnd = moment(e_End, "<?=$this->lang->line('fablab_moment_full_format');?>").format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 
 					$('.startpicker').datetimepicker({
 						locale: 'en-gb',
@@ -241,13 +241,13 @@
 
 			        $('.startpicker').on('dp.change', function (e) {
 			            var mDate = new moment(e.date);
-			            $(".startInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+			            $(".startInput").val(mDate.format('<?=$this->lang->line('fablab_moment_full_format');?>'));
 			            lengthCalculation(false);
 			        });
 
 			        $('.endpicker').on('dp.change', function (e) {
 			            var mDate = new moment(e.date);
-			            $(".endInput").val(mDate.format('DD.MM.YYYY HH:mm'));
+			            $(".endInput").val(mDate.format('<?=$this->lang->line('fablab_moment_full_format');?>'));
 			            lengthCalculation(false);
 			        });
 		    	}
@@ -257,11 +257,12 @@
 	
 	function makeQtip_admin(elementId, machine, e_Start, e_End, firstname, surname, email, reservation_id) {
 		var sModal="";
-		sModal += "<p>Start time: " + e_Start + "</p>";
-		sModal += "<p>End time: " + e_End + "</p>";
-		sModal += "<p>First name: " + firstname + "</p>";
-		sModal += "<p>Surname: " + surname + "</p>";
-		sModal += "<p>Email: " + email + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_start');?>" + e_Start + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_end');?>" + e_End + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_first_name');?>" + firstname + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_last_name');?>" + surname + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_email');?>" + email + "</p>";
+		sModal += "";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
 			show: { 
@@ -273,7 +274,7 @@
 	        	event: false
 	        },
 		    content: {
-			    title: "Reservation",
+			    title: "<?=$this->lang->line('fablab_fullcalendar_admin_info_title');?>",
 		        text: sModal,
 		        button: true
 		    },
@@ -299,7 +300,7 @@
 		sModal += "			<input type=\"hidden\" name=\"mac_id\" data-nightslot=\"1\" value=\"" + machine + "\" />";
 		sModal += "				<div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";
-		sModal += "			        	<label>Preparation time from:<\/label>";
+		sModal += "			        	<label><?=$this->lang->line('fablab_reservations_reserve_night_qtip_from');?><\/label>";
 		sModal += "			            <div class=\"input-group date text-center\">";
 		sModal += "			                <input disabled type=\"text\" class=\"form-control startInput\" value=\"" + e_Start + "\" \/>";	
 		sModal += "			            <\/div>";
@@ -309,7 +310,7 @@
 		sModal += "		    	<\/div>";
 		sModal += "			    <div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";
-		sModal += "			        	<label>Preparation time to:<\/label>";	
+		sModal += "			        	<label><?=$this->lang->line('fablab_reservations_reserve_night_qtip_from');?><\/label>";	
 		sModal += "			            <div class=\"input-group date text-center\">";
 		sModal += "			                <input disabled type=\"text\" class=\"form-control endInput\" value=\"" + e_End + "\" \/>";
 		sModal += "			            <\/div>";
@@ -317,17 +318,17 @@
 		sModal += "			    <\/div>";
 		sModal += "			    <div class=\"row\">";
 		sModal += "			        <div class=\"form-group col-md-12\">";
-		sModal += "			        	<label>Next supervision start:<\/label>";	
+		sModal += "			        	<label><?=$this->lang->line('fablab_reservations_reserve_night_qtip_next');?><\/label>";	
 		sModal += "			            <div class=\"input-group date text-center\">";
 		sModal += "			                <input disabled type=\"text\" class=\"form-control nextInput\" value=\"" + e_Potential + "\" \/>";
 		sModal += "			            <\/div>";
 		sModal += "			        <\/div>";
 		sModal += "			    <\/div>";
-		sModal += "				<p>Potential length: <span class=\"reservationLength\"></span></p>";
-		sModal += "				<p>Tokens left: <span class=\"quotaReserve\"></span></p>";
+		sModal += "				<p><?=$this->lang->line('fablab_reservations_reserve_night_qtip_length');?><span class=\"reservationLength\"></span></p>";
+		sModal += "				<p><?=$this->lang->line('fablab_reservations_reserve_night_qtip_tokens');?><span class=\"quotaReserve\"></span></p>";
 		sModal += "				<br>";
 		sModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-		sModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
+		sModal += "			    	<a class=\"btn btn-primary reserveButton\" ><?=$this->lang->line('fablab_reservations_reserve_night_qtip_reserve');?></a>";
 		sModal += "			    <\/div>";
 		sModal += "			</form>";
 		
@@ -341,7 +342,7 @@
 	        	event: false
 	        },
 		    content: {
-			    title: "Reservation",
+			    title: "<?=$this->lang->line('fablab_reservations_reserve_night_qtip_title');?>",
 		        text: sModal,
 		        button: true
 		    },
@@ -373,8 +374,8 @@
 
 	
 	function reserve(nightslot) {
-		var start = moment($(".startInput").val(), "DD.MM.YYYY HH:mm");
-		var end = moment($(".endInput").val(), "DD.MM.YYYY HH:mm");
+		var start = moment($(".startInput").val(), "<?=$this->lang->line('fablab_moment_full_format');?>");
+		var end = moment($(".endInput").val(), "<?=$this->lang->line('fablab_moment_full_format');?>");
 		// Send form to controller 
 		var post_data = {
 			'nightslot': nightslot,
@@ -403,7 +404,7 @@
 				if (data.length > 0) {
 				var message = $.parseJSON(data);
 					if (message.success == 1) {
-						alerter("success", "Reservation successful");
+						alerter("success", "<?=$this->lang->line('fablab_reservations_reserve_succesful');?>");
 						$(".qtip").qtip('hide');
 						$('#calendar').fullCalendar('refetchEvents');
 					} else {
@@ -436,41 +437,23 @@
 
     function lengthCalculation (nightslot) {
 		if (nightslot == true) {
-			end = moment($(".nextInput").val(), "DD.MM.YYYY, HH:mm");
+			end = moment($(".nextInput").val(), "<?=$this->lang->line('fablab_moment_full_format');?>");
 		}
 		else {
-			end = moment($(".endInput").val(), "DD.MM.YYYY, HH:mm");
+			end = moment($(".endInput").val(), "<?=$this->lang->line('fablab_moment_full_format');?>");
 		}
-    	start = moment($(".startInput").val(), "DD.MM.YYYY, HH:mm");
+    	start = moment($(".startInput").val(), "<?=$this->lang->line('fablab_moment_full_format');?>");
     	var ms = end.diff(start);
 		var d = moment.duration(ms);
 		var s = Math.floor(d.asHours()) + moment.utc(ms).format(":mm");
 		$(".reservationLength").text(s).trigger('change');;
-    	/*if (end != null && start != null) {
-        	var duration = moment.duration(end.diff(start));
-        	var hours = duration.asHours();
-        	var left = userQuota - hours; 
-        	if (left < 0) {
-        		$(".quotaLeft").css("color", "red");
-        		$(".quotaLeft").text(left.toFixed(2));
-        	} else {
-        		$(".quotaLeft").removeAttr('style');
-				$(".quotaLeft").text(left.toFixed(2));
-        	}
-        	if (hours < 0) {
-        		$(".quotaLeft").text("-");
-        		$(".quotaCost").text("-");
-        	} else {
-        		$(".quotaCost").text(hours.toFixed(2));
-        	}
-    	}*/
     }
 
 	$(function() { // document ready
 		$('.selectpicker').selectpicker();
 		$('#searchPicker').datetimepicker({
 			locale: 'en-gb',
-			format: 'DD.MM.YYYY',
+			format: '<?=$this->lang->line('fablab_moment_day_format');?>',
 			minDate: moment().format('MM/DD/YYYY'),
         });
         $('#searchPicker').data("DateTimePicker").clear()
@@ -481,19 +464,13 @@
 
 		getQuota();
 
-		/*$("#datepicker").datepicker();
-        
-		$("#dp_btn").click( function() {
-			$( "#datepicker" ).datepicker( "show" );
-		});*/
-
 		$('#calendar').fullCalendar({
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			editable: false, // enable draggable events
 			allDaySlot: false,
-			firstDay: 1,
-            timeFormat: 'HH:mm',
-            slotLabelFormat: 'HH:mm',
+			firstDay: <?=$this->lang->line('fablab_fullcalendar_firstday');?>,
+            timeFormat: <?=$this->lang->line('fablab_fullcalendar_timeFormat');?>,
+            slotLabelFormat: <?=$this->lang->line('fablab_fullcalendar_slotLabelFormat');?>,
 			aspectRatio: 2.5,
 			scrollTime: '08:00', // undo default 6am scrollTime
 			header: {
@@ -506,10 +483,7 @@
 		            type: 'timeline',
 		            duration: { days: 7 },
 		            slotDuration: '02:00',
-		            slotLabelFormat: [
-					    'MMM DD', // top level of text
-					    'HH:mm'        // lower level of text
-					]
+		            slotLabelFormat: [ <?=$this->lang->line('fablab_fullcalendar_slotLabelFormat');?>]
 		        }
 		    },
 			resourceLabelText: 'Machines',
@@ -544,8 +518,8 @@
 // 				console.log(element);
  				//console.log(e);
 				var machine = e.resourceId;
-				var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-				var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eStart = e.start.format("<?=$this->lang->line('fablab_moment_full_format');?>");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+				var eEnd = e.end.format("<?=$this->lang->line('fablab_moment_full_format');?>");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 				if (e.reserved == 1)
 				{
 					if(e.is_admin === true)
@@ -572,7 +546,7 @@
 				}
 				if (e.nightslot == 1 && e.reserved != 1)
 				{
-					var eNext = moment(e.next_start).format("DD.MM.YYYY, HH:mm");
+					var eNext = moment(e.next_start).format("<?=$this->lang->line('fablab_moment_full_format');?>");
 					$(element).click(function(){ 
 				        makeQtip_nightslot($(element), machine, eStart, eEnd, eNext);
 				    });
@@ -583,165 +557,6 @@
 				        makeQtip($(element), machine, eStart, eEnd);
 				    });
 				}
-
-				/*var rModal="";
-				rModal += "			<form class=\"reservation_form\" method=\"post\">";
-				rModal += "			<input type=\"hidden\" name=\"mac_id\" value=\"" + e.resourceId + "\" />";
-				rModal += "				<div class=\"row\">";
-				rModal += "			        <div class=\"form-group col-md-12\">";
-				rModal += "			        	<label>From (" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "):<\/label>";
-				rModal += "			            <div class=\"input-group date text-center\">";
-				rModal += "			                <input onkeydown=\"costCalculation();\" type=\"text\" class=\"form-control startInput\" value=\"" + moment(e.start._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
-				rModal += "			                <a class=\"input-group-addon startExp\">";
-				rModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
-				rModal += "			                <\/a>";		
-				rModal += "			            <\/div>";
-				rModal += "						<div class=\"row\">";
-				rModal += "			            	<div style=\"overflow:hidden;\" name='rStartTime' class=\"collapse startpicker\"></div>";
-				rModal += "			            <\/div>";
-				rModal += "			        <\/div>";
-				rModal += "			    <\/div>";
-				rModal += "			    <div class=\"row text-center col-md-12\">";
-				rModal += "		    	<\/div>";
-				rModal += "			    <div class=\"row\">";
-				rModal += "			        <div class=\"form-group col-md-12\">";
-				rModal += "			        	<label>To (" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "):<\/label>";	
-				rModal += "			            <div class=\"input-group date text-center\">";
-				rModal += "			                <input onkeydown=\"costCalculation();\" type=\"text\" class=\"form-control endInput\" value=\"" + moment(e.end._i).format("DD.MM.YYYY, HH:mm") + "\" \/>";
-				rModal += "			                <a class=\"input-group-addon endExp\">";
-				rModal += "			                    <span class=\"glyphicon glyphicon-calendar\"><\/span>";
-				rModal += "			                <\/a>";
-				rModal += "			            <\/div>";
-				rModal += "						<div class=\"row\">";
-				rModal += "			            	<div style=\"overflow:hidden;\" name='rEndTime' class=\"collapse endpicker\"></div>";
-				rModal += "			            <\/div>";
-				rModal += "			        <\/div>";
-				rModal += "			    <\/div>";
-				rModal += "				<br>";
-				rModal += "				<p>Quota: <span class=\"quotaReserve\"></span> hours</p>";
-				rModal += "				<p>Cost: <span class=\"quotaCost\"></span> hours</p>";
-				rModal += "				<p>After: <span class=\"quotaLeft\"></span> hours</p>";    
-				rModal += "				<br>";
-				rModal += "			    <div class=\"btn-group\" role=\"group\" aria-label=\"...\">";
-				rModal += "			    	<a class=\"btn btn-primary reserveButton\" >Reserve</a>";
-				rModal += "			    <\/div>";
-				rModal += "			</form>";
-
-				$(element).qtip({ // Grab some elements to apply the tooltip to
-					show: { 
-						effect: function() { $(this).slideDown(); },
-						solo: true,
-						event: 'click'
-			        },
-			        hide: { 
-			        	event: false
-			        },
-			        position : {
-			        	target: 'mouse',
-			        	adjust : {
-				    		mouse: false
-				    	}
-				    },
-				    content: {
-					    title: "Reservation",
-				        text: rModal,
-				        button: true
-				    },
-				    style: {
-				        classes: 'qtip-bootstrap qtip_width'
-				        //width: 'auto',
-					    //height: 'auto'
-				        
-				    },
-				    events: {
-				    	hide: function (event, api) {
-					        $('.startpicker').data("DateTimePicker").minDate(false);
-					        $('.startpicker').data("DateTimePicker").maxDate(false);
-					        $('.endpicker').data("DateTimePicker").minDate(false);
-					        $('.endpicker').data("DateTimePicker").maxDate(false);
-					        $(this).qtip('destroy')
-				    	},
-				    	show: function (event, api) {
-							$.when(getQuota()).done(function() {
-							    costCalculation()
-							});
-
-
-	        				var eStart = moment(e.start._i).format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-							var eEnd = moment(e.end._i).format("YYYY/MM/DD, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-
-							$('.startpicker').datetimepicker({
-								locale: 'en-gb',
-								format: 'YYYY/MM/DD, HH:mm',
-						    	widgetPositioning: {
-									horizontal: "left",
-									vertical: "top"
-							    },
-			                    inline: true,
-                				sideBySide: false,
-                				minDate: eStart,
-                				maxDate: eEnd,
-                				defaultDate: eStart
-					        });
-
-					        $('.endpicker').datetimepicker({
-					        	locale: 'en-gb',
-					        	format: 'YYYY/MM/DD, HH:mm',
-						    	widgetPositioning: {
-									horizontal: "left",
-									vertical: "top"
-							    },
-							    inline: true,
-                				sideBySide: false,
-					            useCurrent: false, //Important! See issue #1075
-					            minDate: eStart,
-                				maxDate: eEnd,
-                				defaultDate: eEnd
-					        });
-
-								//$('.startpicker').data("DateTimePicker").minDate(eStart);
-						        //$('.startpicker').data("DateTimePicker").maxDate(eEnd);
-						        //$('.endpicker').data("DateTimePicker").minDate(eStart);
-						        //$('.endpicker').data("DateTimePicker").maxDate(eEnd);
-						   		//$('.startpicker').data("DateTimePicker").date(eStart);
-						        //$('.endpicker').data("DateTimePicker").date(eEnd);
-
-					        $(".startpicker").on("dp.change", function (e) {
-					            $('.endpicker').data("DateTimePicker").minDate(e.date);
-
-					        });
-					        $(".endpicker").on("dp.change", function (e) {
-					            $('.startpicker').data("DateTimePicker").maxDate(e.date);
-					        });
-
-					        $('.startExp').click(function(){ 
-					        	$('.startpicker').collapse('toggle'); 
-					        	return false; 
-					        });
-
-					        $('.endExp').click(function(){ 
-					        	$('.endpicker').collapse('toggle'); 
-					        	return false; 
-					        });
-
-					        $('.reserveButton').unbind("click").click(function(){ 
-					        	reserve();
-					        });
-
-					        $('.startpicker').on('dp.change', function (e) {
-					            var mDate = new moment(e.date);
-					            $(".startInput").val(mDate.format('DD.MM.YYYY, HH:mm'));
-					            costCalculation();
-					        });
-
-					        $('.endpicker').on('dp.change', function (e) {
-					            var mDate = new moment(e.date);
-					            $(".endInput").val(mDate.format('DD.MM.YYYY, HH:mm'));
-					            costCalculation();
-					        });					    	
-				    	}
-					}  
-				});*/
 			} //eventAfterRender
 			
 		});//fullcalendar
@@ -757,13 +572,13 @@
     }
 </style>
 <div class="container">
-	<h4>Available tokens: <span id="quotaMain"><?php echo $quota; ?></span>.</h4>
+	<h4><?=$this->lang->line('fablab_reservations_reserve_tokens');?><span id="quotaMain"><?php echo $quota; ?></span>.</h4>
 	<article>
-		<legend>Search by form</legend>
+		<legend><?=$this->lang->line('fablab_reservations_reserve_search_title');?></legend>
 		<form class="form-horizontal">
 		<fieldset>
 		<div class="form-group required">
-		  <label class="col-md-4 control-label" for="selectmachine">Machine</label>
+		  <label class="col-md-4 control-label" for="selectmachine"><?=$this->lang->line('fablab_reservations_reserve_search_machine');?></label>
 		  <div class="col-md-4">
 			<select id="selectMachine" class="form-control selectpicker">
 			<?php foreach ($machines as $machine): ?>
@@ -773,7 +588,7 @@
 		  </div>
 		</div>
 		<div class="form-group">
-		  <label class="col-md-4 control-label" for="searchInput">Day</label>
+		  <label class="col-md-4 control-label" for="searchInput"><?=$this->lang->line('fablab_reservations_reserve_search_day');?></label>
 		  <div class="col-md-4">
             <div class='input-group date' id='searchPicker'>
                 <input id="searchInput" type='text' placeholder="Select day" class="form-control">
@@ -784,20 +599,16 @@
 		  </div>
 		</div>
 		<div class="form-group">
-		  <label class="col-md-4 control-label" for="selectlenght">Reservation length</label>
+		  <label class="col-md-4 control-label" for="selectlenght"><?=$this->lang->line('fablab_reservations_reserve_search_length');?></label>
 		  <div class="col-md-4">
 			<select id="selectLength" class="form-control selectpicker">
-			  <option value="0">Not defined</option>
-			  <option value="1">1 hour</option>
-			  <option value="2">2 hours</option>
-			  <option value="3">3 hours</option>
-			  <option value="4">4 hours</option>
-			  <option value="5">5 hours</option>
-			  <option value="6">6 hours</option>
-			  <option value="7">7 hours</option>
-			  <option value="8">8 hours</option>
-			  <option value="9">9 hours</option>
-			  <option value="10">10 hours</option>
+			  <option value="0"><?=$this->lang->line('fablab_reservations_reserve_search_length_undefined');?></option>
+			  <option value="1">1 <?=$this->lang->line('fablab_reservations_reserve_search_length_hour');?></option>
+			  <?php
+			  for($i=2;$i<11;$i++) {
+			  	echo '<option value="' . $i . '">' . $i . $this->lang->line('fablab_reservations_reserve_search_length_hours') . '</option>';
+			  }
+			  ?>
 			</select>
 		  </div>
 		</div>
@@ -806,7 +617,7 @@
 		  <label class="col-md-4 control-label" for="searchbutton"></label>
 		  <div class="col-md-4">
 			<a id="searchButton" class="btn btn-primary">
-				<span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
+				<span class="glyphicon glyphicon-search" aria-hidden="true"><?=$this->lang->line('fablab_reservations_reserve_search_button');?></span>
 			</a>
 		  </div>
 		</div>
@@ -814,7 +625,7 @@
 		<div class="form-group">
 		  <label class="col-md-2 control-label" for="results"></label>
 		  <div class="col-md-6">
-			<div class="well" id="results">Search something first!</div>
+			<div class="well" id="results"><?=$this->lang->line('fablab_reservations_reserve_search_default');?></div>
 		  </div>
 		</div>
 
@@ -823,7 +634,7 @@
 		
 	</article>
 	<article>
-		<legend>Search by calendar</legend>
+		<legend><?=$this->lang->line('fablab_reservations_reserve_calendar_title');?></legend>
 		<div id="calendar" style="position:relative"><div id="loader" class="loader" style='position:absolute;display:none;margin:auto;left: 0;top: 0;right: 0;bottom: 0;'></div></div>
 	</article>	
 </div>

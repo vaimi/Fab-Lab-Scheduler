@@ -8,7 +8,7 @@
 							<?=$mg['MachineGroupID']?> <?=$mg['Name']?>
 						</a>
 						-
-						<a role="button" href="#" onclick="$('#machine_group_detail_<?=$mg['MachineGroupID']?>').modal('show');return false;">View detail</a>
+						<a role="button" href="#" onclick="$('#machine_group_detail_<?=$mg['MachineGroupID']?>').modal('show');return false;"><?=$this->lang->line('fablab_info_machines_table_header')?></a>
 					</h4>
 					<div class="modal fade" id="machine_group_detail_<?=$mg['MachineGroupID']?>">
 						<div class="modal-dialog">
@@ -30,8 +30,8 @@
 					<table class="table table-hover machine_table table-striped" id="m_table_<?=$mg['MachineGroupID']?>">
 						<thead>
 							<tr>
-								<th class="col-md-1">MID</th>
-								<th class="col-md-9">Manufacturer & Model</th>
+								<th class="col-md-1"><?=$this->lang->line('fablab_info_machines_table_column_1')?></th>
+								<th class="col-md-9"><?=$this->lang->line('fablab_info_machines_table_column_2')?></th>
 							</tr>
 						</thead>
 						<tbody id="machine_in_group_<?$mg['MachineGroupID'];?>">
@@ -48,9 +48,9 @@
 													<h4 class="modal-title"><?=$m->MachineName?></h4>
 												</div>
 												<div class="modal-body">
-													<div>Manufacturer: <b><?=$m->Manufacturer?></b></div>
-													<div>Model: <b><?=$m->Model?></b></div>
-													<div>Need supervision: <b><?php if ($m->NeedSupervision) echo 'Yes'; else echo 'No'; ?></b></div>
+													<div><?=$this->lang->line('fablab_info_machines_details_manufacturer')?><b><?=$m->Manufacturer?></b></div>
+													<div><?=$this->lang->line('fablab_info_machines_details_model')?><b><?=$m->Model?></b></div>
+													<div><?=$this->lang->line('fablab_info_machines_details_supervision')?><b><?php if ($m->NeedSupervision) echo 'Yes'; else echo 'No'; ?></b></div>
 													<hr/>
 													<?=$m->Description?>
 												</div>

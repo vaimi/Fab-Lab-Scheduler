@@ -7,11 +7,11 @@
 
 	function makeQtip_admin(elementId, machine, e_Start, e_End, firstname, surname, email) {
 		var sModal="";
-		sModal += "<p>Start time: " + e_Start + "</p>";
-		sModal += "<p>End time: " + e_End + "</p>";
-		sModal += "<p>First name: " + firstname + "</p>";
-		sModal += "<p>Surname: " + surname + "</p>";
-		sModal += "<p>Email: " + email + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_start');?>" + e_Start + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_end');?>" + e_End + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_first_name');?>" + firstname + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_last_name');?>" + surname + "</p>";
+		sModal += "<p><?=$this->lang->line('fablab_fullcalendar_admin_info_email');?>" + email + "</p>";
 		sModal += "";
 		
 		$(elementId).qtip({ // Grab some elements to apply the tooltip to
@@ -24,7 +24,7 @@
 	        	event: false
 	        },
 		    content: {
-			    title: "Reservation",
+			    title: "<?=$this->lang->line('fablab_fullcalendar_admin_info_title');?>",
 		        text: sModal,
 		        button: true
 		    },
@@ -49,9 +49,9 @@
 			schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
 			editable: false, // enable draggable events
 			allDaySlot: false,
-			firstDay: 1,
-            timeFormat: 'HH:mm',
-            slotLabelFormat: 'HH:mm',
+			firstDay: <?=$this->lang->line('fablab_fullcalendar_firstday');?>,
+            timeFormat: <?=$this->lang->line('fablab_fullcalendar_timeFormat');?>,
+            slotLabelFormat: <?=$this->lang->line('fablab_fullcalendar_slotLabelFormat');?>,
 			aspectRatio: 2.5,
 			scrollTime: '08:00', // undo default 6am scrollTime
 			header: {
@@ -64,10 +64,7 @@
 		            type: 'timeline',
 		            duration: { days: 7 },
 		            slotDuration: '02:00',
-		            slotLabelFormat: [
-					    'MMM DD', // top level of text
-					    'HH:mm'        // lower level of text
-					]
+		            slotLabelFormat: [ <?=$this->lang->line('fablab_fullcalendar_slotLabelFormat');?>]
 		        }
 		    },
 			resourceLabelText: 'Machines',
@@ -104,8 +101,8 @@
 					if(e.is_admin === true) 
 					{
 						var machine = e.resourceId;
-						var eStart = e.start.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
-						var eEnd = e.end.format("DD.MM.YYYY, HH:mm");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						var eStart = e.start.format("<?=$this->lang->line('fablab_fullcalendar_admin_info_time_format');?>");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
+						var eEnd = e.end.format("<?=$this->lang->line('fablab_fullcalendar_admin_info_time_format');?>");//.format("dddd, MMMM Do YYYY, h:mm:ss a");
 						var firstname = e.first_name;
 						var surname = e.surname;
 						var email = e.email;
@@ -122,7 +119,6 @@
 </script>
 <div class="container">
 	<article>
-		<legend>Supervision sessions</legend>
 		<div id="calendar" style="position:relative"><div id="loader" class="loader" style='position:absolute;display:none;margin:auto;left: 0;top: 0;right: 0;bottom: 0;'></div></div>
 	</article>	
 </div>

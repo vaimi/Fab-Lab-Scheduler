@@ -433,8 +433,8 @@ class Reservations extends MY_Controller
 	        	$free = $end_time->diff($start_time);
 	        	$row = array();
         		$row["mid"] = $free_slot->machine;
-        		$row["start"] = date('d.m.Y H:i', $free_slot->start);
-        		$row["end"] = date('d.m.Y H:i', $free_slot->end);
+        		$row["start"] = date('d.m.Y, H:i', $free_slot->start);
+        		$row["end"] = date('d.m.Y, H:i', $free_slot->end);
         		if ($free_slot->unsupervised == 1)
         		{
         			$next_dt = DateTime::createFromFormat('U', $free_slot->next_start);

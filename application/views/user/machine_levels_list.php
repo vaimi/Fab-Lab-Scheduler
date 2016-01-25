@@ -3,11 +3,11 @@
 <table class="sortable-theme-bootstrap table table-striped" data-sortable>
 	<thead>
     	<tr>
-            <th data-sorted="true" data-sorted-direction="ascending">MID</th>
-            <th>Machine name</th>
-            <th>Manufacturer</th>
-            <th>Model</th>
-            <th>Skill level</th>
+            <th data-sorted="true" data-sorted-direction="ascending"><?=$this->lang->line('fablab_profile_levels_table_mid');?></th>
+            <th><?=$this->lang->line('fablab_profile_levels_table_name');?></th>
+            <th><?=$this->lang->line('fablab_profile_levels_table_manufacturer');?></th>
+            <th><?=$this->lang->line('fablab_profile_levels_table_model');?></th>
+            <th><?=$this->lang->line('fablab_profile_levels_table_level');?></th>
        </tr>
    </thead>
    <tbody>
