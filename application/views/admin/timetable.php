@@ -67,7 +67,8 @@
 	        });
 	}
     function saveData(send_emails) {
-        console.log(send_emails);
+    	$('#save_yes_btn').addClass("disabled");
+    	$('#save_no_btn').addClass("disabled");
         $.ajax({
             type: "POST",
             data: {'csrf_test_name': csrf_token, "send_emails": send_emails},
@@ -89,11 +90,15 @@
                     	alerter("success", "Saving successful. No emails were sent.");
                     }
                 }
+            	$('#save_yes_btn').removeClass("disabled");
+            	$('#save_no_btn').removeClass("disabled");
             },
         	error: function(data) {
 	        	$('#save_button').removeClass("disabled");
 	        	$('#saveModal').modal('show');
 	        	alerter("danger", "Sorry, error happened.");
+	        	$('#save_yes_btn').removeClass("disabled");
+            	$('#save_no_btn').removeClass("disabled");
 	        }
         });
     }
@@ -292,7 +297,6 @@
 		-----------------------------------------------------------------*/
 		$('#save_button').click(function(){
 			checkEmails();
-			//saveData();
 		});
 		$('#external-events .fc-event').each(function() {
 
@@ -538,8 +542,8 @@
 		  <p>Loading information.... </p>
 	      </div>
 	      <div class="modal-footer">
-	      	<a type="button" class="btn btn-success" onclick="saveData(true);">Yes</a>
-    		<a type="button" class="btn btn-danger" onclick="saveData(false);">No</a>
+	      	<a type="button" id="save_no_btn" class="btn btn-success" onclick="saveData(true);">Yes</a>
+    		<a type="button" id="save_yes_btn" class="btn btn-danger" onclick="saveData(false);">No</a>
       		<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 	      </div>
 	    </div>
